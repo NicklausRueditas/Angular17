@@ -13,9 +13,8 @@ export class AuthService {
 
   // Usa LoginCredentials para tipar las credenciales de inicio de sesión
   login(credentials: LoginCredentials): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials);
+    return this.http.post<LoginResponse>(`${this.apiUrl}/auth/login`, credentials, { withCredentials: true });
   }
 
   // Otras funciones como register, logout...
 }
-
