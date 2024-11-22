@@ -2,8 +2,13 @@ import { Routes} from '@angular/router';
 
 export const appRoutes: Routes = [ 
   {
+    path: '',
+    redirectTo: '/home', // Redirigir a /home si no hay una ruta específica
+    pathMatch: 'full',
+  },
+  {
     // Ruta raíz, carga las rutas del módulo 'public'
-    path: 'home',
+    path: '',
     loadComponent: () => import('./website/public/public.component'),
     loadChildren: () => import('./website/public/public.routes').then(m => m.publicRoutes),
   },
@@ -25,6 +30,6 @@ export const appRoutes: Routes = [
   {
     // Ruta para cualquier otra ruta no definida, redirige a la raíz
     path: '**',
-    redirectTo: 'home'
+    redirectTo: '/home'
   }
 ]
