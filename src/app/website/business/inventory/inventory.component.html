@@ -1,0 +1,394 @@
+<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+  <h1 class="text-2xl font-bold text-center mb-6">Gestión de Inventario</h1>
+
+  <div
+    class="px-4 flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4"
+  >
+    <label for="table-search" class="sr-only">Search</label>
+    <div class="relative">
+      <div
+        class="absolute inset-y-0 left-0 rtl:inset-r-0 rtl:right-0 flex items-center ps-3 pointer-events-none"
+      >
+        <svg
+          class="w-5 h-5 text-gray-500 dark:text-gray-400"
+          aria-hidden="true"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+            clip-rule="evenodd"
+          ></path>
+        </svg>
+      </div>
+      <input
+        type="text"
+        id="table-search"
+        class="block p-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+        placeholder="Search for items"
+      />
+    </div>
+  </div>
+
+  <!-- Botón para agregar producto -->
+  <div class="flex justify-end mb-4">
+    <button
+      (click)="openAddModal()"
+      class="px-4 py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600"
+    >
+      Agregar Producto
+    </button>
+  </div>
+
+  <!-- Tabla de productos -->
+
+  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table
+      class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
+    >
+      <thead
+        class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+      >
+        <tr>
+          <th scope="col" class="px-6 py-3">Nombre</th>
+          <th scope="col" class="px-6 py-3">Marca</th>
+          <th scope="col" class="px-6 py-3">Categoria</th>
+          <th scope="col" class="px-6 py-3">Price</th>
+          <th scope="col" class="px-6 py-3">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for(product of products; track product){
+        <tr class="bg-white border-b hover:bg-gray-50">
+          <th scope="row" class="px-6 py-4 font-medium whitespace-nowrap">
+            {{ product.name }}
+          </th>
+          <td class="px-6 py-4">{{ product.brand }}</td>
+          <td class="px-6 py-4">{{ product.category }}</td>
+          <td class="px-6 py-4">{{ product.price }}</td>
+          <td class="px-6 py-4">
+            <a href="#" class="font-medium text-blue-600 hover:underline"
+              >Detalles</a
+            >
+            <a href="#" class="px-6 font-medium text-blue-600 hover:underline"
+              >Editar</a
+            >
+            <a href="#" class="font-medium text-blue-600 hover:underline"
+              >Eliminar</a
+            >
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Modal para agregar producto -->
+
+  @if (isAddModalOpen) {
+  <div
+    class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50"
+  >
+    <div class="overflow-y-auto bg-white p-6 w-2/3 h-4/5 h-full">
+      <h2 class="text-base/7 font-semibold text-gray-500 justify-center">
+        AGREGAR PRODUCTO
+      </h2>
+
+      <form (ngSubmit)="saveNewProduct()">
+        <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-6">
+          <!-- code -->
+
+          <div class="sm:col-span-2 sm:col-start-1">
+            <label for="code" class="block text-sm/6 font-medium text-gray-900"
+              >Codigo</label
+            >
+            <div class="mt-2">
+              <input
+                [(ngModel)]="newProduct.code"
+                type="text"
+                name="code"
+                id="code"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- brand -->
+
+          <div class="sm:col-span-2">
+            <label for="brand" class="block text-sm/6 font-medium text-gray-900"
+              >Marca</label
+            >
+            <div class="mt-2">
+              <input
+                [(ngModel)]="newProduct.brand"
+                type="text"
+                name="brand"
+                id="brand"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- model -->
+
+          <div class="sm:col-span-2">
+            <label for="model" class="block text-sm/6 font-medium text-gray-900"
+              >Modelo</label
+            >
+            <div class="mt-2">
+              <input
+                [(ngModel)]="newProduct.model"
+                type="text"
+                name="model"
+                id="model"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- name -->
+
+          <div class="sm:col-span-4">
+            <label for="name" class="block text-sm/6 font-medium text-gray-900"
+              >Nombre</label
+            >
+            <div class="mt-2">
+              <input
+                [(ngModel)]="newProduct.name"
+                id="name"
+                name="name"
+                type="text"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- supplier -->
+
+          <div class="sm:col-span-2">
+            <label
+              for="supplier"
+              class="block text-sm/6 font-medium text-gray-900"
+              >Vendido por:</label
+            >
+            <div class="mt-2">
+              <input
+                [(ngModel)]="newProduct.supplier"
+                type="text"
+                name="supplier"
+                id="supplier"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+                required
+              />
+            </div>
+          </div>
+
+          <!-- color -->
+
+          <div class="sm:col-span-2 sm:col-start-1">
+            <label for="color" class="block text-sm/6 font-medium text-gray-900"
+              >color</label
+            >
+            <div class="mt-2">
+              <select
+                [(ngModel)]="newProduct.color"
+                id="color"
+                name="color"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm/6"
+              >
+                <option>Negro</option>
+                <option>Blanco</option>
+                <option>Gris</option>
+                <option>Azul</option>
+                <option>Rojo</option>
+                <option>Verde</option>
+                <option>Amarillo</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- size -->
+
+          <div class="sm:col-span-2">
+            <label for="size" class="block text-sm/6 font-medium text-gray-900"
+              >Tamaño</label
+            >
+            <div class="mt-2">
+              <input
+                [(ngModel)]="newProduct.size"
+                type="text"
+                name="size"
+                id="size"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+              />
+            </div>
+          </div>
+
+          <!-- dimension -->
+
+          <div class="sm:col-span-2">
+            <label
+              for="dimension"
+              class="block text-sm/6 font-medium text-gray-900"
+              >Dimensiones</label
+            >
+            <div class="mt-2">
+              <input
+                [(ngModel)]="newProduct.size"
+                type="text"
+                name="dimension"
+                id="dimension"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+              />
+            </div>
+          </div>
+
+          <!-- description -->
+
+          <div class="col-span-full">
+            <label
+              for="description"
+              class="block text-sm/6 font-medium text-gray-900"
+              >Descripción</label
+            >
+            <div class="mt-2">
+              <textarea
+                [(ngModel)]="newProduct.description"
+                id="description"
+                name="description"
+                rows="2"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- model -->
+           
+          <div class="sm:col-span-2 sm:col-start-1">
+            <label for="city" class="block text-sm/6 font-medium text-gray-900"
+              >City</label
+            >
+            <div class="mt-2">
+              <input
+                type="text"
+                name="city"
+                id="city"
+                autocomplete="address-level2"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+              />
+            </div>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label
+              for="region"
+              class="block text-sm/6 font-medium text-gray-900"
+              >State</label
+            >
+            <div class="mt-2">
+              <input
+                type="text"
+                name="region"
+                id="region"
+                autocomplete="address-level1"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+              />
+            </div>
+          </div>
+
+          <div class="sm:col-span-2">
+            <label
+              for="postal-code"
+              class="block text-sm/6 font-medium text-gray-900"
+              >ZIP</label
+            >
+            <div class="mt-2">
+              <input
+                type="text"
+                name="postal-code"
+                id="postal-code"
+                autocomplete="postal-code"
+                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm/6"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Galería -->
+
+        <div class="col-span-full">
+          <div class="grid grid-cols-2">
+            <div>
+              <label
+                for="cover-photo"
+                class="block text-sm/6 font-medium text-gray-900"
+                >Cover photo</label
+              >
+            </div>
+            <div class="mt-4 flex text-sm/6 text-gray-600">
+              <label
+                for="file-upload"
+                class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+              >
+                <span>Upload a file</span>
+                <input
+                  id="file-upload"
+                  name="file-upload"
+                  type="file"
+                  class="sr-only"
+                />
+              </label>
+              <p class="pl-1">or drag and drop</p>
+              <p class="text-xs/5 text-gray-600">PNG, JPG, GIF up to 10MB</p>
+            </div>
+          </div>
+
+          <div
+            class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
+          >
+            <div class="text-center">
+              <svg
+                class="mx-auto size-12 text-gray-300"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+                data-slot="icon"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z"
+                  clip-rule="evenodd"
+                />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex justify-between">
+          <button
+            type="submit"
+            class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600"
+          >
+            Guardar
+          </button>
+          <button
+            type="button"
+            (click)="closeAddModal()"
+            class="px-4 py-2 bg-gray-300 text-black rounded-md hover:bg-gray-400"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  }
+</div>
