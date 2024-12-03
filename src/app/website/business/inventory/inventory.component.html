@@ -369,14 +369,11 @@
               <p class="text-xs text-gray-600">PNG, JPG, GIF up to 10MB</p>
             </div>
           </div>
-
-          <div *ngIf="uploadSuccess" class="text-green-600 font-medium">
-            Imagen subida con éxito.
-          </div>
-          <div *ngIf="uploadError" class="text-red-600 font-medium">
-            Error al subir la imagen.
-          </div>
-
+          @if (uploadSuccess) {
+          <div class="text-green-600 font-medium">Imagen subida con éxito.</div>
+          } @if (uploadError) {
+          <div class="text-green-600 font-medium">Imagen subida con éxito.</div>
+          }
           <div
             class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
           >
