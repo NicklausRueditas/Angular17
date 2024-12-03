@@ -10,7 +10,6 @@ export interface Product {
   color: string; // Color del producto
   size: string; // Tamaño o formato del producto
   information: string;
-  material: string; // Material principal del producto
   price: number; // Precio del producto
   category: string[]; // Categorías a las que pertenece el producto
   gallery: string[]; // URLs de las imágenes del producto

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Product } from '../../../core/interfaces/product.interface';
 import { ProductsService } from '../../../core/services/products.service';
 import { FormsModule } from '@angular/forms';
+import { ImageService } from '../../../core/services/image.service';
 
 @Component({
   selector: 'app-inventory',
@@ -15,7 +16,10 @@ export class InventoryComponent implements OnInit {
   isAddModalOpen = false; // Controla la visibilidad del modal
   newProduct: Partial<Product> = {}; // Datos del producto a agregar
 
-  constructor(private productsService: ProductsService) {}
+  uploadSuccess = false; // Bandera para éxito en la subida
+  uploadError = false; // Bandera para error en la subida
+
+  constructor(private productsService: ProductsService,private imageService: ImageService) {}
 
   ngOnInit(): void {
     this.loadProducts(); // Cargar productos al iniciar
@@ -53,6 +57,28 @@ export class InventoryComponent implements OnInit {
       );
     } else {
       console.error('Faltan datos del producto');
+    }
+  }
+
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+
+      // Subir la imagen
+      this.imageService.uploadImage(file).subscribe({
+        next: (response) => {
+          this.uploadSuccess = true; // Marca éxito
+          this.uploadError = false;
+          console.log('Imagen subida con éxito:', response.url);
+        },
+        error: (err) => {
+          this.uploadSuccess = false;
+          this.uploadError = true; // Marca error
+          console.error('Error al subir la imagen:', err);
+        },
+      });
     }
   }
 
