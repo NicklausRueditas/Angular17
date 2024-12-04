@@ -15,95 +15,92 @@ export class InventoryComponent implements OnInit {
   products: Product[] = []; // Lista de productos
   isAddModalOpen = false; // Controla la visibilidad del modal
   newProduct: Partial<Product> = {}; // Datos del producto a agregar
+  selectedImages: { file: File; preview: string; url: string }[] = []; // Galería de imágenes
 
-  uploadSuccess = false; // Bandera para éxito en la subida
-  uploadError = false; // Bandera para error en la subida
-
-  constructor(private productsService: ProductsService,private imageService: ImageService) {}
+  constructor(
+    private productsService: ProductsService,
+    private imageService: ImageService
+  ) {}
 
   ngOnInit(): void {
-    this.loadProducts(); // Cargar productos al iniciar
+    this.loadProducts(); // Carga inicial de productos
   }
 
   // Cargar lista de productos
   loadProducts(): void {
-    this.productsService.getProducts().subscribe(
-      (data) => (this.products = data),
-      (error) => console.error('Error al cargar productos:', error)
-    );
+    this.productsService.getProducts().subscribe({
+      next: (data) => (this.products = data),
+      error: (err) => console.error('Error al cargar productos:', err),
+    });
   }
 
-  // Abrir modal para agregar producto
-  openAddModal(): void {
-    this.isAddModalOpen = true; // Muestra el modal
-  }
-
-  // Cerrar modal
-  closeAddModal(): void {
-    this.isAddModalOpen = false; // Oculta el modal
-    this.newProduct = {}; // Resetea los datos del producto
+  // Abrir/Cerrar modal
+  toggleAddModal(isOpen: boolean): void {
+    this.isAddModalOpen = isOpen;
+    if (!isOpen) this.newProduct = {}; // Resetea datos si se cierra
   }
 
   // Guardar nuevo producto
   saveNewProduct(): void {
-    if (this.newProduct.name && this.newProduct.price) {
-      this.productsService.addProduct(this.newProduct as Product).subscribe(
-        () => {
-          console.log('Producto agregado con éxito');
-          this.loadProducts(); // Recargar lista de productos
-          this.closeAddModal(); // Cerrar modal
-        },
-        (error) => console.error('Error al agregar producto:', error)
-      );
-    } else {
+    if (!this.newProduct.name || !this.newProduct.price) {
       console.error('Faltan datos del producto');
+      return;
     }
+
+    this.productsService.addProduct(this.newProduct as Product).subscribe({
+      next: () => {
+        console.log('Producto agregado con éxito');
+        this.loadProducts(); // Recargar lista de productos
+        this.toggleAddModal(false); // Cerrar modal
+      },
+      error: (err) => console.error('Error al agregar producto:', err),
+    });
   }
 
+  // Manejo de selección y subida de imágenes
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
+    if (!input.files) return;
 
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
+    Array.from(input.files).forEach((file) => {
+      const reader = new FileReader();
+      reader.onload = (e: ProgressEvent<FileReader>) => {
+        const preview = e.target?.result as string;
+        const tempIndex = this.selectedImages.push({ file, preview, url: '' }) - 1;
 
-      // Subir la imagen
-      this.imageService.uploadImage(file).subscribe({
-        next: (response) => {
-          this.uploadSuccess = true; // Marca éxito
-          this.uploadError = false;
-          console.log('Imagen subida con éxito:', response.url);
-        },
-        error: (err) => {
-          this.uploadSuccess = false;
-          this.uploadError = true; // Marca error
-          console.error('Error al subir la imagen:', err);
-        },
-      });
-    }
+        // Subida al servidor
+        this.imageService.uploadImage(file).subscribe({
+          next: (response) => {
+            this.selectedImages[tempIndex].url = response.url;
+            console.log('Imagen subida con éxito:', response.url);
+          },
+          error: (err) => {
+            console.error('Error al subir la imagen:', err);
+            this.selectedImages.splice(tempIndex, 1); // Elimina si falla
+          },
+        });
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
-  // Abrir modal para actualizar producto
-  openUpdateModal(product: Product): void {
-    // Lógica para abrir modal de actualización
-    console.log('Abrir modal para actualizar producto:', product);
-  }
-
-  // Subir imagen para un producto
-  openUploadModal(product: Product): void {
-    // Lógica para subir imagen
-    console.log('Abrir modal para subir imagen del producto:', product);
-  }
-
-  // Eliminar un producto
+  // Eliminar producto
   deleteProduct(productId: string): void {
-    if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
-      this.productsService.deleteProduct(productId).subscribe(
-        () => {
-          console.log('Producto eliminado con éxito');
-          this.loadProducts(); // Recargar lista de productos
-        },
-        (error) => console.error('Error al eliminar producto:', error)
-      );
+    if (!confirm('¿Estás seguro de que deseas eliminar este producto?')) return;
+
+    this.productsService.deleteProduct(productId).subscribe({
+      next: () => {
+        console.log('Producto eliminado con éxito');
+        this.loadProducts(); // Recargar lista de productos
+      },
+      error: (err) => console.error('Error al eliminar producto:', err),
+    });
+  }
+
+  removeImage(image: { file: File; preview: string; url: string }): void {
+    const index = this.selectedImages.indexOf(image);
+    if (index > -1) {
+      this.selectedImages.splice(index, 1);
     }
   }
 }

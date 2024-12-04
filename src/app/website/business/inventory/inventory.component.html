@@ -35,7 +35,7 @@
   <!-- Botón para agregar producto -->
   <div class="flex justify-end mb-4">
     <button
-      (click)="openAddModal()"
+      (click)="toggleAddModal(true)"
       class="px-4 py-2 bg-green-500 text-white font-semibold rounded-md hover:bg-green-600"
     >
       Agregar Producto
@@ -346,7 +346,6 @@
         </div>
 
         <!-- Galería -->
-
         <div class="col-span-full">
           <div class="sm:col-span-3 justify-between">
             <label for="galery" class="text-sm font-medium text-gray-900"
@@ -364,49 +363,52 @@
                   name="file-upload"
                   type="file"
                   class="sr-only"
+                  accept="image/*"
+                  multiple
                 />
               </label>
               <p class="text-xs text-gray-600">PNG, JPG, GIF up to 10MB</p>
             </div>
           </div>
-          @if (uploadSuccess) {
-          <div class="text-green-600 font-medium">Imagen subida con éxito.</div>
-          } @if (uploadError) {
-          <div class="text-green-600 font-medium">Imagen subida con éxito.</div>
-          }
+
+          <!-- Vista previa de imágenes seleccionadas -->
           <div
-            class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
+            class="mt-2 flex rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
           >
-            <div class="text-center">
-              <svg
-                class="mx-auto size-12 text-gray-300"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                aria-hidden="true"
-                data-slot="icon"
+            <!-- product of products; track product -->
+            @for (image of selectedImages; track image) {
+            <div
+              class="relative border border-gray-300 rounded-md overflow-hidden"
+            >
+              <img
+                [src]="image.preview"
+                alt="Vista previa de la imagen"
+                class="object-cover w-24 h-full"
+              />
+              <button
+                (click)="removeImage(image)"
+                class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 text-xs"
+                aria-label="Eliminar imagen"
               >
-                <path
-                  fill-rule="evenodd"
-                  d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z"
-                  clip-rule="evenodd"
-                />
-              </svg>
+                ✕
+              </button>
             </div>
+            }
           </div>
         </div>
       </div>
 
       <!-- Botones -->
-
       <div class="mt-6 flex items-center justify-end gap-x-6">
         <button
-          (click)="closeAddModal()"
+          (click)="toggleAddModal(false)"
           type="button"
-          class="text-sm/6 font-semibold text-gray-900"
+          class="text-sm font-semibold text-gray-900"
         >
           Cancel
         </button>
         <button
+          (click)="saveNewProduct()"
           type="submit"
           class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
