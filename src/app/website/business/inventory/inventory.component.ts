@@ -66,7 +66,8 @@ export class InventoryComponent implements OnInit {
       const reader = new FileReader();
       reader.onload = (e: ProgressEvent<FileReader>) => {
         const preview = e.target?.result as string;
-        const tempIndex = this.selectedImages.push({ file, preview, url: '' }) - 1;
+        const tempIndex =
+          this.selectedImages.push({ file, preview, url: '' }) - 1;
 
         // Subida al servidor
         this.imageService.uploadImage(file).subscribe({
@@ -98,9 +99,19 @@ export class InventoryComponent implements OnInit {
   }
 
   removeImage(image: { file: File; preview: string; url: string }): void {
-    const index = this.selectedImages.indexOf(image);
-    if (index > -1) {
-      this.selectedImages.splice(index, 1);
-    }
+    const idLink = image.url.split('/').pop();
+
+    this.imageService.deleteImage(idLink!).subscribe({
+      next: () => {
+        const index = this.selectedImages.indexOf(image);
+        if (index > -1) {
+          this.selectedImages.splice(index, 1);
+        }
+        console.log('Imagen eliminada correctamente.');
+      },
+      error: (err) => {
+        console.error('Error al eliminar la imagen:', err);
+      },
+    });
   }
 }

@@ -19,4 +19,8 @@ export class ImageService {
 
     return this.http.post<{ url: string }>(`${this.baseUrl}/image/upload`, formData);
   }
+
+  deleteImage(idLink: string): Observable<any> {
+    return this.http.delete(`${this.baseUrl}/image/${idLink}`);
+  }
 }
