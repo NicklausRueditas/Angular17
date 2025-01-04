@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Product } from '../interfaces/product.interface';
 import { environment } from '../../../environments/environment.development';
+import { UpdateProductDto } from '../dtos/update-product.dto';
 
 /**
  * Servicio para gestionar operaciones CRUD relacionadas con productos.
@@ -40,8 +41,8 @@ export class ProductsService {
    * @param product Objeto con los datos actualizados del producto.
    * @returns Un Observable con el producto actualizado.
    */
-  updateProduct(productId: string, product: Product): Observable<Product> {
-    return this.http.put<Product>(`${this.apiUrl}/${productId}`, product);
+  updateProduct(productId: string, changes: UpdateProductDto): Observable<Product> {
+    return this.http.patch<Product>(`${this.apiUrl}/${productId}`, changes);
   }
 
   /**

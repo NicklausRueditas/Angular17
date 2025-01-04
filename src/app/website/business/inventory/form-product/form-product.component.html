@@ -354,9 +354,13 @@
             class="mt-2 flex rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
           >
             <!-- product of products; track product -->
-            @for (image of selectedImages; track image) {
+            @for (image of selectedImages; track image;let i=$index) {
             <div
               class="relative border border-gray-300 rounded-md overflow-hidden"
+              draggable="true"
+              (dragstart)="onDragStart(i)"
+              (drop)="onDrop(i)"
+              (dragover)="$event.preventDefault()"
             >
               <img
                 [src]="image.preview"
@@ -364,7 +368,7 @@
                 class="object-cover w-24 h-full"
               />
               <button
-                (click)="removeImage(image)"
+                (click)="removeImage(image); $event.stopPropagation()"
                 class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 text-xs"
                 aria-label="Eliminar imagen"
               >

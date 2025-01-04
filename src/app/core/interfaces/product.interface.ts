@@ -1,4 +1,5 @@
 export interface Product {
+  _id: string; // ID del producto en formato string
   code: string; // Código único del producto
   name: string; // Nombre del producto
   brand: string; // Marca del producto

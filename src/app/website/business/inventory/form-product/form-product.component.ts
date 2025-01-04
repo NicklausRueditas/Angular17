@@ -1,7 +1,14 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { Product } from '../../../../core/interfaces/product.interface';
 import { ImageService } from '../../../../core/services/image.service';
 import { FormsModule } from '@angular/forms';
+import { Image } from '../../../../core/interfaces/image.interface'
 
 @Component({
   selector: 'app-form-product',
@@ -14,6 +21,8 @@ export class FormProductComponent {
   // Propiedad para controlar la visibilidad del modal
   @Input() isAddModalOpen: boolean = false;
 
+  @Input() selectedProduct: any = null; // Producto recibido para editar
+
   // Eventos para notificar al componente padre
   @Output() closeModal = new EventEmitter<void>();
   @Output() productAdded = new EventEmitter<Product>();
@@ -22,7 +31,7 @@ export class FormProductComponent {
   newProduct: Partial<Product> = {};
 
   // Almacena las imágenes seleccionadas para la galería
-  selectedImages: { file: File; preview: string; url: string }[] = [];
+  @Input() selectedImages: Image[] = [];;
 
   // Almacena las categorías seleccionadas
   selectedCategory: string[] = [];
@@ -34,6 +43,13 @@ export class FormProductComponent {
   }
   newSpecKey: string = ''; // Clave temporal para especificación
   newSpecValue: string = ''; // Valor temporal para especificación
+
+  productForm = {
+    name: '',
+    brand: '',
+    category: '',
+    price: null,
+  };
 
   constructor(private imageService: ImageService) {}
 
@@ -128,20 +144,42 @@ export class FormProductComponent {
    * Elimina una imagen de la galería.
    * @param image - Objeto de la imagen a eliminar.
    */
-  removeImage(image: { file: File; preview: string; url: string }): void {
-    const idLink = image.url.split('/').pop();
+  removeImage(image: Image): void {
+    const index = this.selectedImages.indexOf(image);
+    if (index > -1) {
+      this.selectedImages.splice(index, 1);
+    }
 
-    this.imageService.deleteImage(idLink!).subscribe({
-      next: () => {
-        const index = this.selectedImages.indexOf(image);
-        if (index > -1) {
-          this.selectedImages.splice(index, 1);
-        }
-      },
-      error: (err) => {
-        console.error('Error al eliminar la imagen:', err);
-      },
-    });
+    // Si hay una URL asociada, elimina la imagen del servidor
+    if (image.url) {
+      const idLink = image.url.split('/').pop();
+      if (idLink) {
+        this.imageService.deleteImage(idLink).subscribe({
+          next: () => {
+            console.log('Imagen eliminada del servidor:', image.url);
+          },
+          error: (err) => {
+            console.error('Error al eliminar la imagen del servidor:', err);
+          },
+        });
+      }
+    }
+  }
+
+  draggedIndex: number | null = null;
+
+  onDragStart(index: number): void {
+    this.draggedIndex = index;
+  }
+
+  onDrop(targetIndex: number): void {
+    if (this.draggedIndex === null || this.draggedIndex === targetIndex) return;
+
+    // Cambia la posición de las imágenes
+    const [draggedImage] = this.selectedImages.splice(this.draggedIndex, 1);
+    this.selectedImages.splice(targetIndex, 0, draggedImage);
+
+    this.draggedIndex = null; // Reinicia el índice arrastrado
   }
 
   /**
@@ -165,5 +203,61 @@ export class FormProductComponent {
     this.selectedCategory = this.selectedCategory.filter(
       (item) => item !== category
     );
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['selectedProduct'] && this.selectedProduct) {
+      // Cargar datos del producto seleccionado
+      this.newProduct = { ...this.selectedProduct };
+
+      // Cargar la galería si existe
+      if (this.selectedProduct.gallery) {
+        this.selectedImages = this.selectedProduct.gallery.map((url: string) => ({
+          file: null,
+          preview: url,
+          url,
+        }));
+      }
+
+      // Cargar las categorías si existen
+      if (this.selectedProduct.category) {
+        this.selectedCategory = [...this.selectedProduct.category];
+      }
+
+      // Cargar las especificaciones si existen
+      if (this.selectedProduct.specifications) {
+        this.specifications = { ...this.selectedProduct.specifications };
+      }
+    } else {
+      this.resetForm();
+    }
+  }
+
+  /**
+   * Resetea el formulario.
+   */
+  resetForm(): void {
+    this.newProduct = {};
+  }
+
+  /**
+   * Emite el producto procesado al componente padre.
+   */
+  saveProduct(): void {
+    if (!this.newProduct.name || !this.newProduct.price) {
+      console.error('El nombre y el precio del producto son obligatorios.');
+      return;
+    }
+
+    // Emite el producto modificado o nuevo
+    this.productAdded.emit(this.newProduct as Product);
+  }
+
+  /**
+   * Cierra el modal y resetea el formulario.
+   */
+  close(): void {
+    this.resetForm();
+    this.closeModal.emit();
   }
 }

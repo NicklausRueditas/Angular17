@@ -72,7 +72,10 @@
             <a href="#" class="font-medium text-blue-600 hover:underline"
               >Detalles</a
             >
-            <a href="#" class="px-6 font-medium text-blue-600 hover:underline"
+            <a
+              href="#"
+              class="px-6 font-medium text-blue-600 hover:underline"
+              (click)="toggleAddModal(true, product); $event.preventDefault()"
               >Editar</a
             >
             <a href="#" class="font-medium text-blue-600 hover:underline"
@@ -90,7 +93,8 @@
 
 <app-form-product
   [isAddModalOpen]="isAddModalOpen"
+  [selectedProduct]="selectedProduct"
   (closeModal)="toggleAddModal(false)"
-  (productAdded)="onProductAdded($event)"
+  (productAdded)="onProductSaved($event)"
 >
 </app-form-product>
