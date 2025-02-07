@@ -69,16 +69,28 @@
           <td class="px-6 py-4">{{ product.category }}</td>
           <td class="px-6 py-4">{{ product.price }}</td>
           <td class="px-6 py-4">
-            <a href="#" class="font-medium text-blue-600 hover:underline"
+            <a
+              href="#"
+              (click)="
+                toggleAddModal(true, product, false); $event.preventDefault()
+              "
+              class="font-medium text-blue-600 hover:underline"
               >Detalles</a
             >
             <a
               href="#"
               class="px-6 font-medium text-blue-600 hover:underline"
-              (click)="toggleAddModal(true, product); $event.preventDefault()"
+              (click)="
+                toggleAddModal(true, product, true); $event.preventDefault()
+              "
               >Editar</a
             >
-            <a href="#" class="font-medium text-blue-600 hover:underline"
+            <a
+              href="#"
+              class="font-medium text-blue-600 hover:underline"
+              (click)="
+                deleteProduct(product._id); $event.preventDefault()
+              "
               >Eliminar</a
             >
           </td>
@@ -90,11 +102,12 @@
 </div>
 
 <!-- Modal para agregar producto -->
-
+@if (isAddModalOpen){
 <app-form-product
-  [isAddModalOpen]="isAddModalOpen"
   [selectedProduct]="selectedProduct"
   (closeModal)="toggleAddModal(false)"
   (productAdded)="onProductSaved($event)"
+  [isEditMode]="isEditMode"
 >
 </app-form-product>
+}

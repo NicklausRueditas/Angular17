@@ -1,4 +1,4 @@
-@if (isAddModalOpen) {
+
 <div
   class="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50"
 >
@@ -7,7 +7,7 @@
       AGREGAR PRODUCTO
     </h2>
 
-    <form (ngSubmit)="saveNewProduct()">
+    <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
       <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-6 sm:grid-cols-6">
         <!-- code -->
 
@@ -17,7 +17,7 @@
           >
           <div class="mt-2">
             <input
-              [(ngModel)]="newProduct.code"
+              formControlName="code"
               type="text"
               name="code"
               id="code"
@@ -35,7 +35,7 @@
           >
           <div class="mt-2">
             <input
-              [(ngModel)]="newProduct.brand"
+              formControlName="brand"
               type="text"
               name="brand"
               id="brand"
@@ -53,7 +53,7 @@
           >
           <div class="mt-2">
             <input
-              [(ngModel)]="newProduct.model"
+              formControlName="model"
               type="text"
               name="model"
               id="model"
@@ -71,7 +71,7 @@
           >
           <div class="mt-2">
             <input
-              [(ngModel)]="newProduct.name"
+              formControlName="name"
               id="name"
               name="name"
               type="text"
@@ -91,7 +91,7 @@
           >
           <div class="mt-2">
             <input
-              [(ngModel)]="newProduct.supplier"
+              formControlName="supplier"
               type="text"
               name="supplier"
               id="supplier"
@@ -109,7 +109,7 @@
           >
           <div class="mt-2 grid grid-cols-1">
             <select
-              [(ngModel)]="newProduct.color"
+              formControlName="color"
               id="color"
               name="color"
               class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pl-3 pr-8 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
@@ -134,7 +134,7 @@
           >
           <div class="mt-2">
             <input
-              [(ngModel)]="newProduct.size"
+              formControlName="size"
               type="text"
               name="size"
               id="size"
@@ -151,7 +151,7 @@
           >
           <div class="mt-2">
             <input
-              [(ngModel)]="newProduct.price"
+              formControlName="price"
               type="number"
               name="price"
               id="price"
@@ -170,7 +170,7 @@
           >
           <div class="mt-2">
             <input
-              [(ngModel)]="newProduct.information"
+              formControlName="information"
               placeholder="Ingrese una URL"
               type="text"
               name="information"
@@ -188,7 +188,7 @@
           >
           <div class="mt-2">
             <input
-              [(ngModel)]="newProduct.stock"
+              formControlName="stock"
               type="number"
               name="stock"
               id="stock"
@@ -207,7 +207,7 @@
           >
           <div class="mt-2">
             <textarea
-              [(ngModel)]="newProduct.description"
+              formControlName="description"
               id="description"
               name="description"
               rows="2"
@@ -216,7 +216,8 @@
           </div>
         </div>
 
-        <!-- category -->
+        <!-- --------------------category-------------------- -->
+
         <div class="sm:col-span-full">
           <div class="sm:col-span-2">
             <label
@@ -228,20 +229,15 @@
               <select
                 id="category"
                 name="category"
-                (change)="onCategorySelected($event)"
+                (change)="addCategory($event)"
                 class="col-start-1 row-start-1 w-full appearance-none rounded-md bg-white py-1.5 pl-3 pr-8 text-base text-gray-900 outline outline-1 -outline-offset-1 outline-gray-300 focus:outline focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
               >
                 <option value="" disabled selected>
                   Selecciona una categoría
                 </option>
-                <option>2024</option>
-                <option>Laptop</option>
-                <option>Comedor</option>
-                <option>Computadora</option>
-                <option>Accseorios</option>
-                <option>Zapatillas</option>
-                <option>Herramientas</option>
-                <option>Cocina</option>
+                @for (option of categoryOptions; track option) {
+                <option [value]="option">{{ option }}</option>
+                }
               </select>
             </div>
           </div>
@@ -249,15 +245,16 @@
           <div
             class="mt-2 flex rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
           >
-            @for (category of selectedCategory; track category) {
+            @for (category of categoryArray.controls; track category;let idx =
+            $index) {
             <div
               class="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full shadow-sm"
             >
-              <span class="text-sm font-medium">{{ category }}</span>
+              <span class="text-sm font-medium">{{ category.value }}</span>
               <button
                 type="button"
                 class="ml-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600"
-                (click)="removeCategory(category)"
+                (click)="removeCategory(idx)"
               >
                 &times;
               </button>
@@ -266,7 +263,7 @@
           </div>
         </div>
 
-        <!-- specifications -->
+        <!-- --------------------specifications-------------------- -->
 
         <div class="col-span-full">
           <label
@@ -276,7 +273,7 @@
           >
 
           <input
-            [(ngModel)]="newSpecKey"
+            [formControl]="specKeyControl"
             placeholder="Clave"
             name="specKey"
             class="w-1/3 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -284,7 +281,7 @@
           />
           <!-- Input para el valor -->
           <input
-            [(ngModel)]="newSpecValue"
+            [formControl]="specValueControl"
             placeholder="Valor"
             name="specValue"
             class="w-1/3 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -293,7 +290,8 @@
           <!-- Botón para agregar -->
           <button
             type="button"
-            (click)="addSpecification()"
+            (click)="addOrUpdateSpecification()"
+            [disabled]="!buttonSaveEnable"
             class="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none"
           >
             Agregar
@@ -302,14 +300,16 @@
           <div
             class="mt-2 flex rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
           >
-            @if (specificationKeys.length) {@for (key of specificationKeys;
-            track key) {
+            @if (objectKeys(listSpecifications()).length > 0) { @for (key of
+            objectKeys(listSpecifications()); track key) {
             <div
               class="flex items-center bg-blue-100 text-blue-800 px-3 py-1 rounded-full shadow-sm"
             >
               <div class="flex-grow bg-gray-100 px-3 py-1 rounded-md shadow-sm">
                 <span class="font-medium text-gray-800">{{ key }}:</span>
-                <span class="text-gray-600">{{ specifications[key] }}</span>
+                <span class="text-gray-600">{{
+                  listSpecifications()[key]
+                }}</span>
               </div>
               <button
                 type="button"
@@ -323,7 +323,8 @@
           </div>
         </div>
 
-        <!-- Galería -->
+        <!-- --------------------galeria-------------------- -->
+
         <div class="col-span-full">
           <div class="sm:col-span-3 justify-between">
             <label for="galery" class="text-sm font-medium text-gray-900"
@@ -354,21 +355,21 @@
             class="mt-2 flex rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
           >
             <!-- product of products; track product -->
-            @for (image of selectedImages; track image;let i=$index) {
+            @for (image of galleryArray.controls; track image;let i=$index) {
             <div
               class="relative border border-gray-300 rounded-md overflow-hidden"
               draggable="true"
               (dragstart)="onDragStart(i)"
-              (drop)="onDrop(i)"
+              (drop)="onDrop($event,i)"
               (dragover)="$event.preventDefault()"
             >
               <img
-                [src]="image.preview"
+                [src]="image.value"
                 alt="Vista previa de la imagen"
                 class="object-cover w-24 h-full"
               />
               <button
-                (click)="removeImage(image); $event.stopPropagation()"
+                (click)="removeImage(i,image.value); $event.stopPropagation()"
                 class="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1 text-xs"
                 aria-label="Eliminar imagen"
               >
@@ -383,7 +384,7 @@
       <!-- Botones -->
       <div class="mt-6 flex items-center justify-end gap-x-6">
         <button
-          (click)="toggleAddModal(false)"
+          (click)="onCloseModal()"
           type="button"
           class="text-sm font-semibold text-gray-900"
         >
@@ -391,7 +392,9 @@
         </button>
         <button
           type="submit"
-          class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+          [disabled]="!buttonSaveEnable"
+          [ngClass]="{'bg-indigo-600 hover:bg-indigo-500': buttonSaveEnable, 'bg-gray-300': !buttonSaveEnable}"
+          class="rounded-md px-3 py-2 text-sm font-semibold text-white shadow-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
         >
           Guardar
         </button>
@@ -399,4 +402,4 @@
     </form>
   </div>
 </div>
-}
+
