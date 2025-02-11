@@ -1,22 +1,25 @@
-<header class="relative bg-white">
-  <p
-    class="flex h-10 items-center justify-center bg-indigo-600 px-4 text-sm font-medium text-white sm:px-6 lg:px-8"
-  >
-    Get free delivery on orders over $100
-  </p>
-
-  <nav aria-label="Top" class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-    <div class="border-b border-gray-200">
-      <div class="flex h-16 items-center">
-        <!-- Mobile menu toggle, controls the 'mobileMenuOpen' state. -->
+<nav class="bg-white">
+  <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+    <div
+      class="relative flex h-16 items-center justify-between border-b border-gray-200 pb-1 pt-1"
+    >
+      <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
+        <!-- Mobile menu button-->
         <button
           type="button"
-          class="relative rounded-md bg-white p-2 text-gray-400 lg:hidden"
+          class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-gray-700 hover:text-white focus:ring-2 focus:ring-white focus:outline-hidden focus:ring-inset"
+          aria-controls="mobile-menu"
+          aria-expanded="false"
         >
           <span class="absolute -inset-0.5"></span>
-          <span class="sr-only">Open menu</span>
+          <span class="sr-only">Open main menu</span>
+          <!--
+            Icon when menu is closed.
+
+            Menu open: "hidden", Menu closed: "block"
+          -->
           <svg
-            class="size-6"
+            class="block size-6"
             fill="none"
             viewBox="0 0 24 24"
             stroke-width="1.5"
@@ -30,294 +33,209 @@
               d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"
             />
           </svg>
-        </button>
+          <!--
+            Icon when menu is open.
 
-        <!-- Logo -->
-        <div class="ml-4 flex lg:ml-0">
-          <a href="#">
-            <span class="sr-only">Your Company</span>
-            <img
-              class="h-8 w-auto"
-              src="https://tailwindui.com/plus/img/logos/mark.svg?color=indigo&shade=600"
-              alt=""
+            Menu open: "block", Menu closed: "hidden"
+          -->
+          <svg
+            class="hidden size-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            aria-hidden="true"
+            data-slot="icon"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18 18 6M6 6l12 12"
             />
-          </a>
+          </svg>
+        </button>
+      </div>
+      <div
+        class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start"
+      >
+        <div class="flex shrink-0 items-center">
+          <img
+            class="h-8 w-auto"
+            src="https://tailwindui.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
+            alt="Your Company"
+          />
         </div>
-
-        <!-- Flyout menus -->
-        <div class="hidden lg:ml-8 lg:block lg:self-stretch">
-          <div class="flex h-full space-x-8">
+        <div class="hidden sm:ml-6 sm:block">
+          <div class="flex space-x-4">
+            <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
             <a
               routerLink="home"
-              class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-800"
+              class="rounded-md px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900"
+              aria-current="page"
               >Inicio</a
             >
             <a
-              routerLink="store" 
-              class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-800"
+              routerLink="store"
+              class="rounded-md px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900"
               >Tienda</a
             >
             <a
               href="#"
-              class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-800"
+              class="rounded-md px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900"
               >Catálogo</a
             >
             <a
               routerLink="claims"
-              class="flex items-center text-sm font-medium text-gray-700 hover:text-gray-800"
+              class="rounded-md px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900"
               >Reclamaciones</a
             >
           </div>
         </div>
+      </div>
+      <div
+        class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0"
+      >
+        <!-- ******************carrito de compra****************** -->
 
-        <div class="ml-auto flex items-center">
-          <div
-            class="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6"
+        <div class="ml-4 flow-root lg:ml-6">
+          <button class="group -m-2 flex items-center p-2">
+            <svg
+              class="size-6 shrink-0 text-gray-400 group-hover:text-gray-600"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              aria-hidden="true"
+              data-slot="icon"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+              />
+            </svg>
+            <span
+              class="ml-2 text-sm font-medium text-gray-400 group-hover:text-gray-600"
+              >0</span
+            >
+            <span class="sr-only">items in cart, view bag</span>
+          </button>
+        </div>
+
+        @if (!userData) {
+
+        <!-- ******************login****************** -->
+
+        <div class="hidden lg:flex lg:flex-1 pl-3 lg:justify-end">
+          <a
+            href="http://localhost:4200/auth/login"
+            class="text-sm/6 font-semibold text-gray-500 hover:text-gray-800"
+            >Log in <span aria-hidden="true">&rarr;</span></a
           >
-            <a
-              href="http://localhost:4200/auth/login"
-              class="text-sm font-medium text-gray-700 hover:text-gray-800"
-              >Sign in</a
+        </div>
+        }@else {
+        <!-- Profile dropdown -->
+        <div class="relative ml-3">
+          <div>
+            <button
+              type="button"
+              class="relative flex rounded-full text-sm focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-200 focus:outline-hidden"
+              id="user-menu-button"
+              aria-expanded="false"
+              aria-haspopup="true"
+              (click)="toggleMenuUser($event)"
             >
-            <span class="h-6 w-px bg-gray-200" aria-hidden="true"></span>
-            <a
-              href="#"
-              class="text-sm font-medium text-gray-700 hover:text-gray-800"
-              >Create account</a
-            >
-          </div>
-
-          <!-- Cart -->
-          <div (click)="toggleDropdown()" class="ml-4 flow-root lg:ml-6">
-            <button class="group -m-2 flex items-center p-2">
-              <svg
-                class="size-6 shrink-0 text-gray-400 group-hover:text-gray-500"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                aria-hidden="true"
-                data-slot="icon"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
-                />
-              </svg>
-              <span
-                class="ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800"
-                >0</span
-              >
-              <span class="sr-only">items in cart, view bag</span>
+              <span class="absolute -inset-1.5"></span>
+              <span class="sr-only">Open user menu</span>
+              <img
+                class="size-8 rounded-full"
+                [src]="userData.profilePicture"
+                alt="User profile"
+              />
             </button>
           </div>
-        </div>
-      </div>
-    </div>
-  </nav>
-</header>
 
-<!-- carrito de compras -->
+          <!--
+            Dropdown menu, show/hide based on menu state.
 
-<div
-  *ngIf="isMenuVisible"
-  [ngClass]="{
-    'opacity-100 translate-x-0': isMenuOpen,
-    'opacity-0 translate-x-full': !isMenuOpen
-  }"
-  class="fixed inset-0 bg-white/1 backdrop-blur-md transition-all duration-500 transform"
->
-  <!--
-    Background backdrop, show/hide based on slide-over state.
-
-    Entering: "ease-in-out duration-500"
-      From: "opacity-0"
-      To: "opacity-100"
-    Leaving: "ease-in-out duration-500"
-      From: "opacity-100"
-      To: "opacity-0"
-  -->
-  <div
-    class="fixed inset-0 bg-gray-500/50 transition-opacity"
-    aria-hidden="true"
-  ></div>
-
-  <div class="fixed inset-0 overflow-hidden">
-    <div class="absolute inset-0 overflow-hidden">
-      <div
-        class="pointer-events-none fixed inset-y-0 right-0 flex max-w-full pl-10"
-      >
-        <!--
-          Slide-over panel, show/hide based on slide-over state.
-
-          Entering: "transform transition ease-in-out duration-500 sm:duration-700"
-            From: "translate-x-full"
-            To: "translate-x-0"
-          Leaving: "transform transition ease-in-out duration-500 sm:duration-700"
-            From: "translate-x-0"
-            To: "translate-x-full"
-        -->
-        <div class="pointer-events-auto w-screen max-w-md">
+            Entering: "transition ease-out duration-100"
+              From: "transform opacity-0 scale-95"
+              To: "transform opacity-100 scale-100"
+            Leaving: "transition ease-in duration-75"
+              From: "transform opacity-100 scale-100"
+              To: "transform opacity-0 scale-95"
+          -->
+          @if (isMenuUserOpen) {
           <div
-            class="flex h-full flex-col overflow-y-scroll bg-white shadow-xl"
+            class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 ring-1 shadow-lg ring-black/5 focus:outline-hidden transition ease-out duration-100"
+            [ngClass]="{
+              'opacity-100 scale-100': isMenuUserOpen,
+              'opacity-0 scale-95': !isMenuUserOpen
+            }"
+            role="menu"
+            aria-orientation="vertical"
+            aria-labelledby="user-menu-button"
+            tabindex="-1"
           >
-            <div class="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
-              <div class="flex items-start justify-between">
-                <h2
-                  class="text-lg font-medium text-gray-900"
-                  id="slide-over-title"
-                >
-                  Shopping cart
-                </h2>
-                <div class="ml-3 flex h-7 items-center">
-                  <button
-                    class="relative -m-2 p-2 text-gray-400 hover:text-gray-500"
-                  >
-                    <span class="absolute -inset-0.5"></span>
-                    <span class="sr-only">Close panel</span>
-                    <svg
-                      class="size-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      aria-hidden="true"
-                      data-slot="icon"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M6 18 18 6M6 6l12 12"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-
-              <div class="mt-8">
-                <div class="flow-root">
-                  <ul role="list" class="-my-6 divide-y divide-gray-200">
-                    <li class="flex py-6">
-                      <div
-                        class="size-24 shrink-0 overflow-hidden rounded-md border border-gray-200"
-                      >
-                        <img
-                          src="https://tailwindui.com/plus/img/ecommerce-images/shopping-cart-page-04-product-01.jpg"
-                          alt="Salmon orange fabric pouch with match zipper, gray zipper pull, and adjustable hip belt."
-                          class="size-full object-cover"
-                        />
-                      </div>
-
-                      <div class="ml-4 flex flex-1 flex-col">
-                        <div>
-                          <div
-                            class="flex justify-between text-base font-medium text-gray-900"
-                          >
-                            <h3>
-                              <a href="#">Throwback Hip Bag</a>
-                            </h3>
-                            <p class="ml-4">$90.00</p>
-                          </div>
-                          <p class="mt-1 text-sm text-gray-500">Salmon</p>
-                        </div>
-                        <div
-                          class="flex flex-1 items-end justify-between text-sm"
-                        >
-                          <p class="text-gray-500">Qty 1</p>
-
-                          <div class="flex">
-                            <button
-                              type="button"
-                              class="font-medium text-indigo-600 hover:text-indigo-500"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-                    <li class="flex py-6">
-                      <div
-                        class="size-24 shrink-0 overflow-hidden rounded-md border border-gray-200"
-                      >
-                        <img
-                          src="https://tailwindui.com/plus/img/ecommerce-images/shopping-cart-page-04-product-02.jpg"
-                          alt="Front of satchel with blue canvas body, black straps and handle, drawstring top, and front zipper pouch."
-                          class="size-full object-cover"
-                        />
-                      </div>
-
-                      <div class="ml-4 flex flex-1 flex-col">
-                        <div>
-                          <div
-                            class="flex justify-between text-base font-medium text-gray-900"
-                          >
-                            <h3>
-                              <a href="#">Medium Stuff Satchel</a>
-                            </h3>
-                            <p class="ml-4">$32.00</p>
-                          </div>
-                          <p class="mt-1 text-sm text-gray-500">Blue</p>
-                        </div>
-                        <div
-                          class="flex flex-1 items-end justify-between text-sm"
-                        >
-                          <p class="text-gray-500">Qty 1</p>
-
-                          <div class="flex">
-                            <button
-                              type="button"
-                              class="font-medium text-indigo-600 hover:text-indigo-500"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </li>
-
-                    <!-- More products... -->
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <div class="border-t border-gray-200 px-4 py-6 sm:px-6">
-              <div
-                class="flex justify-between text-base font-medium text-gray-900"
-              >
-                <p>Subtotal</p>
-                <p>$262.00</p>
-              </div>
-              <p class="mt-0.5 text-sm text-gray-500">
-                Shipping and taxes calculated at checkout.
-              </p>
-              <div class="mt-6">
-                <a
-                  href="#"
-                  class="flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-indigo-700"
-                  >Checkout</a
-                >
-              </div>
-              <div
-                class="mt-6 flex justify-center text-center text-sm text-gray-500"
-              >
-                <p>
-                  or
-                  <button
-                    type="button"
-                    class="font-medium text-indigo-600 hover:text-indigo-500"
-                  >
-                    Continue Shopping
-                    <span aria-hidden="true"> &rarr;</span>
-                  </button>
-                </p>
-              </div>
-            </div>
+            <!-- Active: "bg-gray-100 outline-hidden", Not Active: "" -->
+            <a
+              routerLink="myaccount"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:outline-hidden"
+              role="menuitem"
+              tabindex="-1"
+              id="user-menu-item-0"
+              >Your Profile</a
+            >
+            <a
+              href="#"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:outline-hidden"
+              role="menuitem"
+              tabindex="-1"
+              id="user-menu-item-1"
+              >Settings</a
+            >
+            <a
+              href="#"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:outline-hidden"
+              role="menuitem"
+              tabindex="-1"
+              id="user-menu-item-2"
+              (click)="logout(); $event.preventDefault()"
+              >Sign out</a
+            >
           </div>
+          }
         </div>
+        }
       </div>
     </div>
   </div>
-</div>
+
+  <!-- Mobile menu, show/hide based on menu state. -->
+  <div class="sm:hidden" id="mobile-menu">
+    <div class="space-y-1 px-2 pt-2 pb-3">
+      <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
+      <a
+        href="#"
+        class="block rounded-md bg-gray-900 px-3 py-2 text-base font-medium text-white"
+        aria-current="page"
+        >Dashboard</a
+      >
+      <a
+        href="#"
+        class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+        >Team</a
+      >
+      <a
+        href="#"
+        class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+        >Projects</a
+      >
+      <a
+        href="#"
+        class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+        >Calendar</a
+      >
+    </div>
+  </div>
+</nav>
