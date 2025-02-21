@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
 import { StoreComponent } from './store/store.component';
 import { HomeComponent } from './home/home.component';
-import { ClaimsComponent } from './claims/claims.component';
 import { MyAccountComponent } from './my-account/my-account.component';
+import { HelpComponent } from './help/help.component';
+import { BasketComponent } from './basket/basket.component';
 
 export const publicRoutes: Routes = [
   {
@@ -14,8 +15,12 @@ export const publicRoutes: Routes = [
     component: StoreComponent,
   },
   {
-    path: 'claims',
-    component: ClaimsComponent,
+    path: 'help',
+    component: HelpComponent,
+  },
+  {
+    path: 'basket',
+    component: BasketComponent,
   },
   {
     path: 'myaccount',

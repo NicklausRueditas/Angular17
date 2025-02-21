@@ -19,6 +19,21 @@ export class ProductsService {
   constructor(private readonly http: HttpClient) {}
 
   /**
+   * Obtiene un solo producto por su ID.
+   * @param productId ID del producto a obtener.
+   * @returns Un Observable con el producto solicitado.
+   */
+  getProductById(productId: string): Observable<Product> {
+    return this.http.get<Product>(`${this.apiUrl}/${productId}`);
+  }
+
+  /** 📥 Obtener productos por un array de IDs */
+  getProductsByIds(ids: string[]): Observable<Product[]> {
+    const query = ids.join(',');
+    return this.http.get<Product[]>(`${this.apiUrl}/byIds?ids=${query}`);
+  }
+
+  /**
    * Obtiene todos los productos de la API.
    * @returns Un Observable con una lista de productos.
    */
@@ -41,7 +56,10 @@ export class ProductsService {
    * @param product Objeto con los datos actualizados del producto.
    * @returns Un Observable con el producto actualizado.
    */
-  updateProduct(productId: string, changes: UpdateProductDto): Observable<Product> {
+  updateProduct(
+    productId: string,
+    changes: UpdateProductDto
+  ): Observable<Product> {
     return this.http.patch<Product>(`${this.apiUrl}/${productId}`, changes);
   }
 
@@ -54,4 +72,3 @@ export class ProductsService {
     return this.http.delete<void>(`${this.apiUrl}/${productId}`);
   }
 }
-

@@ -80,14 +80,9 @@
               >Tienda</a
             >
             <a
-              href="#"
+              routerLink="help"
               class="rounded-md px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900"
-              >Catálogo</a
-            >
-            <a
-              routerLink="claims"
-              class="rounded-md px-3 py-2 text-sm font-medium text-gray-500 hover:text-gray-900"
-              >Reclamaciones</a
+              >Ayuda</a
             >
           </div>
         </div>
@@ -98,7 +93,10 @@
         <!-- ******************carrito de compra****************** -->
 
         <div class="ml-4 flow-root lg:ml-6">
-          <button class="group -m-2 flex items-center p-2">
+          <button
+            (click)="toggleMenu('cart', $event)"
+            class="group -m-2 flex items-center p-2"
+          >
             <svg
               class="size-6 shrink-0 text-gray-400 group-hover:text-gray-600"
               fill="none"
@@ -116,12 +114,61 @@
             </svg>
             <span
               class="ml-2 text-sm font-medium text-gray-400 group-hover:text-gray-600"
-              >0</span
+              >{{ totalItems }}</span
             >
             <span class="sr-only">items in cart, view bag</span>
           </button>
-        </div>
 
+          <!-- ******************carrito de compras****************** -->
+
+          @if (isMenuCartOpen) {
+          <div
+            id="cart"
+            class="absolute right-0 top-16 w-80 sm:w-96 bg-white shadow-lg rounded-lg p-4 z-20"
+          >
+            <h2 class="text-lg font-semibold border-b pb-2">
+              Carrito de Compras
+            </h2>
+            <div class="space-y-4 mt-3">
+              <!-- Productos -->
+
+              @for (item of basket?.items; track item) {@let product =
+              getProductById(item.product); @if (product) {
+              <div class="flex items-center gap-3">
+                <img
+                  [src]="product.gallery[0] || []"
+                  alt="Producto"
+                  class="w-12 h-12 rounded"
+                />
+                <div class="flex-1">
+                  <p class="text-sm font-medium">{{ product.name }}</p>
+                  <p class="text-xs text-gray-500">
+                    Cantidad: {{ item.quantity }}
+                  </p>
+                </div>
+                <p class="text-sm font-semibold">
+                  ${{ product ? product.price * item.quantity : 0 }}
+                </p>
+              </div>
+              } }
+            </div>
+
+            <div class="border-t pt-3 mt-3">
+              <!-- Total de la compra -->
+              <p class="text-right text-lg font-bold mt-4">
+                Total: {{ totalPrice }}
+              </p>
+              <a routerLink="basket">
+                <button
+                  class="w-full mt-3 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+                >
+                  Finalizar Compra
+                </button>
+              </a>
+            </div>
+          </div>
+          }
+        </div>
         @if (!userData) {
 
         <!-- ******************login****************** -->
@@ -143,7 +190,7 @@
               id="user-menu-button"
               aria-expanded="false"
               aria-haspopup="true"
-              (click)="toggleMenuUser($event)"
+              (click)="toggleMenu('user', $event)"
             >
               <span class="absolute -inset-1.5"></span>
               <span class="sr-only">Open user menu</span>
@@ -167,6 +214,7 @@
           -->
           @if (isMenuUserOpen) {
           <div
+            id="user-menu"
             class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 ring-1 shadow-lg ring-black/5 focus:outline-hidden transition ease-out duration-100"
             [ngClass]="{
               'opacity-100 scale-100': isMenuUserOpen,

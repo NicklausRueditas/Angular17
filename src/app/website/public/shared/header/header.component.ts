@@ -2,16 +2,16 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectorRef,
   Component,
-  EventEmitter,
   HostListener,
   OnInit,
-  Output,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { SesionService } from '../../../../core/services/sesion.service';
-import { catchError, of, tap } from 'rxjs';
 import { User } from '../../../../core/interfaces/user.interface';
 import { AuthService } from '../../../../core/services/auth.service';
+import { BasketService } from '../../../../core/services/basket.service';
+import { Basket } from '../../../../core/interfaces/basket.interface';
+import { Product } from '../../../../core/interfaces/product.interface';
 
 @Component({
   selector: 'app-header',
@@ -22,10 +22,13 @@ import { AuthService } from '../../../../core/services/auth.service';
 })
 export class HeaderComponent implements OnInit {
   userData: User | null = null;
+  basket: Basket | null = null;
+  products: Product[] = [];
 
   constructor(
     private sesionService: SesionService,
     private authService: AuthService,
+    private basketService: BasketService,
     private router: Router,
     private cdr: ChangeDetectorRef
   ) {}
@@ -34,9 +37,17 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.sesionService.getUserProfile().subscribe((user) => {
-      this.cdr.detectChanges();
       this.userData = user; // 🚀 Forzar actualización de la vista solo si cambia
+      this.basketService.cartItems$.subscribe((items) => {
+        this.basket = items;
+      });
+
+      this.basketService.product$.subscribe((items) => {
+        this.products = items;
+      });
     });
+
+    this.cdr.detectChanges();
   }
 
   /* =======================Cerrar sesión======================= */
@@ -48,20 +59,49 @@ export class HeaderComponent implements OnInit {
     });
   }
 
-  /* =======================Menú de usuario======================= */
+  /* =======================Menús======================= */
 
-  isMenuUserOpen = false; // Estado del menú
+  isMenuUserOpen = false;
+  isMenuCartOpen = false;
 
-  toggleMenuUser(event: Event) {
-    event.stopPropagation(); // Evita que el clic cierre el menú inmediatamente
-    this.isMenuUserOpen = !this.isMenuUserOpen; // Alternar estado
+  toggleMenu(menu: 'user' | 'cart', event: Event) {
+    event.stopPropagation();
+    if (menu === 'user') {
+      this.isMenuUserOpen = !this.isMenuUserOpen;
+      this.isMenuCartOpen = false; // Opcional: Cierra el otro menú
+    } else {
+      this.isMenuCartOpen = !this.isMenuCartOpen;
+      this.isMenuUserOpen = false; // Opcional: Cierra el otro menú
+    }
   }
 
   @HostListener('document:click', ['$event'])
-  closeMenuUser(event: Event) {
-    const clickedInside = (event.target as HTMLElement).closest('#user-menu');
-    if (!clickedInside) {
-      this.isMenuUserOpen = false; // Cierra el menú si el clic fue afuera
+  closeMenus(event: Event) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('#user-menu') && !target.closest('#cart-menu')) {
+      this.isMenuUserOpen = false;
+      this.isMenuCartOpen = false;
     }
+  }
+
+  /* =======================Carrito de compras======================= */
+
+  get totalPrice(): number { 
+    if (!this.basket?.items?.length) return 0; // Verifica que basket e items existen y no están vacíos
+  
+    return this.basket.items.reduce((acc, item) => {
+      const product = this.getProductById(item.product);
+      return acc + ((product?.price || 0) * (item.quantity || 0));
+    }, 0);
+  }
+  
+  get totalItems(): number {
+    if (!this.basket?.items?.length) return 0; // Verifica que basket e items existen y no están vacíos
+  
+    return this.basket.items.reduce((acc, item) => acc + (item.quantity || 0), 0);
+  }
+  
+  getProductById(productId: string): Product | undefined {
+    return this.products.find(p => p._id === productId);
   }
 }

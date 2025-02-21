@@ -1,0 +1,92 @@
+<div class="container mx-auto p-4">
+  <!-- Encabezado del carrito -->
+  <h2 class="text-2xl font-semibold mb-4">
+    Carro
+    <span class="text-gray-500"
+      >({{ basket?.items?.length || 0 }} productos)</span
+    >
+  </h2>
+
+  <div class="flex flex-col md:flex-row gap-6">
+    <!-- Lista de productos -->
+    <div class="w-full md:w-2/3">
+      @for (item of basket?.items; track item.product) {
+        @let product = getProductById(item.product); 
+        @if (product) {
+          <div class="bg-white shadow-lg rounded-lg overflow-hidden mb-4 transition-transform transform hover:scale-105">
+            <div class="flex items-center justify-between p-4">
+              <!-- Checkbox marcado por defecto -->
+              <input
+                type="checkbox"
+                checked
+                class="form-checkbox h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
+              />
+      
+              <!-- Imagen y detalles del producto -->
+              <div class="flex items-center gap-4 flex-1 ml-4">
+                <img
+                  [src]="product.gallery[0]"
+                  alt="{{ product.name }}"
+                  class="w-20 h-20 object-cover rounded-lg border border-gray-200"
+                />
+                <div>
+                  <h3 class="text-lg font-semibold text-gray-800">{{ product.name }}</h3>
+                  <p class="text-sm text-gray-500">{{ product.brand }}</p>
+                  <p class="text-lg font-semibold text-red-600">S/ {{ product.price }}</p>
+                </div>
+              </div>
+      
+              <!-- Contador de cantidad y botón de eliminar -->
+              <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 bg-gray-100 rounded-lg p-1">
+                  <button
+                    class="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm hover:bg-gray-200 transition-colors"
+                    (click)="decreaseQuantity(item)"
+                  >
+                    <span class="text-lg text-gray-700">-</span>
+                  </button>
+                  <span class="text-lg font-medium text-gray-800">{{ item.quantity }}</span>
+                  <button
+                    class="w-8 h-8 flex items-center justify-center bg-white rounded-lg shadow-sm hover:bg-gray-200 transition-colors"
+                    (click)="increaseQuantity(item)"
+                  >
+                    <span class="text-lg text-gray-700">+</span>
+                  </button>
+                </div>
+      
+                <!-- Botón "x" para eliminar -->
+                <button
+                  class="w-8 h-8 flex items-center justify-center bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
+                  (click)="removeItem(item.product)"
+                >
+                  <span class="text-lg font-semibold">×</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      }
+    </div>
+
+    <!-- Resumen de la orden -->
+    <div class="w-full md:w-1/3 bg-white shadow p-4 rounded-lg h-fit">
+      <h3 class="text-xl font-semibold mb-4">Resumen de la orden</h3>
+      <div class="flex justify-between text-gray-600">
+        <span>Productos ({{ basket?.items?.length || 0 }} )</span>
+        <span>S/ {{ totalPrice }}</span>
+      </div>
+      <div class="flex justify-between text-gray-600">
+        <span>Descuentos ({{ discountCount }})</span>
+        <span class="text-green-500">- S/ {{ discountTotal }}</span>
+      </div>
+      <hr class="my-2" />
+      <div class="flex justify-between font-semibold text-lg">
+        <span>Total:</span>
+        <span>S/ {{ finalTotal }}</span>
+      </div>
+      <button class="w-full bg-black text-white py-2 mt-4 rounded-lg">
+        Continuar compra
+      </button>
+    </div>
+  </div>
+</div>
