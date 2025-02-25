@@ -1,6 +1,7 @@
 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
   <h1 class="text-2xl font-bold text-center mb-6">Gestión de Inventario</h1>
 
+  <!-- Barra de búsqueda -->
   <div
     class="px-4 flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4"
   >
@@ -43,7 +44,6 @@
   </div>
 
   <!-- Tabla de productos -->
-
   <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
     <table
       class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
@@ -98,6 +98,29 @@
         }
       </tbody>
     </table>
+  </div>
+
+  <!-- Paginación -->
+  <div class="flex justify-between items-center mt-4">
+    <div class="text-sm text-gray-700">
+      {{ getDisplayedRange() }}
+    </div>
+    <div class="flex space-x-2">
+      <button
+        (click)="changePage(currentPage - 1)"
+        [disabled]="currentPage === 1"
+        class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
+      >
+        Anterior
+      </button>
+      <button
+        (click)="changePage(currentPage + 1)"
+        [disabled]="currentPage * itemsPerPage >= totalItems"
+        class="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300 disabled:opacity-50"
+      >
+        Siguiente
+      </button>
+    </div>
   </div>
 </div>
 

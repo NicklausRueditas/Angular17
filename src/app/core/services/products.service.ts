@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { catchError, map, Observable, of } from 'rxjs';
 import { Product } from '../interfaces/product.interface';
 import { environment } from '../../../environments/environment.development';
 import { UpdateProductDto } from '../dtos/update-product.dto';
@@ -33,12 +33,22 @@ export class ProductsService {
     return this.http.get<Product[]>(`${this.apiUrl}/byIds?ids=${query}`);
   }
 
-  /**
-   * Obtiene todos los productos de la API.
-   * @returns Un Observable con una lista de productos.
-   */
-  getProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(`${this.apiUrl}/all`);
+  getProducts(
+    page: number = 1,
+    limit: number = 12
+  ): Observable<{ data: Product[]; total: number; page: number; limit: number }> {
+    // Construye la URL con los parámetros de paginación
+    const url = `${this.apiUrl}/all?page=${page}&limit=${limit}`;
+  
+    return this.http
+      .get<{ data: Product[]; total: number; page: number; limit: number }>(url)
+      .pipe(
+        catchError((error) => {
+          console.error('Error al obtener todos los productos:', error);
+          // Devuelve un objeto vacío en caso de error
+          return of({ data: [], total: 0, page: 0, limit: 0 });
+        })
+      );
   }
 
   /**

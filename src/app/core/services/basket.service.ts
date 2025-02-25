@@ -1,5 +1,17 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, map, of, switchMap, take } from 'rxjs';
+import {
+  BehaviorSubject,
+  filter,
+  from,
+  map,
+  mergeMap,
+  Observable,
+  of,
+  switchMap,
+  take,
+  tap,
+  toArray,
+} from 'rxjs';
 
 import { HttpClient } from '@angular/common/http';
 
@@ -34,17 +46,32 @@ export class BasketService {
    */
   loadCart(): void {
     const localCart = localStorage.getItem('basket');
-  
-    if (localCart) {
-      this.cartItemsSubject.next(JSON.parse(localCart));
-    }
-  
+
     this.sesionService.user$
       .pipe(
+        filter((user) => user !== null), // Ignorar valores nulos
+        take(1), // Tomar el primer valor no nulo
         switchMap((user) => {
+          console.log(user)
           if (user) {
-            return this.http.get<Basket>(`${this.apiUrl}/${user._id}`);
+            // Usuario autenticado: Verificar si hay un carrito en el localStorage
+            if (localCart) {
+              const parsedLocalCart = JSON.parse(localCart);
+
+              // Migrar los productos del localStorage al carrito del backend
+              return this.migrateLocalCartToBackend(
+                user._id,
+                parsedLocalCart.items
+              );
+            } else {
+              // No hay carrito en el localStorage: Cargar el carrito desde el backend
+              return this.http.get<Basket>(`${this.apiUrl}/${user._id}`);
+            }
           } else {
+            // Usuario no autenticado: Cargar el carrito desde el localStorage
+            if (localCart) {
+              this.cartItemsSubject.next(JSON.parse(localCart));
+            }
             return of(null);
           }
         }),
@@ -53,13 +80,13 @@ export class BasketService {
             const productIds = basket.items.map((item) =>
               item.product.toString()
             );
-  
+
             // Verifica si productIds está vacío
             if (productIds.length === 0) {
               // Si está vacío, devuelve un observable con un valor predeterminado o null
               return of({ basket, products: [] });
             }
-  
+
             // Si productIds no está vacío, realiza la solicitud HTTP
             return this.productsService
               .getProductsByIds(productIds)
@@ -81,64 +108,99 @@ export class BasketService {
   }
 
   /**
+   * Migra los productos del localStorage al carrito del backend.
+   * @param userId ID del usuario autenticado
+   * @param items Productos del localStorage
+   */
+  migrateLocalCartToBackend(userId: string, items: any[]): Observable<Basket> {
+    // Agregar cada producto del localStorage al carrito del backend
+    return from(items).pipe(
+      mergeMap((item) =>
+        this.http.post(`${this.apiUrl}/${userId}/add`, {
+          productId: item.product,
+          quantity: item.quantity,
+        })
+      ),
+      toArray(), // Convertir las respuestas en un array
+      switchMap(() => this.http.get<Basket>(`${this.apiUrl}/${userId}`)), // Obtener el carrito actualizado
+      tap(() => localStorage.removeItem('basket')) // Eliminar el carrito del localStorage
+    );
+  }
+
+  /**
    * 🛒 Agrega un producto al carrito y lo guarda.
    * @param productId ID del producto a añadir
    * @param quantity Cantidad del producto (por defecto 1)
    */
   addToCart(productId: string, quantity: number = 1): void {
-    this.sesionService.user$.subscribe((user) => {
-      if (user) {
-        // Usuario autenticado: Agrega el producto al carrito en el backend
-        this.productsService
-          .getProductById(productId)
-          .pipe(take(1))
-          .subscribe((product) => {
-            if (product) {
-              this.http
-                .post(`${this.apiUrl}/${user._id}/add`, {
-                  productId: product._id,
-                  quantity,
+    this.sesionService.user$
+      .pipe(
+        take(1), // Tomar solo la última emisión del observable
+        switchMap((user) => {
+          if (user) {
+            // Usuario autenticado: Agrega el producto al carrito en el backend
+            return this.productsService.getProductById(productId).pipe(
+              take(1),
+              switchMap((product) => {
+                if (product) {
+                  return this.http.post(`${this.apiUrl}/${user._id}/add`, {
+                    productId: product._id,
+                    quantity,
+                  });
+                } else {
+                  throw new Error('Producto no encontrado');
+                }
+              })
+            );
+          } else {
+            // Usuario no autenticado: Manejo del carrito en localStorage
+            const currentCart = this.cartItemsSubject.value || {
+              items: [],
+              createdAt: new Date(),
+              updatedAt: new Date(),
+            };
+
+            // Buscar si el producto ya está en el carrito
+            const existingItem = currentCart.items.find(
+              (item) => item.product === productId
+            );
+
+            if (existingItem) {
+              existingItem.quantity += quantity; // Aumentar cantidad si ya existe
+            } else {
+              // Obtener el producto y agregarlo al carrito
+              return this.productsService.getProductById(productId).pipe(
+                take(1),
+                switchMap((product) => {
+                  if (product) {
+                    currentCart.items.push({
+                      product: product._id,
+                      quantity,
+                    });
+
+                    currentCart.updatedAt = new Date(); // Actualizar la fecha de modificación
+                    this.cartItemsSubject.next(currentCart);
+                    localStorage.setItem('basket', JSON.stringify(currentCart));
+                  }
+                  return of(null); // Devuelve un observable nulo para completar el flujo
                 })
-                .subscribe(() => {
-                  this.loadCart(); // Recargar carrito
-                });
+              );
             }
-          });
-      } else {
-        // Usuario no autenticado: Manejo del carrito en localStorage
-        const currentCart = this.cartItemsSubject.value || {
-          items: [],
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
 
-        // Buscar si el producto ya está en el carrito
-        const existingItem = currentCart.items.find(
-          (item) => item.product === productId
-        );
-
-        if (existingItem) {
-          existingItem.quantity += quantity; // Aumentar cantidad si ya existe
-        } else {
-          // Obtener el producto y agregarlo al carrito
-          this.productsService
-            .getProductById(productId)
-            .pipe(take(1))
-            .subscribe((product) => {
-              if (product) {
-                currentCart.items.push({
-                  product: product._id,
-                  quantity,
-                });
-
-                currentCart.updatedAt = new Date(); // Actualizar la fecha de modificación
-                this.cartItemsSubject.next(currentCart);
-                localStorage.setItem('basket', JSON.stringify(currentCart));
-              }
-            });
-        }
-      }
-    });
+            this.cartItemsSubject.next(currentCart);
+            localStorage.setItem('basket', JSON.stringify(currentCart));
+            return of(null); // Devuelve un observable nulo para completar el flujo
+          }
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.loadCart(); // Recargar carrito después de agregar el producto
+        },
+        error: (err) => {
+          console.error('Error al agregar el producto al carrito:', err);
+        },
+      });
   }
 
   /**
