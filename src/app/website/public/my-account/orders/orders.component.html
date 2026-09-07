@@ -65,14 +65,17 @@
               <div class="space-y-1">
                 <div class="flex items-center gap-2.5 flex-wrap">
                   <h4 class="font-black text-sm text-gray-900">{{ order.invoiceNumber }}</h4>
-                  @if (order.paymentStatus === 'failed') {
-                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border bg-rose-100 text-rose-800 border-rose-200">
-                      🚫 Rechazado por Banco
+                  <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border"
+                    [ngClass]="getStatusColor(order.status)">
+                    {{ getStatusLabel(order.status) }}
+                  </span>
+                  @if (order.estimatedDays === 0) {
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
+                      ⚡ Retiro hoy mismo
                     </span>
-                  } @else {
-                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border"
-                      [ngClass]="getStatusColor(order.status)">
-                      {{ getStatusLabel(order.status) }}
+                  } @else if (order.estimatedDays != null && order.estimatedDays > 0) {
+                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-50 text-sky-800 border border-sky-200">
+                      📦 Entrega estimada: {{ order.estimatedDays }} {{ order.estimatedDays === 1 ? 'día' : 'días' }}
                     </span>
                   }
                 </div>

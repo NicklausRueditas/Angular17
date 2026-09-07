@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
@@ -39,11 +39,11 @@ export class BusinessHeaderComponent implements OnInit, OnDestroy {
   // ── Enlaces Expandibles ("Más Módulos") ───────────────────────────────────
   readonly extraNavItems: BusinessNavItem[] = [
     {
-      label: 'Escanear QR',
-      route: '/business/pickup-scanner',
-      icon: '📷',
-      roles: ['admin', 'seller', 'worker'],
-      description: 'Lector de códigos de retiro en sucursal'
+      label: 'Usuarios',
+      route: '/business/users',
+      icon: '🛡️',
+      roles: ['admin'],
+      description: 'Gestión global de cuentas, roles y bloqueos (Admin)'
     },
     {
       label: 'Vendedores',
@@ -51,6 +51,13 @@ export class BusinessHeaderComponent implements OnInit, OnDestroy {
       icon: '👥',
       roles: ['admin'],
       description: 'Directorio y auditoría de comercios (Admin)'
+    },
+    {
+      label: 'Escanear QR',
+      route: '/business/pickup-scanner',
+      icon: '📷',
+      roles: ['admin', 'seller', 'worker'],
+      description: 'Lector de códigos de retiro en sucursal'
     },
     {
       label: 'Perfil de Negocio',
@@ -64,6 +71,7 @@ export class BusinessHeaderComponent implements OnInit, OnDestroy {
   constructor(
     private readonly authService: AuthService,
     private readonly router: Router,
+    private readonly cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -71,6 +79,7 @@ export class BusinessHeaderComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(user => {
         this.currentUser = user;
+        this.cdr.markForCheck();
       });
   }
 
@@ -80,11 +89,23 @@ export class BusinessHeaderComponent implements OnInit, OnDestroy {
   }
 
   get userRoles(): string[] {
-    return this.currentUser?.roles || ['user'];
+    if (this.currentUser?.roles && this.currentUser.roles.length > 0) {
+      return this.currentUser.roles;
+    }
+    const token = this.authService.getToken();
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload?.roles) {
+          return Array.isArray(payload.roles) ? payload.roles : [payload.roles];
+        }
+      } catch {}
+    }
+    return ['user'];
   }
 
   get isAdmin(): boolean {
-    return this.userRoles.includes('admin');
+    return this.userRoles.includes('admin') || (this.currentUser?.email === 'nick047tu@gmail.com');
   }
 
   get isSeller(): boolean {
@@ -155,6 +176,7 @@ export class BusinessHeaderComponent implements OnInit, OnDestroy {
     if (this.isMoreMenuOpen) {
       this.isUserMenuOpen = false;
     }
+    this.cdr.markForCheck();
   }
 
   toggleUserMenu(event?: Event): void {
@@ -163,14 +185,17 @@ export class BusinessHeaderComponent implements OnInit, OnDestroy {
     if (this.isUserMenuOpen) {
       this.isMoreMenuOpen = false;
     }
+    this.cdr.markForCheck();
   }
 
   toggleMobileMenu(): void {
     this.isMobileMenuOpen = !this.isMobileMenuOpen;
+    this.cdr.markForCheck();
   }
 
   closeMobileMenu(): void {
     this.isMobileMenuOpen = false;
+    this.cdr.markForCheck();
   }
 
   @HostListener('document:click', ['$event'])

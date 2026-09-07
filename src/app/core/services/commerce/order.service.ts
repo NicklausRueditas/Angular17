@@ -49,6 +49,13 @@ export class OrderService {
   /**
    * GET /orders/all — todas las órdenes (Admin)
    */
+  /**
+   * GET /orders/detail/:orderId — detalle completo de una orden para administración
+   */
+  getAdminOrderDetail(orderId: string): Observable<Order> {
+    return this.http.get<Order>(`${this.apiUrl}/detail/${orderId}`);
+  }
+
   getAllOrders(filters?: {
     status?: OrderStatus;
     fulfillment?: 'delivery' | 'pickup';

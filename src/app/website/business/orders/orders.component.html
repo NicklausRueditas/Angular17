@@ -1,0 +1,558 @@
+<div class="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+      <div class="flex items-center gap-2">
+        <span class="text-2xl">📋</span>
+        <h1 class="text-2xl font-bold text-gray-900">Gestión de Pedidos</h1>
+        <span class="text-sm font-semibold bg-gray-100 text-gray-700 rounded-full px-2.5 py-0.5">
+          {{ filteredOrders.length }}
+        </span>
+      </div>
+      <p class="text-sm text-gray-500 mt-1">
+        Monitorea el ciclo de vida de los pedidos y verifica las entregas en sucursal y a domicilio.
+      </p>
+    </div>
+
+    <!-- Acciones rápidas del header -->
+    <div class="flex items-center gap-3">
+      <a
+        routerLink="/business/pickup-scanner"
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-purple-50 text-purple-700 border border-purple-200 text-xs font-bold hover:bg-purple-100 transition active:scale-95 shadow-2xs"
+      >
+        <span>📷</span>
+        <span>Escáner QR de Retiros</span>
+      </a>
+
+      <button
+        (click)="loadOrders()"
+        [disabled]="isLoading"
+        class="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 transition active:scale-95 shadow-2xs disabled:opacity-50"
+      >
+        <svg class="w-3.5 h-3.5" [class.animate-spin]="isLoading" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span>Actualizar</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Barra de Filtros y Búsqueda -->
+  <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 bg-white p-4 rounded-3xl border border-gray-200/80 shadow-xs">
+    
+    <!-- Filtros de estado -->
+    <div class="flex flex-wrap gap-1.5 overflow-x-auto pb-1 sm:pb-0">
+      <button
+        (click)="setFilter('all')"
+        class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+        [class.bg-gray-900]="activeFilter === 'all'"
+        [class.text-white]="activeFilter === 'all'"
+        [class.bg-gray-100]="activeFilter !== 'all'"
+        [class.text-gray-600]="activeFilter !== 'all'"
+      >
+        Todos
+      </button>
+      <button
+        (click)="setFilter('paid')"
+        class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+        [class.bg-emerald-600]="activeFilter === 'paid'"
+        [class.text-white]="activeFilter === 'paid'"
+        [class.bg-emerald-50]="activeFilter !== 'paid'"
+        [class.text-emerald-700]="activeFilter !== 'paid'"
+      >
+        Pagados
+      </button>
+      <button
+        (click)="setFilter('preparing')"
+        class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+        [class.bg-orange-500]="activeFilter === 'preparing'"
+        [class.text-white]="activeFilter === 'preparing'"
+        [class.bg-orange-50]="activeFilter !== 'preparing'"
+        [class.text-orange-700]="activeFilter !== 'preparing'"
+      >
+        En preparación
+      </button>
+      <button
+        (click)="setFilter('ready_for_pickup')"
+        class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+        [class.bg-purple-600]="activeFilter === 'ready_for_pickup'"
+        [class.text-white]="activeFilter === 'ready_for_pickup'"
+        [class.bg-purple-50]="activeFilter !== 'ready_for_pickup'"
+        [class.text-purple-700]="activeFilter !== 'ready_for_pickup'"
+      >
+        Listo para retiro
+      </button>
+      <button
+        (click)="setFilter('shipped')"
+        class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+        [class.bg-blue-600]="activeFilter === 'shipped'"
+        [class.text-white]="activeFilter === 'shipped'"
+        [class.bg-blue-50]="activeFilter !== 'shipped'"
+        [class.text-blue-700]="activeFilter !== 'shipped'"
+      >
+        En camino
+      </button>
+      <button
+        (click)="setFilter('delivered')"
+        class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+        [class.bg-gray-700]="activeFilter === 'delivered'"
+        [class.text-white]="activeFilter === 'delivered'"
+        [class.bg-gray-100]="activeFilter !== 'delivered'"
+        [class.text-gray-600]="activeFilter !== 'delivered'"
+      >
+        Entregados
+      </button>
+      <button
+        (click)="setFilter('cancelled')"
+        class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all"
+        [class.bg-rose-600]="activeFilter === 'cancelled'"
+        [class.text-white]="activeFilter === 'cancelled'"
+        [class.bg-rose-50]="activeFilter !== 'cancelled'"
+        [class.text-rose-700]="activeFilter !== 'cancelled'"
+      >
+        🚫 Rechazados / Cancelados
+      </button>
+    </div>
+
+    <!-- Buscador -->
+    <div class="relative min-w-[240px] sm:w-72">
+      <input
+        type="text"
+        [(ngModel)]="searchQuery"
+        (ngModelChange)="onSearchChange()"
+        placeholder="Buscar orden, código o cliente..."
+        class="w-full pl-9 pr-3 py-1.5 text-xs bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-gray-900/10 focus:border-gray-400 transition"
+      />
+      <span class="absolute left-3 top-2 text-gray-400 text-xs">🔍</span>
+      @if (searchQuery) {
+        <button
+          (click)="searchQuery = ''; onSearchChange()"
+          class="absolute right-2.5 top-1.5 text-gray-400 hover:text-gray-600 text-xs font-bold"
+        >
+          ✕
+        </button>
+      }
+    </div>
+
+  </div>
+
+  <!-- Contenido -->
+  @if (isLoading) {
+    <div class="flex items-center justify-center py-20">
+      <div class="w-8 h-8 border-4 border-gray-200 border-t-gray-900 rounded-full animate-spin"></div>
+    </div>
+  } @else if (filteredOrders.length === 0) {
+    <div class="text-center py-20 bg-white rounded-3xl border border-gray-200 shadow-xs">
+      <span class="text-4xl">📭</span>
+      <h3 class="mt-3 text-base font-bold text-gray-900">No se encontraron pedidos</h3>
+      <p class="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+        No hay registros que coincidan con los filtros seleccionados o el término de búsqueda.
+      </p>
+    </div>
+  } @else {
+    <!-- Tabla de Pedidos -->
+    <div class="bg-white rounded-3xl border border-gray-200/80 shadow-xs overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs">
+          <thead class="bg-gray-50/80 border-b border-gray-200 text-gray-500 font-bold uppercase tracking-wider text-[11px]">
+            <tr>
+              <th class="text-left px-5 py-3.5">Comprobante / Fecha</th>
+              <th class="text-left px-4 py-3.5">Cliente</th>
+              <th class="text-left px-4 py-3.5">Productos</th>
+              <th class="text-left px-4 py-3.5">Modalidad</th>
+              <th class="text-left px-4 py-3.5">Estado</th>
+              <th class="text-left px-4 py-3.5">Total</th>
+              <th class="text-right px-5 py-3.5">Acciones de Proceso</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 font-medium text-gray-700">
+            @for (order of filteredOrders; track order._id) {
+              <tr class="hover:bg-gray-50/60 transition-colors">
+                
+                <!-- Comprobante / Fecha -->
+                <td class="px-5 py-4">
+                  <p class="font-black text-gray-900 text-sm">{{ order.invoiceNumber }}</p>
+                  <p class="text-[11px] text-gray-400 mt-0.5">{{ order.createdAt | date:'dd/MM/yyyy HH:mm' }}</p>
+                  @if (order.pickupCode) {
+                    <span class="inline-block mt-1 font-mono text-[10px] font-bold px-2 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200">
+                      {{ order.pickupCode }}
+                    </span>
+                  }
+                </td>
+
+                <!-- Cliente -->
+                <td class="px-4 py-4">
+                  <div class="space-y-1">
+                    <p class="font-bold text-gray-900 text-sm leading-tight flex items-center gap-1.5">
+                      <span>👤</span>
+                      <span>{{ getClientName(order) }}</span>
+                    </p>
+                    @if (getClientEmail(order)) {
+                      <p class="text-[11px] text-gray-500 font-mono flex items-center gap-1">
+                        <span>✉️</span>
+                        <span>{{ getClientEmail(order) }}</span>
+                      </p>
+                    }
+                    <div class="flex items-center gap-1.5 pt-0.5 flex-wrap">
+                      @if (getClientDni(order)) {
+                        <span class="inline-flex items-center gap-1 text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200">
+                          🪪 DNI: {{ getClientDni(order) }}
+                        </span>
+                      }
+                      @if (getClientPhone(order)) {
+                        <span class="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200">
+                          📞 {{ getClientPhone(order) }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Items -->
+                <td class="px-4 py-4">
+                  <span class="font-bold text-gray-900">{{ totalItems(order) }}</span>
+                  <span class="text-gray-400"> artículo(s)</span>
+                </td>
+
+                <!-- Modalidad / Tipo -->
+                <td class="px-4 py-4">
+                  @if (isPickupOrder(order)) {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                      <span>🏪</span>
+                      <span>Retiro en Tienda</span>
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                      <span>🚚</span>
+                      <span>Delivery</span>
+                    </span>
+                  }
+                </td>
+
+                <!-- Estado -->
+                <td class="px-4 py-4">
+                  <span
+                    class="inline-block px-3 py-1 rounded-full text-[11px] font-bold border"
+                    [ngClass]="statusColors[order.status]"
+                  >
+                    {{ statusLabels[order.status] }}
+                  </span>
+                  @if (order.status === 'cancelled' || order.paymentStatus === 'failed') {
+                    <p class="text-[10px] text-rose-600 font-semibold mt-1 max-w-[150px] truncate" [title]="order.cancelReason || 'Rechazado por pasarela/banco'">
+                      ⚠️ {{ order.cancelReason || 'Pago rechazado' }}
+                    </p>
+                  }
+                </td>
+
+                <!-- Total -->
+                <td class="px-4 py-4">
+                  <span class="font-black text-gray-900 text-sm">{{ getOrderTotal(order) | solCurrency }}</span>
+                </td>
+
+                <!-- Acciones Guiadas y Seguras (Navegan al Detalle para Confirmación Rigurosa) -->
+                <td class="px-5 py-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    
+                    <!-- Estado: PAID -> Preparar (Navega al detalle de picking) -->
+                    @if (order.status === 'paid') {
+                      <a
+                        [routerLink]="['/business/orders', order._id]"
+                        class="px-3.5 py-1.5 rounded-xl bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold border border-orange-200 transition active:scale-95 flex items-center gap-1.5 text-xs shadow-2xs"
+                        title="Iniciar preparación y ver hoja de picking"
+                      >
+                        <span>🍳</span>
+                        <span>Preparar</span>
+                      </a>
+                    }
+
+                    <!-- Estado: PREPARING -> Listo para retiro (Pickup) -->
+                    @if (order.status === 'preparing' && isPickupOrder(order)) {
+                      <a
+                        [routerLink]="['/business/orders', order._id]"
+                        class="px-3.5 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-purple-700 font-bold border border-purple-200 transition active:scale-95 flex items-center gap-1.5 text-xs shadow-2xs"
+                        title="Ver detalle para marcar listo en tienda"
+                      >
+                        <span>📍</span>
+                        <span>Gestionar Retiro</span>
+                      </a>
+                    }
+
+                    <!-- Estado: PREPARING -> Despachar (Delivery) -->
+                    @if (order.status === 'preparing' && !isPickupOrder(order)) {
+                      <a
+                        [routerLink]="['/business/orders', order._id]"
+                        class="px-3.5 py-1.5 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold border border-blue-200 transition active:scale-95 flex items-center gap-1.5 text-xs shadow-2xs"
+                        title="Ver detalle para despachar pedido"
+                      >
+                        <span>🚚</span>
+                        <span>Gestionar Envío</span>
+                      </a>
+                    }
+
+                    <!-- Estado: READY_FOR_PICKUP -> Entregar con Código de Retiro -->
+                    @if (order.status === 'ready_for_pickup' && isPickupOrder(order)) {
+                      <a
+                        [routerLink]="['/business/orders', order._id]"
+                        class="px-3.5 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs shadow-sm shadow-purple-600/20 transition active:scale-95 flex items-center gap-1.5"
+                        title="Validar código de retiro y entregar en tienda"
+                      >
+                        <span>🔍</span>
+                        <span>Entregar con Código</span>
+                      </a>
+                    }
+
+                    <!-- Estado: SHIPPED -> Confirmar Entrega en Domicilio -->
+                    @if (order.status === 'shipped' && !isPickupOrder(order)) {
+                      <a
+                        [routerLink]="['/business/orders', order._id]"
+                        class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-sm shadow-emerald-600/20 transition active:scale-95 flex items-center gap-1.5"
+                        title="Confirmar recepción y entrega a domicilio"
+                      >
+                        <span>📦</span>
+                        <span>Confirmar Entrega</span>
+                      </a>
+                    }
+
+                    <!-- Ver Detalle / Hoja de Despacho (Siempre disponible) -->
+                    <a
+                      [routerLink]="['/business/orders', order._id]"
+                      class="px-3 py-1.5 rounded-xl bg-white hover:bg-gray-50 text-gray-700 font-bold border border-gray-200 transition active:scale-95 flex items-center gap-1 text-xs"
+                      title="Ver detalle completo, productos y comprobante"
+                    >
+                      <span>👁️</span>
+                      <span class="hidden sm:inline">Detalle</span>
+                    </a>
+
+                    <!-- Estado: DELIVERED -> Entregado completado -->
+                    @if (order.status === 'delivered') {
+                      <span class="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-bold px-2 py-1 bg-emerald-50 rounded-lg border border-emerald-200">
+                        <span>✓</span>
+                        <span>Completado</span>
+                      </span>
+                    }
+
+                    <!-- Estado: CANCELLED -->
+                    @if (order.status === 'cancelled') {
+                      <span class="inline-flex items-center gap-1 text-[11px] text-gray-400 italic">
+                        Cancelado
+                      </span>
+                    }
+
+                  </div>
+                </td>
+
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL: VERIFICACIÓN OBLIGATORIA DE RETIRO EN TIENDA (PICKUP)                 -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+@if (isPickupModalOpen && selectedPickupOrder) {
+  <div class="fixed inset-0 z-50 bg-gray-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-gray-100 animate-fade-in space-y-6">
+      
+      <!-- Encabezado del Modal -->
+      <div class="flex items-start justify-between border-b border-gray-100 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-purple-50 border border-purple-100 flex items-center justify-center text-xl">
+            🏪
+          </div>
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-purple-100 text-purple-800">
+              Verificación de Retiro
+            </span>
+            <h3 class="text-base font-black text-gray-900 mt-1">
+              Orden {{ selectedPickupOrder.invoiceNumber }}
+            </h3>
+          </div>
+        </div>
+        <button
+          (click)="closePickupModal()"
+          class="text-gray-400 hover:text-gray-600 p-1 font-bold text-base cursor-pointer"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- Resumen del Pedido -->
+      <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200/80 space-y-2 text-xs">
+        <div class="flex justify-between items-start">
+          <span class="text-gray-500">Cliente Destinatario:</span>
+          <div class="text-right">
+            <span class="font-bold text-gray-900 block">{{ getClientName(selectedPickupOrder) }}</span>
+            <span class="text-[11px] text-gray-400 font-mono">{{ getClientEmail(selectedPickupOrder) }}</span>
+            @if (getClientDni(selectedPickupOrder)) {
+              <span class="text-[10px] font-mono font-bold text-purple-700 block mt-0.5">🪪 DNI: {{ getClientDni(selectedPickupOrder) }}</span>
+            }
+            @if (getClientPhone(selectedPickupOrder)) {
+              <span class="text-[10px] text-emerald-700 font-bold block">📞 {{ getClientPhone(selectedPickupOrder) }}</span>
+            }
+          </div>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Artículos a entregar:</span>
+          <span class="font-bold text-gray-900">{{ totalItems(selectedPickupOrder) }} producto(s)</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Total de la Orden:</span>
+          <span class="font-black text-gray-900">{{ getOrderTotal(selectedPickupOrder) | solCurrency }}</span>
+        </div>
+        <div class="flex justify-between pt-1 border-t border-gray-200">
+          <span class="text-gray-500">Sucursal:</span>
+          <span class="font-bold text-purple-700">{{ selectedPickupOrder.store?.name || 'Tienda Principal' }}</span>
+        </div>
+      </div>
+
+      <!-- Instrucciones de Seguridad -->
+      <div class="bg-purple-50/70 p-3.5 rounded-2xl border border-purple-200 text-xs text-purple-900 space-y-1">
+        <p class="font-bold flex items-center gap-1.5">
+          <span>🔒</span>
+          <span>Validación de seguridad obligatoria</span>
+        </p>
+        <p class="text-[11px] text-purple-700 leading-relaxed">
+          Solicita al cliente su <strong>código de retiro</strong> (enviado a su correo y visible en "Mis Pedidos") o escanea su <strong>código QR</strong>.
+        </p>
+      </div>
+
+      <!-- Input de Código -->
+      <div class="space-y-2">
+        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+          Ingresa el Código de Retiro *
+        </label>
+        <div class="relative">
+          <input
+            type="text"
+            [(ngModel)]="verificationCodeInput"
+            (keyup.enter)="confirmPickupByCode()"
+            placeholder="Ejemplo: PKP-8F3X2K"
+            class="w-full px-4 py-3 bg-gray-50 border-2 border-purple-200 focus:border-purple-600 focus:bg-white rounded-2xl text-center font-mono text-base font-black tracking-widest uppercase outline-none transition"
+          />
+        </div>
+
+        @if (pickupVerificationError) {
+          <p class="text-xs font-bold text-rose-600 flex items-center gap-1 mt-1">
+            <span>⚠️</span>
+            <span>{{ pickupVerificationError }}</span>
+          </p>
+        }
+      </div>
+
+      <!-- Acciones del Modal -->
+      <div class="space-y-3 pt-2">
+        <button
+          (click)="confirmPickupByCode()"
+          [disabled]="!verificationCodeInput.trim() || isVerifyingPickup"
+          class="w-full py-3 rounded-2xl bg-purple-600 hover:bg-purple-700 active:scale-95 text-white font-black text-xs transition shadow-lg shadow-purple-600/20 disabled:opacity-50 flex items-center justify-center gap-2 cursor-pointer"
+        >
+          @if (isVerifyingPickup) {
+            <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <span>Validando código...</span>
+          } @else {
+            <span>✓</span>
+            <span>Validar y Confirmar Entrega</span>
+          }
+        </button>
+
+        <button
+          type="button"
+          (click)="goToScanner()"
+          class="w-full py-2.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition flex items-center justify-center gap-2 cursor-pointer"
+        >
+          <span>📷</span>
+          <span>Abrir Escáner de Cámara QR en Pantalla Completa</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL: CONFIRMACIÓN DE ENTREGA A DOMICILIO (DELIVERY)                       -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+@if (isDeliveryModalOpen && selectedDeliveryOrder) {
+  <div class="fixed inset-0 z-50 bg-gray-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-gray-100 animate-fade-in space-y-6">
+      
+      <div class="flex items-start justify-between border-b border-gray-100 pb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center justify-center text-xl">
+            📦
+          </div>
+          <div>
+            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800">
+              Confirmar Recepción
+            </span>
+            <h3 class="text-base font-black text-gray-900 mt-1">
+              Orden {{ selectedDeliveryOrder.invoiceNumber }}
+            </h3>
+          </div>
+        </div>
+        <button
+          (click)="closeDeliveryModal()"
+          class="text-gray-400 hover:text-gray-600 p-1 font-bold text-base cursor-pointer"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="bg-gray-50 p-4 rounded-2xl border border-gray-200/80 space-y-2 text-xs">
+        <div class="flex justify-between items-start">
+          <span class="text-gray-500">Destinatario:</span>
+          <div class="text-right">
+            <span class="font-bold text-gray-900 block">{{ getClientName(selectedDeliveryOrder) }}</span>
+            <span class="text-[11px] text-gray-400 font-mono">{{ getClientEmail(selectedDeliveryOrder) }}</span>
+            @if (getClientDni(selectedDeliveryOrder)) {
+              <span class="text-[10px] font-mono font-bold text-purple-700 block mt-0.5">🪪 DNI: {{ getClientDni(selectedDeliveryOrder) }}</span>
+            }
+            @if (getClientPhone(selectedDeliveryOrder)) {
+              <span class="text-[10px] text-emerald-700 font-bold block">📞 {{ getClientPhone(selectedDeliveryOrder) }}</span>
+            }
+          </div>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Artículos:</span>
+          <span class="font-bold text-gray-900">{{ totalItems(selectedDeliveryOrder) }} producto(s)</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-gray-500">Total Cobrado:</span>
+          <span class="font-black text-gray-900">{{ getOrderTotal(selectedDeliveryOrder) | solCurrency }}</span>
+        </div>
+      </div>
+
+      <p class="text-xs text-gray-600 leading-relaxed text-center">
+        ¿Confirmas que el repartidor entregó satisfactoriamente el pedido en la dirección de destino del cliente?
+      </p>
+
+      <div class="flex items-center gap-3 pt-2">
+        <button
+          type="button"
+          (click)="closeDeliveryModal()"
+          class="flex-1 py-2.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs transition"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="confirmDelivery()"
+          [disabled]="isConfirmingDelivery"
+          class="flex-1 py-2.5 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20"
+        >
+          @if (isConfirmingDelivery) {
+            <div class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          }
+          <span>Sí, Confirmar</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

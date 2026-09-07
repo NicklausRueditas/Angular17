@@ -764,7 +764,7 @@ export class PaymentComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
 
     // Actualizar estado de orden en backend con nuevo método
-    this.orderService.updateOrderStatus(this.pendingOrderId as any, 'pending_payment' as any)
+    this.orderService.updateOrderStatus(this.pendingOrderId as any, 'paid' as any)
       .pipe(
         takeUntil(this.destroy$),
         catchError(() => of(null))
@@ -780,7 +780,26 @@ export class PaymentComponent implements OnInit, OnDestroy {
   closeIzipayModal(): void {
     this.showIzipayModal = false;
     this.isProcessingOrder = false;
+    if (this.pendingOrderId) {
+      this.izipayService.failPayment(this.pendingOrderId, {
+        reason: 'Cancelado por el cliente durante el proceso de pago',
+      }).subscribe();
+      this.pendingOrderId = null;
+    }
     this.cdr.markForCheck();
+  }
+
+    /**
+   * Obtiene los días estimados de preparación/disponibilidad para recojo en tienda.
+   * Si no tiene stock local inmediato (hasLocalStock === false) o tiene estimatedDays explícito,
+   * se calculan los días de traslado (ej. 5 a 7 días); de lo contrario, retiro hoy (0 días).
+   */
+  getItemPickupDays(item: BasketItem): number {
+    const prod: any = item.product;
+    if (prod?.pickupEstimatedDays != null) return Number(prod.pickupEstimatedDays);
+    if (prod?.estimatedDays != null) return Number(prod.estimatedDays);
+    if (prod?.hasLocalStock === false) return 7;
+    return 0;
   }
 
   confirmOrder(): void {
@@ -790,6 +809,9 @@ export class PaymentComponent implements OnInit, OnDestroy {
 
     const paymentMethod = this.paymentMethod() as OrderPaymentMethod;
     const calls: ReturnType<OrderService['createOrder']>[] = [];
+
+    // Identificador compartido para sub-órdenes de una misma compra
+    const groupOrderId = 'grp_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
 
     // ── Grupo delivery ─────────────────────────────────────────────────────
     const deliveryItems = this.basketItems.filter(
@@ -801,28 +823,37 @@ export class PaymentComponent implements OnInit, OnDestroy {
         paymentMethod,
         addressId:     this.selectedAddress._id,
         variantIds:    deliveryItems.map(i => this.getItemKey(i)).filter(Boolean),
+        groupOrderId,
+        estimatedDays: 2, // Entrega a domicilio estándar (2 a 3 días)
       };
       calls.push(this.orderService.createOrder(dto));
     }
 
-    // ── Grupos pickup (agrupados por tienda) ───────────────────────────────
+    // ── Grupos pickup (Estrategia B: Entregas Parciales por Tienda y Disponibilidad) ──
     const pickupItems = this.basketItems.filter(
       i => this.getItemDeliveryMode(i) === 'pickup'
     );
-    // Agrupar por storeId
-    const pickupByStore = new Map<string, BasketItem[]>();
+    // Agrupar por storeId Y por tiempo estimado de retiro (ej. Hoy: 0 días vs Traslado: 7 días)
+    const pickupByStoreAndTiming = new Map<string, { storeId: string; estimatedDays: number; items: BasketItem[] }>();
     for (const item of pickupItems) {
       const store = this.getItemPickupStore(item);
       if (!store?._id) continue;
-      if (!pickupByStore.has(store._id)) pickupByStore.set(store._id, []);
-      pickupByStore.get(store._id)!.push(item);
+      const days = this.getItemPickupDays(item);
+      const groupKey = `${store._id}_days_${days}`;
+      if (!pickupByStoreAndTiming.has(groupKey)) {
+        pickupByStoreAndTiming.set(groupKey, { storeId: store._id, estimatedDays: days, items: [] });
+      }
+      pickupByStoreAndTiming.get(groupKey)!.items.push(item);
     }
-    for (const [storeId, items] of pickupByStore) {
+
+    for (const group of pickupByStoreAndTiming.values()) {
       const dto: CreateOrderDto = {
         fulfillment:   'pickup',
         paymentMethod,
-        storeId,
-        variantIds:    items.map(i => this.getItemKey(i)).filter(Boolean),
+        storeId:       group.storeId,
+        variantIds:    group.items.map(i => this.getItemKey(i)).filter(Boolean),
+        groupOrderId,
+        estimatedDays: group.estimatedDays,
       };
       calls.push(this.orderService.createOrder(dto));
     }

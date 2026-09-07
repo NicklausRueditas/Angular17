@@ -1,0 +1,695 @@
+<div class="min-h-screen bg-slate-50/60 pb-16">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-8">
+
+    <!-- ═══ HEADER PRINCIPAL CON BADGE DE ADMIN ═════════════════════════════ -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-6 sm:p-8 rounded-3xl border border-slate-200/80 shadow-xs">
+      <div>
+        <div class="flex items-center gap-2.5">
+          <span class="px-3 py-1 bg-purple-50 text-purple-700 border border-purple-200 rounded-full text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
+            <span>👑</span>
+            <span>Módulo de Administrador</span>
+          </span>
+          <span class="text-xs text-slate-400 font-medium">· Moorea Cloud Platform</span>
+        </div>
+        <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight mt-2 flex items-center gap-2">
+          <span>Gestión Integral de Usuarios</span>
+          <span class="text-base text-slate-400 font-bold">({{ totalUsers }})</span>
+        </h1>
+        <p class="text-xs sm:text-sm text-slate-500 font-medium mt-1">
+          Supervisa cuentas, modifica roles de acceso, desbloquea o suspende usuarios en tiempo real.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button
+          (click)="loadUsers()"
+          [disabled]="isLoading"
+          class="p-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl transition font-bold text-xs flex items-center gap-2 shadow-2xs active:scale-95 disabled:opacity-50"
+          title="Recargar listado"
+        >
+          <svg class="w-4 h-4" [class.animate-spin]="isLoading" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          <span class="hidden sm:inline">Actualizar</span>
+        </button>
+
+        <button
+          (click)="openCreateModal()"
+          class="px-5 py-3 bg-slate-900 hover:bg-slate-800 active:scale-95 text-white text-xs font-black rounded-2xl shadow-lg shadow-slate-900/15 transition flex items-center gap-2 cursor-pointer"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Nuevo Usuario</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- ═══ TARJETAS DE ESTADÍSTICAS RÁPIDAS ═════════════════════════════════ -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+      
+      <!-- Total -->
+      <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/80 shadow-xs">
+        <div class="flex items-center justify-between text-slate-400 mb-2">
+          <span class="text-[11px] font-black uppercase tracking-wider">Total</span>
+          <span class="text-base">👥</span>
+        </div>
+        <p class="text-2xl sm:text-3xl font-black text-slate-900">{{ totalUsers }}</p>
+        <span class="text-[10px] font-bold text-slate-400">Registrados</span>
+      </div>
+
+      <!-- Admins -->
+      <div class="bg-purple-50/50 p-4 sm:p-5 rounded-3xl border border-purple-100 shadow-xs">
+        <div class="flex items-center justify-between text-purple-600 mb-2">
+          <span class="text-[11px] font-black uppercase tracking-wider">Admins</span>
+          <span class="text-base">👑</span>
+        </div>
+        <p class="text-2xl sm:text-3xl font-black text-purple-900">{{ totalAdmins }}</p>
+        <span class="text-[10px] font-bold text-purple-600">Control Total</span>
+      </div>
+
+      <!-- Sellers -->
+      <div class="bg-rose-50/50 p-4 sm:p-5 rounded-3xl border border-rose-100 shadow-xs">
+        <div class="flex items-center justify-between text-rose-600 mb-2">
+          <span class="text-[11px] font-black uppercase tracking-wider">Vendedores</span>
+          <span class="text-base">🏪</span>
+        </div>
+        <p class="text-2xl sm:text-3xl font-black text-rose-900">{{ totalSellers }}</p>
+        <span class="text-[10px] font-bold text-rose-600">Comercios</span>
+      </div>
+
+      <!-- Workers -->
+      <div class="bg-emerald-50/50 p-4 sm:p-5 rounded-3xl border border-emerald-100 shadow-xs">
+        <div class="flex items-center justify-between text-emerald-600 mb-2">
+          <span class="text-[11px] font-black uppercase tracking-wider">Colaboradores</span>
+          <span class="text-base">👷</span>
+        </div>
+        <p class="text-2xl sm:text-3xl font-black text-emerald-900">{{ totalWorkers }}</p>
+        <span class="text-[10px] font-bold text-emerald-600">Cajeros / Almacén</span>
+      </div>
+
+      <!-- Clientes -->
+      <div class="bg-blue-50/50 p-4 sm:p-5 rounded-3xl border border-blue-100 shadow-xs">
+        <div class="flex items-center justify-between text-blue-600 mb-2">
+          <span class="text-[11px] font-black uppercase tracking-wider">Clientes</span>
+          <span class="text-base">🛍️</span>
+        </div>
+        <p class="text-2xl sm:text-3xl font-black text-blue-900">{{ totalClients }}</p>
+        <span class="text-[10px] font-bold text-blue-600">Compradores</span>
+      </div>
+
+      <!-- Inactivos / Bloqueados -->
+      <div class="bg-slate-100/70 p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-xs">
+        <div class="flex items-center justify-between text-slate-500 mb-2">
+          <span class="text-[11px] font-black uppercase tracking-wider">Inactivos</span>
+          <span class="text-base">🚫</span>
+        </div>
+        <p class="text-2xl sm:text-3xl font-black text-slate-700">{{ totalInactive }}</p>
+        <span class="text-[10px] font-bold text-slate-500">Bloqueados / Suspendidos</span>
+      </div>
+
+    </div>
+
+    <!-- ═══ TOOLBAR: BÚSQUEDA Y FILTROS AVANZADOS ═════════════════════════════ -->
+    <div class="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200/80 shadow-xs space-y-4">
+      <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+        
+        <!-- Buscador -->
+        <div class="relative flex-1">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange()"
+            placeholder="Buscar por nombre, correo electrónico, DNI o teléfono..."
+            class="w-full pl-10 pr-4 py-2.5 bg-slate-50/80 border border-slate-200 rounded-2xl text-xs sm:text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition"
+          />
+          @if (searchTerm) {
+            <button
+              (click)="searchTerm = ''; onSearchChange()"
+              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600"
+            >
+              ✕
+            </button>
+          }
+        </div>
+
+        <!-- Filtros por Rol y Estado -->
+        <div class="flex flex-wrap items-center gap-2">
+          
+          <!-- Filtro de Rol -->
+          <div class="inline-flex items-center gap-1 p-1 bg-slate-100 rounded-2xl text-xs font-bold">
+            <button
+              (click)="onRoleFilterChange('all')"
+              class="px-3 py-1.5 rounded-xl transition"
+              [class.bg-white]="selectedRole === 'all'"
+              [class.shadow-2xs]="selectedRole === 'all'"
+              [class.text-slate-900]="selectedRole === 'all'"
+              [class.text-slate-500]="selectedRole !== 'all'"
+            >
+              Todos los Roles
+            </button>
+            <button
+              (click)="onRoleFilterChange('admin')"
+              class="px-3 py-1.5 rounded-xl transition"
+              [class.bg-white]="selectedRole === 'admin'"
+              [class.shadow-2xs]="selectedRole === 'admin'"
+              [class.text-purple-700]="selectedRole === 'admin'"
+              [class.text-slate-500]="selectedRole !== 'admin'"
+            >
+              👑 Admins
+            </button>
+            <button
+              (click)="onRoleFilterChange('seller')"
+              class="px-3 py-1.5 rounded-xl transition"
+              [class.bg-white]="selectedRole === 'seller'"
+              [class.shadow-2xs]="selectedRole === 'seller'"
+              [class.text-rose-700]="selectedRole === 'seller'"
+              [class.text-slate-500]="selectedRole !== 'seller'"
+            >
+              🏪 Sellers
+            </button>
+            <button
+              (click)="onRoleFilterChange('worker')"
+              class="px-3 py-1.5 rounded-xl transition"
+              [class.bg-white]="selectedRole === 'worker'"
+              [class.shadow-2xs]="selectedRole === 'worker'"
+              [class.text-emerald-700]="selectedRole === 'worker'"
+              [class.text-slate-500]="selectedRole !== 'worker'"
+            >
+              👷 Workers
+            </button>
+          </div>
+
+          <!-- Filtro de Estado -->
+          <div class="inline-flex items-center gap-1 p-1 bg-slate-100 rounded-2xl text-xs font-bold">
+            <button
+              (click)="onStatusFilterChange('all')"
+              class="px-3 py-1.5 rounded-xl transition"
+              [class.bg-white]="selectedStatus === 'all'"
+              [class.shadow-2xs]="selectedStatus === 'all'"
+              [class.text-slate-900]="selectedStatus === 'all'"
+              [class.text-slate-500]="selectedStatus !== 'all'"
+            >
+              Todos
+            </button>
+            <button
+              (click)="onStatusFilterChange('active')"
+              class="px-3 py-1.5 rounded-xl transition"
+              [class.bg-white]="selectedStatus === 'active'"
+              [class.shadow-2xs]="selectedStatus === 'active'"
+              [class.text-emerald-700]="selectedStatus === 'active'"
+              [class.text-slate-500]="selectedStatus !== 'active'"
+            >
+              ✓ Activos
+            </button>
+            <button
+              (click)="onStatusFilterChange('inactive')"
+              class="px-3 py-1.5 rounded-xl transition"
+              [class.bg-white]="selectedStatus === 'inactive'"
+              [class.shadow-2xs]="selectedStatus === 'inactive'"
+              [class.text-rose-700]="selectedStatus === 'inactive'"
+              [class.text-slate-500]="selectedStatus !== 'inactive'"
+            >
+              🚫 Inactivos
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ═══ TABLA DE USUARIOS ════════════════════════════════════════════════ -->
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-xs overflow-hidden">
+      
+      @if (isLoading) {
+        <div class="p-16 text-center space-y-4">
+          <div class="w-10 h-10 border-3 border-slate-900 border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Cargando directorio de usuarios...</p>
+        </div>
+      } @else if (filteredUsers.length === 0) {
+        <div class="p-16 text-center space-y-3">
+          <span class="text-4xl">🔍</span>
+          <h3 class="text-base font-black text-slate-900">No se encontraron usuarios</h3>
+          <p class="text-xs text-slate-400 font-medium max-w-sm mx-auto">
+            Prueba ajustando los filtros de búsqueda o el rol seleccionado para ver más resultados.
+          </p>
+        </div>
+      } @else {
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-slate-50/70 border-b border-slate-200/80 text-[11px] font-black text-slate-400 uppercase tracking-wider">
+                <th class="py-4 pl-6 pr-3">Usuario / Perfil</th>
+                <th class="py-4 px-3">Contacto / Documento</th>
+                <th class="py-4 px-3">Roles Asignados</th>
+                <th class="py-4 px-3 text-center">Estado</th>
+                <th class="py-4 px-3">Registro / Acceso</th>
+                <th class="py-4 pr-6 pl-3 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-xs font-medium text-slate-700">
+              @for (user of filteredUsers; track user._id) {
+                <tr class="hover:bg-slate-50/60 transition-colors group">
+                  
+                  <!-- Usuario / Avatar -->
+                  <td class="py-4 pl-6 pr-3">
+                    <div class="flex items-center gap-3">
+                      @if (user.profilePicture && !user.profilePicture.includes('default.png')) {
+                        <img [src]="user.profilePicture" [alt]="user.displayName" class="w-10 h-10 rounded-2xl object-cover border border-slate-200 shadow-2xs" />
+                      } @else {
+                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-700 text-white font-black text-xs flex items-center justify-center shadow-2xs">
+                          {{ getInitials(user.displayName, user.email) }}
+                        </div>
+                      }
+                      <div>
+                        <div class="flex items-center gap-1.5">
+                          <span class="font-black text-slate-900 text-sm">{{ user.displayName || 'Sin Nombre' }}</span>
+                          @if (user.googleId) {
+                            <span class="text-[10px] px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded-md font-bold border border-blue-100" title="Autenticado con Google">G</span>
+                          }
+                        </div>
+                        <p class="text-xs text-slate-400 font-mono mt-0.5">{{ user.email }}</p>
+                      </div>
+                    </div>
+                  </td>
+
+                  <!-- Contacto / DNI -->
+                  <td class="py-4 px-3">
+                    <div class="space-y-0.5">
+                      <p class="text-xs font-bold text-slate-800">
+                        {{ user.phone ? ('📞 ' + user.phone) : '—' }}
+                      </p>
+                      <p class="text-[11px] text-slate-400 font-mono">
+                        {{ user.dni ? ('DNI: ' + user.dni) : 'Sin DNI' }}
+                      </p>
+                    </div>
+                  </td>
+
+                  <!-- Roles Asignados -->
+                  <td class="py-4 px-3">
+                    <div class="flex flex-wrap items-center gap-1.5">
+                      @for (role of (user.roles || ['user']); track role) {
+                        @let badge = getRoleBadge(role);
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-black border shadow-2xs {{ badge.color }}">
+                          <span>{{ badge.icon }}</span>
+                          <span>{{ badge.label }}</span>
+                        </span>
+                      }
+                    </div>
+                  </td>
+
+                  <!-- Estado (Activo / Inactivo) -->
+                  <td class="py-4 px-3 text-center">
+                    <button
+                      (click)="toggleUserActive(user)"
+                      class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black transition cursor-pointer active:scale-95 border"
+                      [class.bg-emerald-50]="user.isActive !== false"
+                      [class.text-emerald-700]="user.isActive !== false"
+                      [class.border-emerald-200]="user.isActive !== false"
+                      [class.bg-rose-50]="user.isActive === false"
+                      [class.text-rose-700]="user.isActive === false"
+                      [class.border-rose-200]="user.isActive === false"
+                      [title]="user.isActive !== false ? 'Clic para bloquear usuario' : 'Clic para activar usuario'"
+                    >
+                      <span class="w-1.5 h-1.5 rounded-full" [class.bg-emerald-500]="user.isActive !== false" [class.bg-rose-500]="user.isActive === false"></span>
+                      <span>{{ user.isActive !== false ? 'Activo' : 'Bloqueado' }}</span>
+                    </button>
+                  </td>
+
+                  <!-- Registro y Último Acceso -->
+                  <td class="py-4 px-3">
+                    <div class="space-y-0.5 text-[11px] text-slate-400">
+                      <p class="font-bold text-slate-600">Reg: {{ user.createdAt ? (user.createdAt | date:'dd/MM/yyyy') : '—' }}</p>
+                      <p>{{ user.lastLogin ? ('Acceso: ' + (user.lastLogin | date:'dd/MM/yy HH:mm')) : 'Sin accesos recientes' }}</p>
+                    </div>
+                  </td>
+
+                  <!-- Acciones -->
+                  <td class="py-4 pr-6 pl-3 text-right">
+                    <div class="flex items-center justify-end gap-1.5">
+                      
+                      <!-- Gestionar Roles -->
+                      <button
+                        (click)="openRolesModal(user)"
+                        class="p-2 text-purple-600 hover:bg-purple-50 rounded-xl transition border border-transparent hover:border-purple-200"
+                        title="Modificar Roles"
+                      >
+                        <span class="text-sm">👑</span>
+                      </button>
+
+                      <!-- Editar Perfil -->
+                      <button
+                        (click)="openEditModal(user)"
+                        class="p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition border border-transparent hover:border-slate-200"
+                        title="Editar Datos"
+                      >
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+
+                      <!-- Eliminar -->
+                      <button
+                        (click)="openDeleteModal(user)"
+                        class="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition border border-transparent hover:border-rose-200"
+                        title="Eliminar Usuario"
+                      >
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+
+                    </div>
+                  </td>
+
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL: CREAR NUEVO USUARIO                                                  -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+@if (isCreateModalOpen) {
+  <div class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl border border-slate-100 animate-fade-in space-y-6">
+      
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="text-lg font-black text-slate-900">Crear Nuevo Usuario</h3>
+          <p class="text-xs text-slate-400 font-medium">Asigna datos de acceso y su rol correspondiente</p>
+        </div>
+        <button (click)="closeCreateModal()" class="text-slate-400 hover:text-slate-600 font-bold p-1">✕</button>
+      </div>
+
+      <form [formGroup]="createForm" (ngSubmit)="submitCreateUser()" class="space-y-4">
+        
+        <!-- Nombre Completo -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre Completo *</label>
+          <input
+            type="text"
+            formControlName="displayName"
+            placeholder="Ej. Carlos Mendoza"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition"
+          />
+        </div>
+
+        <!-- Email y Contraseña -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Correo Electrónico *</label>
+            <input
+              type="email"
+              formControlName="email"
+              placeholder="usuario@moorea.pe"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Contraseña *</label>
+            <input
+              type="password"
+              formControlName="password"
+              placeholder="Mínimo 6 caracteres"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition"
+            />
+          </div>
+        </div>
+
+        <!-- Teléfono y DNI -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Teléfono Móvil</label>
+            <input
+              type="text"
+              formControlName="phone"
+              placeholder="987654321"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition"
+            />
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Documento DNI</label>
+            <input
+              type="text"
+              formControlName="dni"
+              placeholder="8 dígitos"
+              class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition"
+            />
+          </div>
+        </div>
+
+        <!-- Rol Principal -->
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Rol de Acceso Inicial *</label>
+          <div class="grid grid-cols-2 gap-2">
+            @for (r of availableRoles; track r.value) {
+              <label
+                class="flex items-center gap-2.5 p-3 rounded-2xl border cursor-pointer transition"
+                [class.bg-slate-900]="createForm.value.role === r.value"
+                [class.text-white]="createForm.value.role === r.value"
+                [class.border-slate-900]="createForm.value.role === r.value"
+                [class.bg-slate-50]="createForm.value.role !== r.value"
+                [class.border-slate-200]="createForm.value.role !== r.value"
+              >
+                <input
+                  type="radio"
+                  formControlName="role"
+                  [value]="r.value"
+                  class="hidden"
+                />
+                <span class="text-base">{{ r.icon }}</span>
+                <span class="text-xs font-black">{{ r.label }}</span>
+              </label>
+            }
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+          <button
+            type="button"
+            (click)="closeCreateModal()"
+            class="px-5 py-2.5 rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="createForm.invalid || isSaving"
+            class="px-6 py-2.5 rounded-2xl bg-slate-900 text-white font-black text-xs hover:bg-slate-800 transition active:scale-95 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-slate-900/15"
+          >
+            @if (isSaving) {
+              <div class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            }
+            <span>Crear Usuario</span>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL: GESTIONAR ROLES                                                      -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+@if (isRolesModalOpen && selectedUser) {
+  <div class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 animate-fade-in space-y-6">
+      
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="text-lg font-black text-slate-900">Modificar Roles de Acceso</h3>
+          <p class="text-xs text-slate-400 font-mono mt-0.5">{{ selectedUser.email }}</p>
+        </div>
+        <button (click)="closeRolesModal()" class="text-slate-400 hover:text-slate-600 font-bold p-1">✕</button>
+      </div>
+
+      <div class="space-y-2.5">
+        <p class="text-xs text-slate-500 font-medium">Selecciona los roles asignados a esta cuenta:</p>
+        
+        @for (r of availableRoles; track r.value) {
+          <div
+            (click)="toggleRoleSelection(r.value)"
+            class="flex items-center justify-between p-3.5 rounded-2xl border transition cursor-pointer"
+            [class.bg-purple-50]="hasRoleSelected(r.value) && r.value === 'admin'"
+            [class.border-purple-200]="hasRoleSelected(r.value) && r.value === 'admin'"
+            [class.bg-slate-50]="!hasRoleSelected(r.value)"
+            [class.border-slate-200]="!hasRoleSelected(r.value)"
+            [class.bg-slate-100]="hasRoleSelected(r.value) && r.value !== 'admin'"
+            [class.border-slate-300]="hasRoleSelected(r.value) && r.value !== 'admin'"
+          >
+            <div class="flex items-center gap-3">
+              <span class="text-lg">{{ r.icon }}</span>
+              <div>
+                <p class="text-xs font-black text-slate-900">{{ r.label }}</p>
+                <p class="text-[10px] text-slate-400 font-mono">rol: {{ r.value }}</p>
+              </div>
+            </div>
+
+            <div class="w-5 h-5 rounded-lg border flex items-center justify-center transition"
+              [class.bg-purple-600]="hasRoleSelected(r.value)"
+              [class.border-purple-600]="hasRoleSelected(r.value)"
+              [class.border-slate-300]="!hasRoleSelected(r.value)"
+            >
+              @if (hasRoleSelected(r.value)) {
+                <span class="text-white text-xs font-bold">✓</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+        <button
+          type="button"
+          (click)="closeRolesModal()"
+          class="px-5 py-2.5 rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="saveUserRoles()"
+          [disabled]="isSaving"
+          class="px-6 py-2.5 rounded-2xl bg-slate-900 text-white font-black text-xs hover:bg-slate-800 transition active:scale-95 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-slate-900/15"
+        >
+          @if (isSaving) {
+            <div class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          }
+          <span>Guardar Roles</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL: EDITAR PERFIL                                                        -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+@if (isEditModalOpen && selectedUser) {
+  <div class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 animate-fade-in space-y-6">
+      
+      <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="text-lg font-black text-slate-900">Editar Perfil de Usuario</h3>
+          <p class="text-xs text-slate-400 font-mono mt-0.5">{{ selectedUser.email }}</p>
+        </div>
+        <button (click)="closeEditModal()" class="text-slate-400 hover:text-slate-600 font-bold p-1">✕</button>
+      </div>
+
+      <form [formGroup]="editForm" (ngSubmit)="submitEditUser()" class="space-y-4">
+        
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Nombre Completo *</label>
+          <input
+            type="text"
+            formControlName="displayName"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Teléfono Móvil</label>
+          <input
+            type="text"
+            formControlName="phone"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition"
+          />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">Documento DNI</label>
+          <input
+            type="text"
+            formControlName="dni"
+            class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs font-medium focus:bg-white focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 outline-none transition"
+          />
+        </div>
+
+        <div class="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+          <button
+            type="button"
+            (click)="closeEditModal()"
+            class="px-5 py-2.5 rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="editForm.invalid || isSaving"
+            class="px-6 py-2.5 rounded-2xl bg-slate-900 text-white font-black text-xs hover:bg-slate-800 transition active:scale-95 disabled:opacity-50 flex items-center gap-2 shadow-lg shadow-slate-900/15"
+          >
+            @if (isSaving) {
+              <div class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            }
+            <span>Guardar Cambios</span>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+}
+
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+<!-- MODAL: CONFIRMAR ELIMINACIÓN                                                -->
+<!-- ═══════════════════════════════════════════════════════════════════════════ -->
+@if (isDeleteModalOpen && selectedUser) {
+  <div class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 sm:p-8 shadow-2xl border border-slate-100 animate-fade-in space-y-5 text-center">
+      
+      <div class="w-14 h-14 bg-rose-50 text-rose-600 rounded-3xl mx-auto flex items-center justify-center text-2xl border border-rose-100 shadow-xs">
+        ⚠️
+      </div>
+
+      <div class="space-y-1">
+        <h3 class="text-base font-black text-slate-900">¿Eliminar usuario permanentemente?</h3>
+        <p class="text-xs text-slate-500 font-medium leading-relaxed">
+          Esta acción no se puede deshacer. Se eliminará la cuenta de <strong class="text-slate-800 font-bold font-mono">{{ selectedUser.email }}</strong>.
+        </p>
+      </div>
+
+      <div class="flex items-center justify-center gap-3 pt-3">
+        <button
+          type="button"
+          (click)="closeDeleteModal()"
+          class="flex-1 py-2.5 rounded-2xl bg-slate-100 text-slate-700 font-bold text-xs hover:bg-slate-200 transition"
+        >
+          Cancelar
+        </button>
+        <button
+          type="button"
+          (click)="confirmDeleteUser()"
+          [disabled]="isSaving"
+          class="flex-1 py-2.5 rounded-2xl bg-rose-600 text-white font-black text-xs hover:bg-rose-700 transition active:scale-95 disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-lg shadow-rose-600/20"
+        >
+          @if (isSaving) {
+            <div class="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          }
+          <span>Sí, Eliminar</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

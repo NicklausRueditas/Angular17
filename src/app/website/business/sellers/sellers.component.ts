@@ -225,7 +225,7 @@ export class SellersComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (newUser) => {
-          this.sellers.unshift(newUser);
+          this.sellers.unshift(newUser as any);
           this.applyFilters();
           this.isSaving = false;
           this.closeModal();

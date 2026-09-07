@@ -30,6 +30,29 @@ export class ToastService {
    * @param message Mensaje a mostrar
    * @param duration Duración en milisegundos (opcional)
    */
+    /**
+   * Muestra un toast genérico según el tipo
+   * @param message Mensaje a mostrar
+   * @param type Tipo de toast ('success' | 'error' | 'warning' | 'info')
+   * @param duration Duración en milisegundos (opcional)
+   */
+  show(message: string, type: ToastType = 'info', duration?: number): void {
+    switch (type) {
+      case 'success':
+        this.showSuccess(message, duration);
+        break;
+      case 'error':
+        this.showError(message, duration);
+        break;
+      case 'warning':
+        this.showWarning(message, duration);
+        break;
+      default:
+        this.showInfo(message, duration);
+        break;
+    }
+  }
+
   showSuccess(message: string, duration?: number): void {
     this.addToast({
       message,

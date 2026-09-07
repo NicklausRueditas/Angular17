@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { BusinessComponent } from './business.component';
+import { adminGuard } from '../../core/guards/admin.guard';
 
 export const businessRoutes: Routes = [
   {
@@ -43,13 +44,24 @@ export const businessRoutes: Routes = [
       },
       {
         path: 'orders',
-        loadComponent: () => import('./orders-admin/orders-admin.component').then(m => m.OrdersAdminComponent),
-        title: 'Administración de Pedidos | Moorea Business'
+        loadComponent: () => import('./orders/orders.component').then(m => m.OrdersComponent),
+        title: 'Gestión de Pedidos | Moorea Business'
+      },
+      {
+        path: 'orders/:id',
+        loadComponent: () => import('./orders/order-detail/order-detail.component').then(m => m.OrderDetailComponent),
+        title: 'Detalle de Pedido | Moorea Business'
       },
       {
         path: 'pickup-scanner',
         loadComponent: () => import('./pickup-scanner/pickup-scanner.component').then(m => m.PickupScannerComponent),
         title: 'Escanear Retiro QR | Moorea Business'
+      },
+      {
+        path: 'users',
+        loadComponent: () => import('./users/users.component').then(m => m.UsersComponent),
+        canActivate: [adminGuard],
+        title: 'Gestión de Usuarios | Moorea Business'
       },
       {
         path: 'sellers',

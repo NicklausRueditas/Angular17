@@ -1,0 +1,34 @@
+@media print {
+  /* Ocultar elementos no imprimibles de la aplicación */
+  app-business-header,
+  app-business-sidebar,
+  header,
+  nav,
+  aside,
+  .no-print,
+  button {
+    display: none !important;
+  }
+
+  body, html {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .print-container {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  .print-page {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+}

@@ -1,7 +1,6 @@
 // ─── Tipos de estado ──────────────────────────────────────────────────────
 
 export type OrderStatus =
-  | 'pending_payment'
   | 'paid'
   | 'preparing'
   | 'ready_for_pickup'
@@ -65,6 +64,8 @@ export interface OrderPickupStoreSnapshot {
 export interface Order {
   _id: string;
   userId: string;
+  user?: any;
+  store?: any;
   invoiceNumber: string;
   fulfillment: FulfillmentType;
   fulfillmentType?: FulfillmentType;
@@ -80,6 +81,9 @@ export interface Order {
   storeId?: string;
   pickupCode?: string;
   pickupUsedAt?: string;
+  groupOrderId?: string;
+  estimatedDays?: number;
+  estimatedDeliveryDate?: string;
   status: OrderStatus;
   cancelReason?: string;
   createdAt: string;
@@ -95,6 +99,9 @@ export interface CreateOrderDto {
   addressId?: string;
   storeId?: string;
   variantIds?: string[];
+  groupOrderId?: string;
+  estimatedDays?: number;
+  estimatedDeliveryDate?: string;
 }
 
 // ─── Respuestas del Backend ───────────────────────────────────────────────
@@ -123,7 +130,6 @@ export interface OrderQrResponse {
 // ─── Helpers visuales y etiquetas ─────────────────────────────────────────
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
-  pending_payment:  'Pendiente de pago',
   paid:             'Pagado',
   preparing:        'En preparación',
   ready_for_pickup: 'Listo para retiro',
@@ -133,7 +139,6 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
 };
 
 export const ORDER_STATUS_COLOR: Record<OrderStatus, string> = {
-  pending_payment:  'bg-amber-100 text-amber-800 border-amber-200',
   paid:             'bg-emerald-100 text-emerald-800 border-emerald-200',
   preparing:        'bg-blue-100 text-blue-800 border-blue-200',
   ready_for_pickup: 'bg-purple-100 text-purple-800 border-purple-200',

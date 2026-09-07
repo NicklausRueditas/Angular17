@@ -1,11 +1,17 @@
 export interface User {
   _id: string;
-  displayName: string;
+  displayName?: string;
   email: string;
-  profilePicture: string;
+  profilePicture?: string;
   roles: string[];
-  phone: string;
-  dni: string;
-  addresses: string[]; // ObjectId como string
-  cards: string[]; // ObjectId como string
+  phone?: string;
+  dni?: string;
+  googleId?: string;
+  isActive?: boolean;
+  addresses?: string[];
+  cards?: string[];
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
+  lastLogin?: string | Date;
+  sellerProfiles?: any[];
 }
