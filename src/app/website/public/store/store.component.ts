@@ -69,8 +69,14 @@ export class StoreComponent implements OnInit, OnDestroy {
 
   // ── Estado UI ─────────────────────────────────────────────────────────────
   isLoading         = false;
-  isDropdownOpen    = false;
-  showMobileFilters = false;
+  activeDropdown: 'sort' | 'price' | 'rating' | null = null;
+  showFilterDrawer  = false;
+
+  get isDropdownOpen(): boolean { return this.activeDropdown === 'sort'; }
+  set isDropdownOpen(val: boolean) { this.activeDropdown = val ? 'sort' : null; }
+
+  get showMobileFilters(): boolean { return this.showFilterDrawer; }
+  set showMobileFilters(val: boolean) { this.showFilterDrawer = val; }
 
   // ── Paginación ────────────────────────────────────────────────────────────
   currentPage  = 1;
@@ -524,14 +530,27 @@ export class StoreComponent implements OnInit, OnDestroy {
 
   // ─── Helpers de UI ────────────────────────────────────────────────────────
 
-  toggleMobileFilters(): void { this.showMobileFilters = !this.showMobileFilters; }
-  toggleDropdown():      void { this.isDropdownOpen   = !this.isDropdownOpen; }
+  toggleMobileFilters(): void { this.showFilterDrawer = !this.showFilterDrawer; }
+  toggleFilterDrawer():  void { this.showFilterDrawer = !this.showFilterDrawer; }
+  closeFilterDrawer():   void { this.showFilterDrawer = false; }
+
+  toggleDropdownType(type: 'sort' | 'price' | 'rating'): void {
+    this.activeDropdown = this.activeDropdown === type ? null : type;
+  }
+
+  toggleDropdown(): void {
+    this.toggleDropdownType('sort');
+  }
+
+  closeAllDropdowns(): void {
+    this.activeDropdown = null;
+  }
 
   @HostListener('document:click', ['$event'])
   handleClickOutside(event: Event): void {
     const t = event.target as HTMLElement;
-    if (!t.closest('.ecommerce-dropdown-button') && !t.closest('.ecommerce-dropdown-menu')) {
-      this.isDropdownOpen = false;
+    if (!t.closest('.filter-dropdown-container') && !t.closest('.ecommerce-dropdown-button') && !t.closest('.ecommerce-dropdown-menu')) {
+      this.activeDropdown = null;
     }
   }
 
@@ -601,5 +620,51 @@ export class StoreComponent implements OnInit, OnDestroy {
     this.priceValue = price;
     this.currentPage = 1;
     this.applyLocalFilters();
+  }
+
+  // ─── Modern E-Commerce Helpers ────────────────────────────────────────────
+
+  get pagesArray(): (number | string)[] {
+    const total = this.totalPages;
+    const current = this.currentPage;
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+    if (current <= 4) {
+      return [1, 2, 3, 4, 5, '...', total];
+    }
+    if (current >= total - 3) {
+      return [1, '...', total - 4, total - 3, total - 2, total - 1, total];
+    }
+    return [1, '...', current - 1, current, current + 1, '...', total];
+  }
+
+  isPageNumber(val: number | string): boolean {
+    return typeof val === 'number';
+  }
+
+  goToPage(page: number | string): void {
+    if (typeof page === 'number' && page >= 1 && page <= this.totalPages) {
+      this.changePage(page);
+      if (typeof window !== 'undefined') {
+        window.scrollTo({ top: 120, behavior: 'smooth' });
+      }
+    }
+  }
+
+  get showingStart(): number {
+    if (this.totalItems === 0) return 0;
+    return (this.currentPage - 1) * this.itemsPerPage + 1;
+  }
+
+  get showingEnd(): number {
+    return Math.min(this.currentPage * this.itemsPerPage, this.totalItems);
+  }
+
+  get currentCategoryTitle(): string {
+    if (!this.selectedCategory || this.selectedCategory === 'all') {
+      return 'Catálogo Completo';
+    }
+    return this.selectedCategory;
   }
 }
