@@ -1,37 +1,13 @@
 <div class="min-h-screen bg-slate-50/50 pb-20">
   
-  <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-    
-    <!-- ═══ Mobile Top Bar ═══════════════════════════════════════════════════ -->
-    <div class="mb-6 flex items-center justify-between lg:hidden bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-      <div>
-        <h1 class="text-xl font-black text-slate-900 tracking-tight">Catálogo Moorea</h1>
-        <p class="text-xs text-slate-500 font-medium">{{ totalItems }} productos disponibles</p>
-      </div>
-      
-      <button
-        type="button"
-        (click)="toggleMobileFilters()"
-        class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-md active:scale-95 transition-all cursor-pointer"
-      >
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
-        </svg>
-        <span>Filtros</span>
-        @if (activeFiltersCount > 0) {
-          <span class="flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-black text-white">
-            {{ activeFiltersCount }}
-          </span>
-        }
-      </button>
-    </div>
+  <div class="mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8">
 
     <!-- ═══ Grid Layout: Sidebar + Main ══════════════════════════════════════ -->
-    <div class="lg:grid lg:grid-cols-12 lg:gap-8 items-start">
+    <div class="lg:grid lg:grid-cols-12 lg:gap-7 items-start">
       
       <!-- ═══ MENÚ LATERAL MODERNO (SIDEBAR) ═════════════════════════════════ -->
       <aside
-        class="hidden lg:block lg:col-span-3 mb-8 lg:mb-0"
+        class="hidden lg:block lg:col-span-3 mb-6 lg:mb-0"
         [class.!block]="showMobileFilters"
       >
         <!-- Overlay backdrop for mobile -->
@@ -40,7 +16,7 @@
         }
 
         <div
-          class="sticky top-20 bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200/70 shadow-xl shadow-slate-200/40 p-5 sm:p-6 space-y-6 z-50 lg:z-auto"
+          class="sticky top-20 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/70 shadow-lg shadow-slate-200/30 p-4 sm:p-5 space-y-5 z-50 lg:z-auto"
           [class.fixed]="showMobileFilters"
           [class.inset-y-0]="showMobileFilters"
           [class.left-0]="showMobileFilters"
@@ -52,49 +28,33 @@
           <!-- Mobile Drawer Header -->
           <div class="flex items-center justify-between pb-3 border-b border-slate-100 lg:hidden">
             <div class="flex items-center gap-2">
-              <span class="text-lg">⚡</span>
-              <h2 class="font-black text-slate-900 text-sm uppercase tracking-wider">Filtros de Búsqueda</h2>
+              <div class="w-7 h-7 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                </svg>
+              </div>
+              <h2 class="font-black text-slate-900 text-xs uppercase tracking-wider">Filtros de Búsqueda</h2>
             </div>
             <button
               type="button"
               (click)="toggleMobileFilters()"
-              class="text-slate-400 hover:text-slate-700 text-xl font-bold p-1"
+              class="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-500 flex items-center justify-center transition cursor-pointer"
             >
-              &times;
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           </div>
 
-          <!-- 1. Buscador Rápido -->
-          <div>
-            <div class="relative">
-              <input
-                type="text"
-                [(ngModel)]="searchQuery"
-                (keyup.enter)="onSearch()"
-                placeholder="Buscar por prenda, marca o tag..."
-                class="w-full pl-10 pr-10 py-3 rounded-2xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary transition-all shadow-inner"
-              />
-              <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none">
-                🔍
-              </span>
-              @if (searchQuery) {
-                <button
-                  type="button"
-                  (click)="clearSearch()"
-                  class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 text-xs font-black cursor-pointer"
-                  title="Limpiar"
-                >
-                  &times;
-                </button>
-              }
-            </div>
-          </div>
-
-          <!-- 2. Categorías -->
-          <div class="space-y-3">
+          <!-- 1. Categorías -->
+          <div class="space-y-2.5">
             <div class="flex items-center justify-between">
               <span class="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <span>🏷️</span> Categorías
+                <svg class="w-3.5 h-3.5 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.386l4.432-2.607c.826-.486 1.001-1.567.302-2.266L11.16 3.659A2.25 2.25 0 009.568 3z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                </svg>
+                Categorías
               </span>
               @if (selectedCategory && selectedCategory !== 'all') {
                 <button
@@ -107,62 +67,62 @@
               }
             </div>
 
-            <!-- Lista de categorías con emojis y contadores -->
-            <div class="space-y-1 max-h-64 overflow-y-auto custom-scrollbar pr-1">
+            <!-- Lista de categorías -->
+            <div class="space-y-1 max-h-56 overflow-y-auto custom-scrollbar pr-1">
               <!-- Todos los productos -->
               <button
                 type="button"
                 (click)="selectCategory('all')"
-                class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-200 cursor-pointer"
+                class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer text-left group"
                 [class.bg-slate-900]="selectedCategory === 'all'"
                 [class.text-white]="selectedCategory === 'all'"
-                [class.shadow-md]="selectedCategory === 'all'"
+                [class.shadow-xs]="selectedCategory === 'all'"
                 [class.bg-slate-50]="selectedCategory !== 'all'"
                 [class.text-slate-700]="selectedCategory !== 'all'"
                 [class.hover:bg-slate-100]="selectedCategory !== 'all'"
               >
                 <span class="flex items-center gap-2">
-                  <span>✨</span>
+                  <svg class="w-3.5 h-3.5 flex-shrink-0" [class.text-amber-400]="selectedCategory === 'all'" [class.text-slate-400]="selectedCategory !== 'all'" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+                  </svg>
                   <span>Todos los productos</span>
                 </span>
                 <span
-                  class="px-2 py-0.5 rounded-full text-[10px] font-mono"
+                  class="text-[10px] px-1.5 py-0.5 rounded-md font-bold"
                   [class.bg-white/20]="selectedCategory === 'all'"
                   [class.text-white]="selectedCategory === 'all'"
-                  [class.bg-slate-200/70]="selectedCategory !== 'all'"
-                  [class.text-slate-600]="selectedCategory !== 'all'"
+                  [class.bg-slate-200/60]="selectedCategory !== 'all'"
+                  [class.text-slate-500]="selectedCategory !== 'all'"
                 >
-                  {{ getCategoryCount('all') }}
+                  {{ totalItems }}
                 </span>
               </button>
 
-              <!-- Categorías dinámicas -->
+              <!-- Categorías Dinámicas -->
               @for (cat of dynamicCategories; track cat) {
-                @let isSelected = selectedCategory.toLowerCase() === cat.toLowerCase();
                 <button
                   type="button"
                   (click)="selectCategory(cat)"
-                  class="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all duration-200 cursor-pointer"
-                  [class.bg-primary]="isSelected"
-                  [class.text-white]="isSelected"
-                  [class.shadow-md]="isSelected"
-                  [class.shadow-primary/20]="isSelected"
-                  [class.bg-white]="!isSelected"
-                  [class.text-slate-700]="!isSelected"
-                  [class.hover:bg-slate-50]="!isSelected"
-                  [class.border]="!isSelected"
-                  [class.border-slate-100]="!isSelected"
+                  class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-all duration-150 cursor-pointer text-left group"
+                  [class.bg-primary]="selectedCategory === cat"
+                  [class.text-white]="selectedCategory === cat"
+                  [class.shadow-xs]="selectedCategory === cat"
+                  [class.bg-transparent]="selectedCategory !== cat"
+                  [class.text-slate-600]="selectedCategory !== cat"
+                  [class.hover:bg-slate-100]="selectedCategory !== cat"
                 >
-                  <span class="flex items-center gap-2 truncate">
-                    <span>{{ getCategoryEmoji(cat) }}</span>
+                  <span class="flex items-center gap-2 truncate pr-1">
+                    <svg class="w-3.5 h-3.5 flex-shrink-0" [class.text-white]="selectedCategory === cat" [class.text-slate-400]="selectedCategory !== cat" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getCategorySvgPath(cat)" />
+                    </svg>
                     <span class="truncate">{{ cat }}</span>
                   </span>
                   <span
-                    class="px-2 py-0.5 rounded-full text-[10px] font-mono flex-shrink-0"
-                    [class.bg-white/25]="isSelected"
-                    [class.text-white]="isSelected"
-                    [class.bg-slate-100]="!isSelected"
-                    [class.text-slate-500]="!isSelected"
+                    class="text-[10px] px-1.5 py-0.5 rounded-md font-bold flex-shrink-0"
+                    [class.bg-white/20]="selectedCategory === cat"
+                    [class.text-white]="selectedCategory === cat"
+                    [class.bg-slate-100]="selectedCategory !== cat"
+                    [class.text-slate-400]="selectedCategory !== cat"
                   >
                     {{ getCategoryCount(cat) }}
                   </span>
@@ -171,24 +131,27 @@
             </div>
           </div>
 
-          <!-- 3. Rango de Precio y Presets Rápidos -->
-          <div class="space-y-3 pt-3 border-t border-slate-100">
+          <!-- 2. Rango de Precio -->
+          <div class="space-y-2.5 pt-3 border-t border-slate-100">
             <div class="flex items-center justify-between">
               <span class="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-                <span>💰</span> Rango de Precio
+                <svg class="w-3.5 h-3.5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Precio Máximo
               </span>
-              <span class="text-xs font-black text-slate-900">
-                @if (priceValue < 2000) { S/ {{ priceValue }} } @else { Sin límite }
+              <span class="text-xs font-black text-primary font-mono">
+                S/ {{ priceValue }}
               </span>
             </div>
 
-            <!-- Chips de Precios Rápidos de 1-Clic -->
-            <div class="grid grid-cols-3 gap-1.5">
-              @for (preset of [{ label: 'Todos', val: 2000 }, { label: '< S/ 50', val: 50 }, { label: '< S/ 100', val: 100 }, { label: '< S/ 150', val: 150 }, { label: '< S/ 250', val: 250 }, { label: '< S/ 400', val: 400 }]; track preset.val) {
+            <!-- Botones de precio rápido -->
+            <div class="grid grid-cols-4 gap-1">
+              @for (preset of pricePresets; track preset.val) {
                 <button
                   type="button"
                   (click)="setQuickPrice(preset.val)"
-                  class="py-1.5 px-2 rounded-xl text-[11px] font-bold border transition-all duration-150 text-center cursor-pointer"
+                  class="py-1 px-1.5 rounded-lg text-[10px] font-bold border transition-all duration-150 text-center cursor-pointer"
                   [class.bg-primary]="priceValue === preset.val"
                   [class.text-white]="priceValue === preset.val"
                   [class.border-primary]="priceValue === preset.val"
@@ -203,7 +166,7 @@
             </div>
 
             <!-- Slider Range -->
-            <div class="pt-1">
+            <div class="pt-0.5">
               <input
                 type="range"
                 min="20"
@@ -211,7 +174,7 @@
                 step="10"
                 [value]="priceValue"
                 (input)="onPriceChange($event)"
-                class="w-full h-2 rounded-lg bg-slate-200 appearance-none cursor-pointer accent-primary"
+                class="w-full h-1.5 rounded-lg bg-slate-200 appearance-none cursor-pointer accent-primary"
               />
               <div class="flex justify-between text-[10px] text-slate-400 font-bold mt-1">
                 <span>S/ 20</span>
@@ -220,17 +183,20 @@
             </div>
           </div>
 
-          <!-- 4. Valoración Mínima (Estrellas) -->
-          <div class="space-y-3 pt-3 border-t border-slate-100">
+          <!-- 3. Valoración Mínima (Estrellas) -->
+          <div class="space-y-2 pt-3 border-t border-slate-100">
             <span class="text-[11px] font-black text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
-              <span>⭐</span> Valoración
+              <svg class="w-3.5 h-3.5 text-amber-400 fill-amber-400" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+              Valoración Mínima
             </span>
             <div class="flex flex-wrap gap-1.5">
               @for (stars of [5, 4, 3]; track stars) {
                 <button
                   type="button"
                   (click)="selectRating(stars)"
-                  class="flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer"
+                  class="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer"
                   [class.bg-amber-50]="selectedRating === stars"
                   [class.border-amber-300]="selectedRating === stars"
                   [class.text-amber-800]="selectedRating === stars"
@@ -238,75 +204,89 @@
                   [class.border-slate-200/70]="selectedRating !== stars"
                   [class.text-slate-600]="selectedRating !== stars"
                 >
-                  <span class="text-amber-400 font-black">★</span>
+                  <svg class="w-3.5 h-3.5 text-amber-400 fill-amber-400 flex-shrink-0" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
                   <span>{{ stars }}+</span>
                 </button>
               }
             </div>
           </div>
 
-          <!-- 5. Botón Limpiar Filtros -->
+          <!-- 4. Botón Limpiar Filtros -->
           @if (activeFiltersCount > 0) {
             <button
               type="button"
               (click)="clearFilters()"
-              class="w-full py-2.5 px-4 rounded-2xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-black border border-rose-200 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              class="w-full py-2 px-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-black border border-rose-200 transition-all cursor-pointer flex items-center justify-center gap-1.5"
             >
               <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
               </svg>
-              Limpiar todos los filtros ({{ activeFiltersCount }})
+              Limpiar filtros ({{ activeFiltersCount }})
             </button>
           }
         </div>
       </aside>
 
       <!-- ═══ ÁREA PRINCIPAL DE PRODUCTOS ════════════════════════════════════ -->
-      <main class="lg:col-span-9 space-y-6 min-w-0">
+      <main class="lg:col-span-9 space-y-4 min-w-0">
         
-        <!-- Header de Resultados y Ordenamiento -->
-        <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-100 shadow-sm space-y-4">
-          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div>
-              <div class="flex items-center gap-2.5">
-                <h2 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
-                  @if (selectedCategory && selectedCategory !== 'all') {
-                    {{ selectedCategory }}
-                  } @else {
-                    Catálogo de Productos
-                  }
-                </h2>
-                <span class="px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 text-xs font-black">
-                  {{ totalItems }}
-                </span>
-              </div>
-              <p class="text-xs text-slate-400 mt-0.5">
+        <!-- ═══ TOOLBAR DELGADO Y ELEGANTE (SLIM HEADER) ══════════════════════ -->
+        <div class="bg-white rounded-2xl px-4 py-2.5 sm:px-5 sm:py-3 border border-slate-200/70 shadow-xs">
+          <div class="flex items-center justify-between gap-3">
+            
+            <!-- Izquierda: Título y Contador Delgado -->
+            <div class="flex items-center gap-2 min-w-0">
+              <span class="text-xs font-medium text-slate-400 hidden sm:inline">Tienda /</span>
+              <h1 class="text-sm sm:text-base font-black text-slate-900 tracking-tight truncate">
                 @if (selectedCategory && selectedCategory !== 'all') {
-                  Filtrado por categoría seleccionada
+                  {{ selectedCategory }}
                 } @else {
-                  Mostrando todos los productos disponibles
+                  Catálogo de Productos
                 }
-              </p>
+              </h1>
+              <span class="text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full flex-shrink-0">
+                {{ totalItems }}
+              </span>
             </div>
 
-            <!-- Ordenamiento Dropdown -->
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-bold text-slate-400 uppercase tracking-wider hidden sm:inline">Ordenar:</span>
-              <div class="relative min-w-[200px]">
+            <!-- Derecha: Botón Filtros (Móvil) + Ordenamiento Slim -->
+            <div class="flex items-center gap-2 flex-shrink-0">
+              
+              <!-- Botón Filtros Móvil (Compacto) -->
+              <button
+                type="button"
+                (click)="toggleMobileFilters()"
+                class="lg:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900 text-white text-xs font-bold shadow-xs active:scale-95 transition-all cursor-pointer"
+              >
+                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c2.755 0 5.455.232 8.083.678.533.09.917.556.917 1.096v1.044a2.25 2.25 0 01-.659 1.591l-5.432 5.432a2.25 2.25 0 00-.659 1.591v2.927a2.25 2.25 0 01-1.244 2.013L9.75 21v-6.568a2.25 2.25 0 00-.659-1.591L3.659 7.409A2.25 2.25 0 013 5.818V4.774c0-.54.384-1.006.917-1.096A48.32 48.32 0 0112 3z" />
+                </svg>
+                <span>Filtros</span>
+                @if (activeFiltersCount > 0) {
+                  <span class="flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-black text-white">
+                    {{ activeFiltersCount }}
+                  </span>
+                }
+              </button>
+
+                <!-- Ordenamiento Dropdown Delgado -->
+              <div class="relative">
                 <button
                   type="button"
                   (click)="toggleDropdown()"
-                  class="ecommerce-dropdown-button w-full flex items-center justify-between gap-2.5 px-4 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-2xl text-xs font-bold text-slate-800 transition-all cursor-pointer"
+                  class="ecommerce-dropdown-button flex items-center gap-2 px-3 py-1.5 bg-slate-50 hover:bg-slate-100/80 border border-slate-200/80 rounded-xl text-xs font-bold text-slate-700 transition-all cursor-pointer"
                 >
-                  <span class="flex items-center gap-2">
-                    <span class="text-primary text-sm">✦</span>
-                    <span>{{ getSelectedSortLabel() }}</span>
-                  </span>
-                  <span class="text-slate-400 text-[10px]">▼</span>
+                  <span class="text-slate-400 font-normal hidden sm:inline">Ordenar:</span>
+                  <span class="text-slate-900 truncate max-w-[130px] sm:max-w-none">{{ getSelectedSortLabel() }}</span>
+                  <svg class="w-3.5 h-3.5 text-slate-400 transition-transform duration-200" [class.rotate-180]="isDropdownOpen" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
                 </button>
 
                 @if (isDropdownOpen) {
-                  <div class="ecommerce-dropdown-menu absolute right-0 z-30 mt-2 w-56 rounded-2xl bg-white shadow-xl border border-slate-100 p-1.5 space-y-1 animate-fade-in">
+                  <div class="ecommerce-dropdown-menu absolute right-0 z-30 mt-1.5 w-52 rounded-2xl bg-white shadow-xl border border-slate-100 p-1.5 space-y-1 animate-fade-in">
                     @for (option of sortOptions; track option.id) {
                       <button
                         type="button"
@@ -317,78 +297,107 @@
                         [class.text-slate-700]="selectedSort !== option.id"
                         [class.hover:bg-slate-50]="selectedSort !== option.id"
                       >
-                        <span>{{ option.label }}</span>
+                        <span class="flex items-center gap-2">
+                          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getSortIcon(option.icon)" />
+                          </svg>
+                          <span>{{ option.label }}</span>
+                        </span>
                         @if (selectedSort === option.id) {
-                          <span class="text-xs font-black">✓</span>
+                          <svg class="w-3.5 h-3.5 font-black text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                          </svg>
                         }
                       </button>
                     }
                   </div>
                 }
               </div>
+
             </div>
           </div>
 
-          <!-- Tags de Filtros Activos (Descartables) -->
+          <!-- Tags de Filtros Activos (Delgados & Compactos con Iconos SVG) -->
           @if (activeFiltersCount > 0) {
-            <div class="flex flex-wrap items-center gap-2 pt-3 border-t border-slate-100">
-              <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider mr-1">Filtros:</span>
+            <div class="flex flex-wrap items-center gap-1.5 pt-2 mt-2 border-t border-slate-100 text-xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mr-1">Filtros:</span>
               
               @if (searchQuery) {
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-900 text-white rounded-xl text-xs font-bold shadow-sm">
-                  🔍 "{{ searchQuery }}"
-                  <button type="button" (click)="clearSearch()" class="hover:text-primary font-black ml-0.5 cursor-pointer">&times;</button>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-900 text-white rounded-lg text-[11px] font-bold shadow-xs">
+                  <svg class="w-3 h-3 text-slate-300 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <span>"{{ searchQuery }}"</span>
+                  <button type="button" (click)="clearSearch()" class="hover:text-rose-300 ml-0.5 cursor-pointer">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
                 </span>
               }
 
               @if (selectedCategory && selectedCategory !== 'all') {
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/10 text-primary border border-primary/20 rounded-xl text-xs font-bold shadow-sm">
-                  🏷️ {{ selectedCategory }}
-                  <button type="button" (click)="selectCategory('all')" class="hover:opacity-75 font-black ml-0.5 cursor-pointer">&times;</button>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/10 text-primary border border-primary/20 rounded-lg text-[11px] font-bold">
+                  <svg class="w-3 h-3 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.386l4.432-2.607c.826-.486 1.001-1.567.302-2.266L11.16 3.659A2.25 2.25 0 009.568 3z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                  </svg>
+                  <span>{{ selectedCategory }}</span>
+                  <button type="button" (click)="selectCategory('all')" class="hover:opacity-70 ml-0.5 cursor-pointer">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
                 </span>
               }
 
               @if (priceValue < 2000) {
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold shadow-sm">
-                  💰 ≤ S/ {{ priceValue }}
-                  <button type="button" (click)="setQuickPrice(2000)" class="hover:opacity-75 font-black ml-0.5 cursor-pointer">&times;</button>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg text-[11px] font-bold">
+                  <svg class="w-3 h-3 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818l.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span>≤ S/ {{ priceValue }}</span>
+                  <button type="button" (click)="setQuickPrice(2000)" class="hover:opacity-70 ml-0.5 cursor-pointer">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
                 </span>
               }
 
               @if (selectedRating) {
-                <span class="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl text-xs font-bold shadow-sm">
-                  ⭐ {{ selectedRating }}+ Estrellas
-                  <button type="button" (click)="selectRating(selectedRating)" class="hover:opacity-75 font-black ml-0.5 cursor-pointer">&times;</button>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-lg text-[11px] font-bold">
+                  <svg class="w-3 h-3 text-amber-500 fill-amber-500 flex-shrink-0" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <span>{{ selectedRating }}+ estrellas</span>
+                  <button type="button" (click)="selectRating(null)" class="hover:opacity-70 ml-0.5 cursor-pointer">
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                  </button>
                 </span>
               }
 
               <button
                 type="button"
                 (click)="clearFilters()"
-                class="text-[11px] font-bold text-slate-400 hover:text-rose-600 underline ml-2 cursor-pointer"
+                class="text-[11px] font-bold text-rose-600 hover:text-rose-700 hover:underline ml-1 cursor-pointer"
               >
-                Limpiar todos
+                Limpiar todo
               </button>
             </div>
           }
         </div>
 
-        <!-- ═══ PRODUCT GRID (COMPONENT PRESERVED) ═══════════════════════════ -->
+        <!-- ═══ PRODUCT GRID (COMPONENT PRESERVED EXACTLY AS REQUESTED) ═══ -->
         <app-products [products]="products"></app-products>
 
-        <!-- Paginación -->
+        <!-- Paginación Delgada y Elegante -->
         @if (totalPages > 1) {
-          <div class="flex items-center justify-center gap-2 pt-8">
+          <div class="flex items-center justify-center gap-2 pt-6">
             <button
               type="button"
               (click)="changePage(currentPage - 1)"
               [disabled]="currentPage === 1"
-              class="px-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-slate-700 text-xs font-bold shadow-sm hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+              class="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold shadow-xs hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
             >
               &larr; Anterior
             </button>
             
-            <div class="flex items-center gap-1 px-3 py-1 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 shadow-sm">
+            <div class="flex items-center gap-1 px-3 py-1 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 shadow-xs">
               <span>Página</span>
               <span class="text-primary font-black">{{ currentPage }}</span>
               <span>de</span>
@@ -399,7 +408,7 @@
               type="button"
               (click)="changePage(currentPage + 1)"
               [disabled]="currentPage === totalPages"
-              class="px-4 py-2.5 rounded-2xl bg-white border border-slate-200 text-slate-700 text-xs font-bold shadow-sm hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+              class="px-3.5 py-2 rounded-xl bg-white border border-slate-200 text-slate-700 text-xs font-bold shadow-xs hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
             >
               Siguiente &rarr;
             </button>

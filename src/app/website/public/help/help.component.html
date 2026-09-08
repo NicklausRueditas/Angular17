@@ -8,7 +8,10 @@
 
     <div class="relative max-w-4xl mx-auto text-center space-y-6">
       <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-xs font-bold text-slate-200 tracking-wider uppercase shadow-sm">
-        <span>🛡️</span> Centro de Ayuda & Atención al Cliente
+        <svg class="w-4 h-4 text-emerald-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+        </svg>
+        <span>Centro de Ayuda & Atención al Cliente</span>
       </span>
 
       <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-white leading-tight">
@@ -22,8 +25,10 @@
       <!-- Live Search Input -->
       <div class="max-w-2xl mx-auto pt-2">
         <div class="relative flex items-center">
-          <span class="absolute left-4.5 text-slate-400 text-lg pointer-events-none">
-            🔍
+          <span class="absolute left-4 text-slate-400 flex items-center justify-center pointer-events-none">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </span>
           <input
             [(ngModel)]="searchQuery"
@@ -33,11 +38,14 @@
           />
           @if (searchQuery) {
             <button
+              type="button"
               (click)="searchQuery = ''"
-              class="absolute right-4 text-slate-400 hover:text-slate-700 text-sm font-black p-1 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
+              class="absolute right-4 text-slate-400 hover:text-slate-700 p-1.5 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
               title="Limpiar búsqueda"
             >
-              &times;
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
             </button>
           }
         </div>
@@ -61,10 +69,15 @@
         >
           <div>
             <div class="flex items-center justify-between mb-4">
-              <span class="text-3xl p-2.5 rounded-2xl bg-slate-50 group-hover:bg-primary/5 group-hover:scale-110 transition-all duration-200 inline-block">
-                {{ cat.icon }}
-              </span>
-              <span class="text-[11px] font-bold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
+              <div
+                class="w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 group-hover:scale-110 shadow-xs"
+                [ngClass]="getCategoryIconClass(cat.id)"
+              >
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getCategorySvgPath(cat.id)" />
+                </svg>
+              </div>
+              <span class="text-[11px] font-extrabold text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full">
                 {{ cat.count }} artículos
               </span>
             </div>
@@ -78,7 +91,11 @@
           
           <div class="mt-4 pt-3 border-t border-slate-50 flex items-center justify-between text-xs font-bold text-primary">
             <span>Ver preguntas frecuentes</span>
-            <span class="group-hover:translate-x-1 transition-transform">&rarr;</span>
+            <span class="group-hover:translate-x-1 transition-transform">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+              </svg>
+            </span>
           </div>
         </div>
       }
@@ -98,15 +115,19 @@
           <button
             type="button"
             (click)="setCategory('all')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer flex items-center gap-1.5"
             [class.bg-slate-900]="selectedCategory === 'all'"
             [class.text-white]="selectedCategory === 'all'"
             [class.border-slate-900]="selectedCategory === 'all'"
-            [class.bg-slate-50]="selectedCategory !== 'all'"
+            [class.bg-white]="selectedCategory !== 'all'"
             [class.text-slate-600]="selectedCategory !== 'all'"
             [class.border-slate-200]="selectedCategory !== 'all'"
+            [class.hover:border-slate-300]="selectedCategory !== 'all'"
           >
-            Todas
+            <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" />
+            </svg>
+            <span>Todas</span>
           </button>
           @for (cat of supportCategories; track cat.id) {
             <button
@@ -116,11 +137,14 @@
               [class.bg-primary]="selectedCategory === cat.id"
               [class.text-white]="selectedCategory === cat.id"
               [class.border-primary]="selectedCategory === cat.id"
-              [class.bg-slate-50]="selectedCategory !== cat.id"
+              [class.bg-white]="selectedCategory !== cat.id"
               [class.text-slate-600]="selectedCategory !== cat.id"
               [class.border-slate-200]="selectedCategory !== cat.id"
+              [class.hover:border-slate-300]="selectedCategory !== cat.id"
             >
-              <span>{{ cat.icon }}</span>
+              <svg class="w-3.5 h-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getCategorySvgPath(cat.id)" />
+              </svg>
               <span>{{ cat.title }}</span>
             </button>
           }
@@ -143,16 +167,31 @@
               class="w-full px-5 py-4.5 text-left flex items-center justify-between gap-4 font-bold text-slate-800 hover:text-primary transition-colors cursor-pointer"
             >
               <div class="flex items-center gap-3 min-w-0">
-                <span class="text-lg flex-shrink-0">{{ faq.categoryIcon }}</span>
+                <div
+                  class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                  [ngClass]="getCategoryBadgeClass(faq.category)"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getCategorySvgPath(faq.category)" />
+                  </svg>
+                </div>
                 <span class="text-sm sm:text-base font-extrabold tracking-tight">{{ faq.question }}</span>
               </div>
               <div
-                class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-xs font-black text-slate-600 transition-transform duration-200 flex-shrink-0"
-                [class.rotate-180]="faq.isOpen"
+                class="w-7 h-7 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 transition-all duration-200 flex-shrink-0"
                 [class.bg-primary]="faq.isOpen"
                 [class.text-white]="faq.isOpen"
               >
-                ▼
+                <svg
+                  class="w-3.5 h-3.5 transition-transform duration-200"
+                  [class.rotate-180]="faq.isOpen"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
+                </svg>
               </div>
             </button>
 
@@ -161,8 +200,14 @@
                 <p>{{ faq.answer }}</p>
                 <div class="mt-3 flex items-center gap-2">
                   <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Categoría:</span>
-                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-slate-100 text-[10px] font-bold text-slate-600">
-                    {{ faq.categoryIcon }} {{ faq.categoryLabel }}
+                  <span
+                    class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold"
+                    [ngClass]="getCategoryBadgeClass(faq.category)"
+                  >
+                    <svg class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="getCategorySvgPath(faq.category)" />
+                    </svg>
+                    <span>{{ faq.categoryLabel }}</span>
                   </span>
                 </div>
               </div>
@@ -170,7 +215,11 @@
           </div>
         } @empty {
           <div class="text-center py-12 space-y-3">
-            <div class="text-4xl">🔎</div>
+            <div class="w-14 h-14 mx-auto rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400">
+              <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6" />
+              </svg>
+            </div>
             <h4 class="text-base font-black text-slate-800">No encontramos resultados para "{{ searchQuery }}"</h4>
             <p class="text-xs text-slate-400 max-w-sm mx-auto">
               Intenta con otras palabras o contáctanos directamente a través de nuestros canales de soporte.
@@ -178,7 +227,7 @@
             <button
               type="button"
               (click)="searchQuery = ''; selectedCategory = 'all'"
-              class="mt-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition"
+              class="mt-2 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold hover:bg-slate-800 transition cursor-pointer"
             >
               Restablecer filtros
             </button>
@@ -192,10 +241,14 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       
       <!-- WhatsApp -->
-      <div class="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white rounded-3xl p-6.5 shadow-lg space-y-4 flex flex-col justify-between">
+      <div class="bg-gradient-to-br from-emerald-600 to-emerald-700 text-white rounded-3xl p-6.5 shadow-lg space-y-4 flex flex-col justify-between group">
         <div>
           <div class="flex items-center justify-between mb-3">
-            <span class="text-3xl">💬</span>
+            <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-white shadow-inner group-hover:scale-105 transition-transform">
+              <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24">
+                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+              </svg>
+            </div>
             <span class="px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-bold tracking-wide uppercase">Respuesta Rápida</span>
           </div>
           <h3 class="text-lg font-black tracking-tight">Chat en WhatsApp</h3>
@@ -206,17 +259,24 @@
         <a
           href="https://wa.me/51999999999?text=Hola%20Moorea,%20necesito%20ayuda%20con%20una%20consulta"
           target="_blank"
-          class="w-full py-3 bg-white text-emerald-800 hover:bg-emerald-50 rounded-2xl text-center text-xs font-black transition-all shadow-md active:scale-98 inline-block"
+          class="w-full py-3 bg-white text-emerald-800 hover:bg-emerald-50 rounded-2xl text-center text-xs font-black transition-all shadow-md active:scale-98 inline-flex items-center justify-center gap-2"
         >
-          Iniciar Chat en WhatsApp &rarr;
+          <span>Iniciar Chat en WhatsApp</span>
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
         </a>
       </div>
 
       <!-- Email -->
-      <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 text-white rounded-3xl p-6.5 shadow-lg space-y-4 flex flex-col justify-between">
+      <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 text-white rounded-3xl p-6.5 shadow-lg space-y-4 flex flex-col justify-between group">
         <div>
           <div class="flex items-center justify-between mb-3">
-            <span class="text-3xl">✉️</span>
+            <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-white shadow-inner group-hover:scale-105 transition-transform">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+              </svg>
+            </div>
             <span class="px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-bold tracking-wide uppercase">&lt; 2 Horas</span>
           </div>
           <h3 class="text-lg font-black tracking-tight">Correo Electrónico</h3>
@@ -226,17 +286,24 @@
         </div>
         <a
           href="mailto:soporte@moorea.pe?subject=Consulta%20de%20Soporte%20Moorea"
-          class="w-full py-3 bg-white text-indigo-900 hover:bg-indigo-50 rounded-2xl text-center text-xs font-black transition-all shadow-md active:scale-98 inline-block"
+          class="w-full py-3 bg-white text-indigo-900 hover:bg-indigo-50 rounded-2xl text-center text-xs font-black transition-all shadow-md active:scale-98 inline-flex items-center justify-center gap-2"
         >
-          soporte&#64;moorea.pe &rarr;
+          <span>soporte&#64;moorea.pe</span>
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
         </a>
       </div>
 
       <!-- Phone / Central -->
-      <div class="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-3xl p-6.5 shadow-lg space-y-4 flex flex-col justify-between">
+      <div class="bg-gradient-to-br from-slate-800 to-slate-900 text-white rounded-3xl p-6.5 shadow-lg space-y-4 flex flex-col justify-between group">
         <div>
           <div class="flex items-center justify-between mb-3">
-            <span class="text-3xl">📞</span>
+            <div class="w-12 h-12 rounded-2xl bg-white/15 backdrop-blur-md flex items-center justify-center text-white shadow-inner group-hover:scale-105 transition-transform">
+              <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+              </svg>
+            </div>
             <span class="px-2.5 py-0.5 rounded-full bg-white/20 text-[10px] font-bold tracking-wide uppercase">Lunes a Sábado</span>
           </div>
           <h3 class="text-lg font-black tracking-tight">Central de Atención</h3>
@@ -246,9 +313,12 @@
         </div>
         <a
           href="tel:+51999999999"
-          class="w-full py-3 bg-white text-slate-900 hover:bg-slate-100 rounded-2xl text-center text-xs font-black transition-all shadow-md active:scale-98 inline-block"
+          class="w-full py-3 bg-white text-slate-900 hover:bg-slate-100 rounded-2xl text-center text-xs font-black transition-all shadow-md active:scale-98 inline-flex items-center justify-center gap-2"
         >
-          (01) 234-5678 &bull; Llamar
+          <span>(01) 234-5678 &bull; Llamar</span>
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
         </a>
       </div>
 
@@ -257,8 +327,13 @@
     <!-- ═══ FORMULARIO DE CONSULTAS / TICKET ═════════════════════════════════ -->
     <section class="bg-white rounded-3xl p-6 sm:p-10 border border-slate-100 shadow-sm space-y-6">
       <div class="max-w-2xl">
-        <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-          <span>📝</span> Envíanos tu Consulta
+        <h2 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+            </svg>
+          </div>
+          <span>Envíanos tu Consulta</span>
         </h2>
         <p class="text-xs text-slate-500 mt-1">
           ¿No encontraste lo que buscabas? Déjanos un mensaje y te responderemos por correo electrónico en menos de 2 horas.
@@ -322,19 +397,22 @@
           ></textarea>
         </div>
 
-        <div class="sm:col-span-2 flex items-center justify-between pt-2">
-          <p class="text-[11px] text-slate-400">
-            🔒 Tus datos están protegidos bajo nuestra política de privacidad.
+        <div class="sm:col-span-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
+          <p class="text-[11px] text-slate-400 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+            </svg>
+            <span>Tus datos están protegidos bajo nuestra política de privacidad.</span>
           </p>
           <button
             type="submit"
             [disabled]="isSubmitting"
-            class="px-8 py-3 bg-gradient-to-r from-primary to-rose-600 text-white rounded-xl font-black text-sm hover:opacity-95 disabled:opacity-40 transition-all shadow-lg shadow-primary/20 hover:scale-102 active:scale-98 cursor-pointer flex items-center gap-2"
+            class="px-8 py-3 bg-gradient-to-r from-primary to-rose-600 text-white rounded-xl font-black text-sm hover:opacity-95 disabled:opacity-40 transition-all shadow-lg shadow-primary/20 hover:scale-102 active:scale-98 cursor-pointer flex items-center justify-center gap-2"
           >
             @if (isSubmitting) {
               <div class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
             }
-            {{ isSubmitting ? 'Enviando...' : 'Enviar Consulta' }}
+            <span>{{ isSubmitting ? 'Enviando...' : 'Enviar Consulta' }}</span>
           </button>
         </div>
       </form>

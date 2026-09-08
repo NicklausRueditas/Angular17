@@ -1,17 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, HostListener, OnInit, OnDestroy } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { SesionService } from '../../../../core/services/auth/sesion.service';
 import { User } from '../../../../core/interfaces/user.interface';
 import { AuthService } from '../../../../core/services/auth/auth.service';
 import { BasketService } from '../../../../core/services/commerce/basket.service';
-import { Basket, BasketItem } from '../../../../core/interfaces/basket.interface';
+import { Basket } from '../../../../core/interfaces/basket.interface';
+import { GeoService } from '../../../../core/services/utils/geo.service';
 import { Subscription, take } from 'rxjs';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, FormsModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
@@ -24,26 +26,51 @@ export class HeaderComponent implements OnInit, OnDestroy {
     estimatedTotal: 0
   };
 
+  searchQuery: string = '';
+  cityName: string = 'Huancayo';
+  isScrolled: boolean = false;
+  avatarError: boolean = false;
+
   isMenuUserOpen = false;
   isMenuCartOpen = false;
   isMenuMobileOpen = false;
+  isSearchOpenMobile = false;
 
   private subscriptions = new Subscription();
+
+  /** Umbral en Soles para acceder a delivery gratuito local */
+  readonly freeDeliveryThreshold = 200;
 
   constructor(
     private sesionService: SesionService,
     private authService: AuthService,
     private basketService: BasketService,
+    private geoService: GeoService,
     private router: Router
   ) { }
 
   ngOnInit(): void {
     this.loadUserData();
     this.initBasketSubscriptions();
+    this.initGeoLocation();
   }
 
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    this.isScrolled = window.scrollY > 15;
+  }
+
+  private initGeoLocation(): void {
+    const geoSub = this.geoService.location$.subscribe(loc => {
+      if (loc?.city) {
+        this.cityName = loc.city;
+      }
+    });
+    this.subscriptions.add(geoSub);
   }
 
   private loadUserData(): void {
@@ -51,12 +78,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Llamar a getProfile() directamente
-    // Si AuthService ya cargó el perfil, getProfile() usará el caché
     const userSub = this.sesionService.getProfile().subscribe({
       next: (user) => {
-        console.log('[HeaderComponent] User received from getProfile:', user);
         this.userData = user;
+        this.avatarError = false;
       },
       error: (error) => {
         console.error('Error al cargar perfil:', error);
@@ -81,21 +106,36 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   /**
    * Cierra sesión del usuario.
-   * Estrategia local-first: limpia el estado inmediatamente y navega,
-   * mientras el HTTP logout se dispara en segundo plano.
-   * Evita que el usuario quede "bloqueado" si el backend tarda o falla.
+   * Limpia el estado inmediatamente y navega, mientras el HTTP logout se dispara en segundo plano.
    */
   logout(): void {
-    // 1. Limpiar estado local de manera inmediata
     this.userData = null;
     this.basket = null;
     this.basketSummary = { itemCount: 0, totalQuantity: 0, estimatedTotal: 0 };
     this.closeAllMenus();
 
-    // 2. Disparar HTTP logout (debe suscribirse para que se ejecute)
     this.authService.logout().pipe(take(1)).subscribe({
       error: (err) => console.warn('[Header] logout HTTP error (ignorado):', err)
     });
+  }
+
+  onSearch(): void {
+    const query = this.searchQuery?.trim();
+    if (query) {
+      this.router.navigate(['/store'], { queryParams: { search: query } });
+    } else {
+      this.router.navigate(['/store']);
+    }
+    this.closeAllMenus();
+    this.isSearchOpenMobile = false;
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+  }
+
+  toggleSearchMobile(): void {
+    this.isSearchOpenMobile = !this.isSearchOpenMobile;
   }
 
   toggleMenu(menu: 'user' | 'cart' | 'mobile', event: Event): void {
@@ -118,7 +158,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   @HostListener('document:click', ['$event'])
   closeMenus(event: Event): void {
     const target = event.target as HTMLElement;
-    if (!target.closest('#user-menu') && !target.closest('#cart-menu') && !target.closest('#mobile-menu')) {
+    if (!target.closest('#user-menu') && !target.closest('#user-trigger') &&
+        !target.closest('#cart-menu') && !target.closest('#cart-trigger') &&
+        !target.closest('#mobile-menu') && !target.closest('#mobile-trigger')) {
       this.closeAllMenus();
     }
   }
@@ -127,6 +169,42 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.isMenuUserOpen = false;
     this.isMenuCartOpen = false;
     this.isMenuMobileOpen = false;
+  }
+
+  onAvatarError(): void {
+    this.avatarError = true;
+  }
+
+  get userFirstName(): string {
+    if (!this.userData?.displayName) return 'Mi Perfil';
+    return this.userData.displayName.trim().split(' ')[0];
+  }
+
+  get userInitial(): string {
+    const name = this.userData?.displayName?.trim();
+    if (name && name.length > 0) {
+      return name.charAt(0).toUpperCase();
+    }
+    const email = this.userData?.email?.trim();
+    if (email && email.length > 0) {
+      return email.charAt(0).toUpperCase();
+    }
+    return 'U';
+  }
+
+  get userAvatar(): string | null {
+    if (this.avatarError) return null;
+    const pic = this.userData?.profilePicture;
+    if (!pic || typeof pic !== 'string' || pic.trim() === '' || pic.includes('default.png')) {
+      return null;
+    }
+    return pic;
+  }
+
+  get userRoleLabel(): string {
+    if (this.isAdmin) return 'Administrador';
+    if (this.isSeller) return 'Vendedor';
+    return 'Cliente';
   }
 
   get totalPrice(): number {
@@ -140,9 +218,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   /** String ID de la variante para trackBy y llamadas al API */
   getVariantId(item: any): string {
     if (!item) return 'empty';
-    // Nuevo formato: variantId es string
     if (typeof item.variantId === 'string' && item.variantId) return item.variantId;
-    // Guest localStorage: variant es objeto
     if (item.variant?._id) return item.variant._id;
     if (!item._corruptedId) item._corruptedId = `corrupted-${Math.random()}`;
     return item._corruptedId;
@@ -153,7 +229,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     const v = item.variant && typeof item.variant === 'object' ? item.variant : null;
     if (!v) return '';
     const color = v.color?.name ?? '';
-    const size  = v.size?.value ?? '';
+    const size = v.size?.value ?? '';
     return [color, size].filter(Boolean).join(' · ');
   }
 
@@ -165,7 +241,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   removeFromCart(variantId: string): void {
     if (!variantId || variantId.startsWith('corrupted-')) {
-      // Ítem corrupto: limpiarlo del carrito local sin llamar al API
       this.basketService.cleanupCorruptedItems();
       return;
     }
@@ -177,7 +252,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   updateQuantity(variantId: string, change: number): void {
     if (!variantId || variantId.startsWith('corrupted-')) {
-      // Ítem corrupto: limpiarlo del carrito local sin llamar al API
       this.basketService.cleanupCorruptedItems();
       return;
     }
@@ -187,13 +261,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Nombre del producto maestro extraido desde item.product (nuevo backend) */
   getProductName(item: any): string {
     if (item.product && typeof item.product === 'object') return item.product.name ?? '';
     return '';
   }
 
-  /** SKU de la variante (item.variant.sku) */
   getSku(item: any): string {
     if (item.variant && typeof item.variant === 'object') return item.variant.sku ?? '';
     return '';
@@ -206,27 +278,19 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // ─── CART FLYOUT HELPERS ──────────────────────────────────────────────────
 
-  /** Umbral en Soles para acceder a delivery gratuito local */
-  readonly freeDeliveryThreshold = 200;
-
-  /** Porcentaje de progreso hacia el envío gratis (0 a 100) */
   get freeDeliveryProgress(): number {
     if (!this.totalPrice || this.totalPrice <= 0) return 0;
     return Math.min(100, Math.round((this.totalPrice / this.freeDeliveryThreshold) * 100));
   }
 
-  /** Monto restante en Soles para calificar a envío gratis */
   get freeDeliveryRemaining(): number {
     return Math.max(0, parseFloat((this.freeDeliveryThreshold - this.totalPrice).toFixed(2)));
   }
 
-  /** Obtiene el color hex de la variante del ítem si existe */
-  /** Retorna el precio unitario del ítem de forma segura */
   getItemUnitPrice(item: any): number {
     return item?.finalPrice ?? item?.price ?? 0;
   }
 
-  /** Retorna el subtotal de la línea de ítem de forma segura */
   getItemSubtotal(item: any): number {
     return this.getItemUnitPrice(item) * (item?.quantity ?? 1);
   }
@@ -253,7 +317,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     return this.userData?.roles?.includes('admin') ?? false;
   }
 
-  /** Retorna la URL actual del navegador para usar como returnUrl en login */
   get currentUrl(): string {
     return this.router.url;
   }

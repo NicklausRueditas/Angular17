@@ -1,181 +1,478 @@
-<div class="min-h-screen bg-white">
+<div class="min-h-screen bg-gray-50/50 text-gray-900 overflow-hidden">
 
-    <!-- Hero Section -->
-    <section class="relative bg-gradient-to-br from-primary/10 via-white to-primary/5 overflow-hidden">
-        <div class="absolute inset-0 opacity-10">
-            <div
-                class="absolute top-0 left-0 w-96 h-96 bg-primary rounded-full -translate-x-1/2 -translate-y-1/2 blur-3xl">
+  <!-- ── 1. HERO SECTION MODERNO ── -->
+  <section class="relative pt-8 pb-16 lg:pt-14 lg:pb-24 bg-gradient-to-b from-white via-rose-50/20 to-gray-50/60 overflow-hidden">
+    <!-- Luces ambientales de fondo -->
+    <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-[750px] h-[350px] bg-primary/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
+    <div class="absolute top-1/3 -right-24 w-72 h-72 bg-amber-200/20 rounded-full blur-3xl pointer-events-none -z-10"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+
+        <!-- Columna Izquierda: Copywriting y CTAs -->
+        <div class="lg:col-span-7 text-center lg:text-left space-y-6">
+          
+          <!-- Badge de Colección -->
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-gray-200/80 shadow-xs text-xs font-semibold text-gray-700">
+            <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span>
+            <svg class="w-3.5 h-3.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+            <span>Tendencias & Nueva Colección 2026</span>
+            <span class="text-gray-300">|</span>
+            <span class="text-primary font-bold">Oficial</span>
+          </div>
+
+          <!-- Título Principal -->
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 leading-[1.15]">
+            La nueva experiencia de compra online en
+            <span class="font-brand text-5xl sm:text-6xl lg:text-7xl font-normal animate-shine block sm:inline">
+              Moorea
+            </span>
+          </h1>
+
+          <!-- Subtítulo -->
+          <p class="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-normal">
+            Encuentra lo último en moda, tecnología y estilo de vida con entrega rápida en tu ciudad, garantía directa y pagos 100% seguros.
+          </p>
+
+          <!-- Botones de Acción Principal -->
+          <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3.5 pt-2">
+            <a routerLink="/store"
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 px-8 py-4 bg-primary text-white font-bold rounded-2xl shadow-lg shadow-primary/25 hover:brightness-110 active:scale-95 transition-all text-sm sm:text-base group">
+              <span>Explorar Tienda</span>
+              <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </a>
+
+            <a routerLink="/store" [queryParams]="{ sort: 'discount' }"
+              class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-7 py-4 bg-white text-gray-800 font-bold rounded-2xl border border-gray-200 shadow-xs hover:bg-gray-50 hover:border-gray-300 active:scale-95 transition-all text-sm sm:text-base">
+              <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+              </svg>
+              <span>Ver Ofertas Especiales</span>
+            </a>
+          </div>
+
+          <!-- Métricas de Confianza / Trust Badges -->
+          <div class="pt-4 border-t border-gray-200/60 grid grid-cols-3 gap-4 max-w-lg mx-auto lg:mx-0">
+            <div>
+              <p class="text-xl sm:text-2xl font-black text-gray-900">4.9 ★</p>
+              <p class="text-xs text-gray-500 font-medium mt-0.5">Satisfacción Clientes</p>
             </div>
-            <div
-                class="absolute bottom-0 right-0 w-96 h-96 bg-primary rounded-full translate-x-1/2 translate-y-1/2 blur-3xl">
+            <div>
+              <p class="text-xl sm:text-2xl font-black text-gray-900">+1,000</p>
+              <p class="text-xs text-gray-500 font-medium mt-0.5">Productos Activos</p>
             </div>
+            <div>
+              <p class="text-xl sm:text-2xl font-black text-primary">S/ 0</p>
+              <p class="text-xs text-gray-500 font-medium mt-0.5">Envío desde S/ 200</p>
+            </div>
+          </div>
+
         </div>
 
-        <div class="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-24 lg:py-32">
-            <div class="grid lg:grid-cols-2 gap-12 items-center">
+        <!-- Columna Derecha: Tarjeta Visual con Elementos Flotantes -->
+        <div class="lg:col-span-5 relative mt-6 lg:mt-0">
+          <div class="relative mx-auto max-w-md lg:max-w-none">
+            
+            <!-- Marco Principal de Imagen -->
+            <div class="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-gray-100 aspect-[4/5] sm:aspect-square lg:aspect-[4/5]">
+              <img src="https://images.unsplash.com/photo-1483985988355-763728e1935b?w=800&auto=format&fit=crop"
+                alt="Compras en Moorea"
+                class="w-full h-full object-cover object-center transform hover:scale-105 transition-transform duration-700">
+              
+              <!-- Degradado inferior para contraste -->
+              <div class="absolute inset-0 bg-gradient-to-t from-gray-950/70 via-transparent to-transparent"></div>
 
-                <!-- Hero Content -->
-                <div class="text-center lg:text-left">
-                    <h1 class="text-5xl lg:text-6xl font-brand text-gray-900 mb-6 leading-tight">
-                        Descubre lo mejor en
-                        <span class="text-primary">Moorea</span>
-                    </h1>
-                    <p class="text-xl text-gray-600 mb-8 leading-relaxed">
-                        Tu tienda online de confianza. Encuentra productos de calidad con los mejores precios y envío
-                        rápido a todo el país.
-                    </p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                        <a routerLink="/store"
-                            class="inline-flex items-center justify-center px-8 py-4 bg-primary text-white font-semibold rounded-xl shadow-lg hover:bg-primary/90 transition-all transform hover:scale-105">
-                            Explorar Tienda
-                            <svg class="ml-2 h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                            </svg>
-                        </a>
-                        <a routerLink="/store"
-                            class="inline-flex items-center justify-center px-8 py-4 bg-white border-2 border-gray-300 text-gray-700 font-semibold rounded-xl hover:border-primary hover:text-primary transition-all">
-                            Ver Ofertas
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Hero Image -->
-                <div class="relative">
-                    <div
-                        class="aspect-square rounded-3xl bg-gradient-to-br from-primary/20 to-primary/5 p-8 shadow-2xl">
-                        <img src="https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=600" alt="Shopping"
-                            class="w-full h-full object-cover rounded-2xl">
-                    </div>
-                    <!-- Floating Badge -->
-                    <div class="absolute -bottom-6 -left-6 bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
-                        <div class="flex items-center gap-4">
-                            <div class="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                                <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
-                            </div>
-                            <div>
-                                <p class="text-2xl font-bold text-gray-900">1000+</p>
-                                <p class="text-sm text-gray-600">Productos</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+              <!-- Texto superpuesto en la imagen -->
+              <div class="absolute bottom-6 left-6 right-6 text-white">
+                <span class="inline-block px-2.5 py-1 rounded-full bg-primary/90 text-[10px] font-black uppercase tracking-wider mb-2">
+                  Destacado del Mes
+                </span>
+                <h3 class="text-xl font-extrabold leading-tight">Calidad premium garantizada</h3>
+                <p class="text-xs text-gray-200 mt-1">Conecta con los mejores vendedores y productos exclusivos.</p>
+              </div>
             </div>
+
+            <!-- Pastilla Flotante 1 (Top Right): Descuento Flash -->
+            <div class="absolute -top-4 -right-4 sm:-right-6 bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 shadow-xl border border-gray-100 flex items-center gap-3 animate-[flyoutIn_0.3s_ease-out]">
+              <div class="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center shadow-xs">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.386l4.432-2.607c.826-.486 1.001-1.567.302-2.266L11.16 3.659A2.25 2.25 0 009.568 3z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-gray-900 leading-none">Hasta 30% OFF</p>
+                <p class="text-[10px] text-gray-500 mt-0.5">En productos seleccionados</p>
+              </div>
+            </div>
+
+            <!-- Pastilla Flotante 2 (Bottom Left): Envíos el mismo día -->
+            <div class="absolute -bottom-5 -left-4 sm:-left-6 bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-3.5 shadow-xl border border-gray-100 flex items-center gap-3 animate-[flyoutIn_0.4s_ease-out]">
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-xs">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div>
+                <p class="text-xs font-bold text-gray-900 leading-none">Despacho Express</p>
+                <p class="text-[10px] text-gray-500 mt-0.5">Entrega el mismo día</p>
+              </div>
+            </div>
+
+          </div>
         </div>
-    </section>
 
-    <!-- Features Section -->
-    <section class="py-20 bg-gray-50">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl lg:text-4xl font-brand text-gray-900 mb-4">
-                    ¿Por qué elegir Moorea?
-                </h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    Nos comprometemos a brindarte la mejor experiencia de compra online
-                </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 2. VALUE PROPOSITIONS & BENEFICIOS ── -->
+  <section class="py-10 bg-white border-y border-gray-200/70">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        @for (feature of features; track feature.title) {
+          <div class="p-5 rounded-3xl bg-gray-50/70 hover:bg-white border border-gray-100 hover:border-gray-200 hover:shadow-lg transition-all duration-300 group">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="w-10 h-10 rounded-2xl flex items-center justify-center border shadow-xs group-hover:scale-110 transition-transform {{ feature.colorClass }}">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round" [attr.d]="feature.svgPath" />
+                </svg>
+              </div>
+              <span class="text-[10px] font-black uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                {{ feature.badge }}
+              </span>
             </div>
+            <h3 class="text-sm font-extrabold text-gray-900 mb-1.5 leading-snug">
+              {{ feature.title }}
+            </h3>
+            <p class="text-xs text-gray-500 leading-relaxed font-normal">
+              {{ feature.description }}
+            </p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-                @for(feature of features; track feature.title) {
-                <div
-                    class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1">
-                    <div class="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4">
-                        <svg class="w-6 h-6 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                [attr.d]="feature.icon" />
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-gray-900 mb-2">{{ feature.title }}</h3>
-                    <p class="text-gray-600">{{ feature.description }}</p>
-                </div>
+  <!-- ── 3. CATEGORÍAS POPULARES ── -->
+  <section class="py-16 sm:py-20 bg-gray-50/60">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <!-- Cabecera de Sección -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+        <div>
+          <span class="text-xs font-black uppercase tracking-widest text-primary">Catálogo</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight mt-1">
+            Explora por Categorías
+          </h2>
+          <p class="text-sm text-gray-500 mt-1 font-normal">
+            Encuentra exactamente lo que buscas en nuestras colecciones más demandadas
+          </p>
+        </div>
+        <a routerLink="/store"
+          class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-primary hover:underline self-start sm:self-auto">
+          <span>Ver todas las categorías</span>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <!-- Cuadrícula de Categorías -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+        @for (category of categories; track category.name) {
+          <a [routerLink]="category.link"
+            class="group relative overflow-hidden rounded-3xl aspect-[3/4] shadow-md hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+            
+            <img [src]="category.image" [alt]="category.name"
+              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+            
+            <!-- Overlay con Degradado -->
+            <div class="absolute inset-0 bg-gradient-to-t {{ category.color }}"></div>
+
+            <!-- Contenido de la Tarjeta -->
+            <div class="absolute inset-0 p-5 flex flex-col justify-between text-white">
+              <div class="self-start">
+                <span class="px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-md text-[10px] font-black uppercase tracking-wider">
+                  {{ category.tag }}
+                </span>
+              </div>
+
+              <div>
+                <h3 class="text-lg sm:text-xl font-extrabold leading-tight mb-2 group-hover:translate-x-0.5 transition-transform">
+                  {{ category.name }}
+                </h3>
+                <span class="inline-flex items-center gap-1 text-xs font-bold text-white/90 group-hover:text-white">
+                  <span>Descubrir</span>
+                  <svg class="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </a>
+        }
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── 4. PRODUCTOS DESTACADOS (CATÁLOGO REAL) ── -->
+  <section class="py-16 sm:py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Header de Sección -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+        <div>
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 text-primary text-[11px] font-bold mb-2">
+            <svg class="w-3.5 h-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.362 5.214A8.252 8.252 0 0112 21 8.25 8.25 0 016.038 7.048 8.287 8.287 0 009 9.6a8.983 8.983 0 013.361-6.867 8.21 8.21 0 003 2.48z" />
+            </svg>
+            <span>Lo más vendido</span>
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+            Productos Destacados
+          </h2>
+          <p class="text-sm text-gray-500 mt-1 font-normal">
+            Selección exclusiva de los artículos favoritos de nuestra comunidad
+          </p>
+        </div>
+
+        <a routerLink="/store"
+          class="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gray-100 hover:bg-gray-200 text-gray-800 text-xs sm:text-sm font-bold transition active:scale-95 self-start sm:self-auto">
+          <span>Ver catálogo completo</span>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+        </a>
+      </div>
+
+      <!-- Skeletons durante la carga inicial -->
+      @if (isLoadingProducts) {
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6">
+          @for (n of [1, 2, 3, 4]; track n) {
+            <div class="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm animate-pulse space-y-4">
+              <div class="aspect-square bg-gray-200 rounded-2xl"></div>
+              <div class="h-4 bg-gray-200 rounded-md w-3/4"></div>
+              <div class="h-3 bg-gray-100 rounded-md w-1/2"></div>
+              <div class="h-6 bg-gray-200 rounded-md w-1/3"></div>
+            </div>
+          }
+        </div>
+      } @else if (featuredProducts.length > 0) {
+        <!-- Grid de Productos Reales -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          @for (product of featuredProducts; track product._id) {
+            @let finalPrice = getFinalPrice(product);
+            @let imgUrl = getProductImage(product);
+
+            <div class="group rounded-3xl bg-white border border-gray-100 hover:border-gray-200 shadow-xs hover:shadow-xl transition-all duration-300 p-3 sm:p-4 flex flex-col justify-between">
+              
+              <!-- Imagen del Producto -->
+              <div class="relative aspect-square rounded-2xl bg-gray-50 overflow-hidden mb-3.5 flex items-center justify-center">
+                <img [src]="imgUrl" [alt]="product.name"
+                  (error)="onProductImageError($event)"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+
+                <!-- Badge de Descuento -->
+                @if (product.discount > 0) {
+                  <span class="absolute top-2.5 left-2.5 px-2 py-0.5 rounded-full bg-primary text-white text-[10px] font-black uppercase tracking-wider shadow-sm">
+                    -{{ product.discount }}% OFF
+                  </span>
                 }
-            </div>
-        </div>
-    </section>
 
-    <!-- Categories Section -->
-    <section class="py-20 bg-white">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl lg:text-4xl font-brand text-gray-900 mb-4">
-                    Explora por Categorías
-                </h2>
-                <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-                    Encuentra exactamente lo que buscas en nuestras categorías destacadas
-                </p>
-            </div>
+                <!-- Badge de Marca -->
+                @if (product.brand) {
+                  <span class="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-xs text-white text-[10px] font-bold truncate max-w-[120px]">
+                    {{ product.brand }}
+                  </span>
+                }
+              </div>
 
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-                @for(category of categories; track category.name) {
-                <a [routerLink]="category.link"
-                    class="group relative overflow-hidden rounded-2xl aspect-square shadow-lg hover:shadow-2xl transition-all transform hover:scale-105">
-                    <img [src]="category.image" [alt]="category.name"
-                        class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-                    <div class="absolute bottom-0 left-0 right-0 p-6">
-                        <h3 class="text-2xl font-bold text-white mb-2">{{ category.name }}</h3>
-                        <span class="inline-flex items-center text-white text-sm font-medium">
-                            Ver más
-                            <svg class="ml-1 w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M9 5l7 7-7 7" />
-                            </svg>
-                        </span>
+              <!-- Datos del Producto -->
+              <div class="space-y-1.5 flex-1">
+                <!-- Categoría -->
+                @if (product.category && product.category.length > 0) {
+                  <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400 truncate">
+                    {{ product.category[0] }}
+                  </p>
+                }
+
+                <!-- Nombre -->
+                <h3 class="text-xs sm:text-sm font-bold text-gray-900 leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                  {{ product.name }}
+                </h3>
+
+                <!-- Calificación de Estrellas -->
+                <div class="flex items-center gap-1 text-xs text-amber-500">
+                  <svg class="w-3.5 h-3.5 text-amber-400 fill-amber-400" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <span class="font-bold text-gray-700 text-[11px]">
+                    {{ product.rating?.average || 4.8 | number:'1.1-1' }}
+                  </span>
+                  <span class="text-gray-400 text-[10px]">
+                    ({{ product.rating?.count || 14 }})
+                  </span>
+                </div>
+              </div>
+
+              <!-- Precio y Botón -->
+              <div class="pt-3 border-t border-gray-100 mt-3 flex items-center justify-between gap-2">
+                <div>
+                  <div class="text-sm sm:text-base font-black text-gray-900">
+                    S/ {{ finalPrice | number:'1.2-2' }}
+                  </div>
+                  @if (product.discount > 0) {
+                    <div class="text-[11px] text-gray-400 line-through">
+                      S/ {{ product.basePrice | number:'1.2-2' }}
                     </div>
+                  }
+                </div>
+
+                <a [routerLink]="['/product', product._id]"
+                  class="p-2 sm:px-3 sm:py-2 rounded-xl bg-gray-100 hover:bg-primary text-gray-700 hover:text-white font-bold text-xs transition-all active:scale-95 flex items-center gap-1 shadow-xs">
+                  <span class="hidden sm:inline">Ver</span>
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
                 </a>
-                }
-            </div>
-        </div>
-    </section>
+              </div>
 
-    <!-- CTA Section -->
-    <section class="py-20 bg-gradient-to-br from-primary to-primary/80">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="text-center">
-                <h2 class="text-3xl lg:text-4xl font-brand text-white mb-6">
-                    ¿Listo para comenzar?
-                </h2>
-                <p class="text-xl text-white/90 mb-8 max-w-2xl mx-auto">
-                    Únete a miles de clientes satisfechos y descubre una nueva forma de comprar online
-                </p>
-                <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a routerLink="/auth/register"
-                        class="inline-flex items-center justify-center px-8 py-4 bg-white text-primary font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-                        Crear Cuenta Gratis
-                    </a>
-                    <a routerLink="/store"
-                        class="inline-flex items-center justify-center px-8 py-4 bg-transparent border-2 border-white text-white font-semibold rounded-xl hover:bg-white hover:text-primary transition-all">
-                        Explorar Productos
-                    </a>
-                </div>
             </div>
+          }
         </div>
-    </section>
+      } @else {
+        <!-- Estado vacío si el catálogo no tiene items -->
+        <div class="text-center py-12 px-4 rounded-3xl bg-gray-50 border border-gray-100">
+          <p class="text-base font-bold text-gray-700">Explora nuestro catálogo en la tienda</p>
+          <p class="text-xs text-gray-400 mt-1">Cientos de productos disponibles para ti</p>
+          <a routerLink="/store" class="mt-4 inline-block px-6 py-2.5 rounded-full bg-primary text-white text-xs font-bold shadow-sm hover:brightness-110">
+            Ir a la Tienda
+          </a>
+        </div>
+      }
 
-    <!-- Stats Section -->
-    <section class="py-16 bg-gray-50">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div class="grid md:grid-cols-3 gap-8 text-center">
-                <div>
-                    <p class="text-4xl lg:text-5xl font-bold text-primary mb-2">10K+</p>
-                    <p class="text-gray-600 font-medium">Clientes Felices</p>
-                </div>
-                <div>
-                    <p class="text-4xl lg:text-5xl font-bold text-primary mb-2">1000+</p>
-                    <p class="text-gray-600 font-medium">Productos Disponibles</p>
-                </div>
-                <div>
-                    <p class="text-4xl lg:text-5xl font-bold text-primary mb-2">24/7</p>
-                    <p class="text-gray-600 font-medium">Soporte al Cliente</p>
-                </div>
-            </div>
+    </div>
+  </section>
+
+  <!-- ── 5. BANNER PROMOCIONAL FLASH ── -->
+  <section class="py-12 bg-gradient-to-r from-gray-950 via-slate-900 to-gray-950 text-white relative overflow-hidden">
+    <!-- Ambient Glow -->
+    <div class="absolute -right-20 -bottom-20 w-96 h-96 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+      <div class="rounded-3xl bg-white/5 border border-white/10 p-8 sm:p-12 backdrop-blur-md flex flex-col lg:flex-row items-center justify-between gap-8">
+        
+        <div class="space-y-3 text-center lg:text-left max-w-xl">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 text-amber-300 text-[11px] font-black uppercase tracking-wider">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Cupón Exclusivo de Bienvenida
+          </span>
+          <h2 class="text-2xl sm:text-4xl font-black text-white leading-tight">
+            ¿Primera vez en Moorea? Ahorra S/ 20 en tu primer pedido
+          </h2>
+          <p class="text-sm text-gray-300 font-normal">
+            Aplica el cupón oficial al momento de realizar tu compra y disfruta de beneficios exclusivos.
+          </p>
         </div>
-    </section>
+
+        <div class="flex flex-col sm:flex-row items-center gap-4 flex-shrink-0">
+          <!-- Cupón Chip -->
+          <div class="px-5 py-3 rounded-2xl bg-white/10 border border-white/20 font-mono font-bold text-sm tracking-widest text-amber-300 text-center select-all">
+            MOOREA10
+          </div>
+
+          <a routerLink="/store"
+            class="px-8 py-3.5 rounded-2xl bg-primary text-white font-bold text-sm hover:brightness-110 active:scale-95 shadow-lg shadow-primary/30 transition-all text-center">
+            Comprar Ahora
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 6. SECCIÓN VENDER EN MOOREA (MARKETPLACE) ── -->
+  <section class="py-16 sm:py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="rounded-3xl bg-gradient-to-br from-amber-500/10 via-rose-50/40 to-white border border-amber-200/60 p-8 sm:p-12 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-10">
+        
+        <div class="space-y-4 text-center lg:text-left max-w-2xl">
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 text-amber-900 text-xs font-black uppercase tracking-wider">
+            <svg class="w-3.5 h-3.5 text-amber-800" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            Para Empresas y Emprendedores
+          </span>
+          <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight">
+            ¿Tienes un negocio o tienda? Vende tus productos en Moorea
+          </h2>
+          <p class="text-sm sm:text-base text-gray-600 leading-relaxed font-normal">
+            Únete a nuestra red de vendedores locales y nacionales. Te proporcionamos tu propio panel de control, gestión de inventario por tiendas y acceso a miles de compradores.
+          </p>
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2 text-xs font-bold text-gray-700">
+            <span class="flex items-center gap-1.5">✓ Sin costo de registro</span>
+            <span class="flex items-center gap-1.5">✓ Pagos automáticos</span>
+            <span class="flex items-center gap-1.5">✓ Panel de inventario</span>
+          </div>
+        </div>
+
+        <div class="flex-shrink-0">
+          <a routerLink="/my-account/become-seller"
+            class="inline-flex items-center justify-center gap-2.5 px-8 py-4 rounded-2xl bg-gray-900 text-white font-bold text-sm sm:text-base shadow-xl hover:bg-gray-800 active:scale-95 transition-all">
+            <span>Abrir mi Tienda Gratis</span>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ── 7. NEWSLETTER / CLUB MOOREA ── -->
+  <section class="py-16 bg-gray-50 border-t border-gray-200/70">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="max-w-2xl mx-auto text-center space-y-4">
+        
+        <div class="w-12 h-12 mx-auto rounded-2xl bg-primary/10 text-primary flex items-center justify-center shadow-xs">
+          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
+          </svg>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+          Únete a la Comunidad Moorea
+        </h2>
+        <p class="text-xs sm:text-sm text-gray-500 font-normal">
+          Suscríbete a nuestro boletín para recibir noticias de lanzamientos, ofertas secretas y promociones antes que nadie.
+        </p>
+
+        <!-- Formulario -->
+        <form (ngSubmit)="onSubscribeNewsletter()" class="pt-3 max-w-md mx-auto flex flex-col sm:flex-row gap-2.5">
+          <input type="email"
+            [(ngModel)]="newsletterEmail"
+            name="newsletterEmail"
+            placeholder="Ingresa tu correo electrónico..."
+            required
+            class="flex-1 px-4 py-3 text-xs sm:text-sm bg-white text-gray-900 rounded-2xl border border-gray-200 focus:border-primary focus:ring-4 focus:ring-primary/10 outline-none transition" />
+          
+          <button type="submit"
+            class="px-6 py-3 rounded-2xl bg-primary text-white font-bold text-xs sm:text-sm hover:brightness-110 active:scale-95 transition shadow-sm shadow-primary/20">
+            Suscribirme
+          </button>
+        </form>
+
+        @if (newsletterSuccess) {
+          <div class="p-3 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center justify-center gap-2 animate-[flyoutIn_0.2s_ease-out]">
+            <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>¡Gracias por suscribirte! Te hemos enviado un correo de bienvenida.</span>
+          </div>
+        }
+
+      </div>
+    </div>
+  </section>
 
 </div>

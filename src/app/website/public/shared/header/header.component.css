@@ -1,47 +1,28 @@
-.opacity-100 {
-  opacity: 1;
-}
-
-.opacity-0 {
-  opacity: 0;
-}
-
-.translate-x-0 {
-  transform: translateX(0);
-}
-
-.translate-x-full {
-  transform: translateX(100%);
-}
-
-.transition-opacity {
-  transition: opacity 0.5s ease-in-out;
-}
-
-.transition-transform {
-  transition: transform 0.5s ease-in-out;
-}
-
-/* Logo Text Animation */
+/* ── Logo Text Shimmer ── */
 .animate-shine {
-  background: linear-gradient(to right,
-      var(--color-primary) 0%,
-      #ff8fa3 50%,
-      var(--color-primary) 100%);
+  background: linear-gradient(
+    120deg,
+    var(--color-primary, #ec003f) 0%,
+    #ff758f 40%,
+    var(--color-primary, #ec003f) 80%
+  );
   background-size: 200% auto;
   color: transparent;
-  background-clip: text;
   -webkit-background-clip: text;
-  animation: shine 3s linear infinite;
+  background-clip: text;
+  animation: shine 5s ease-in-out infinite;
 }
 
 @keyframes shine {
-  to {
-    background-position: 200% center;
+  0%, 100% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
   }
 }
 
-/* Cart Flyout Animation */
+/* ── Flyout Opening Transition ── */
 @keyframes flyoutIn {
   0% {
     opacity: 0;
@@ -51,4 +32,26 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+/* ── Minimalist Scrollbar for Dropdowns ── */
+#cart-menu ::-webkit-scrollbar,
+#user-menu ::-webkit-scrollbar {
+  width: 4px;
+}
+
+#cart-menu ::-webkit-scrollbar-track,
+#user-menu ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#cart-menu ::-webkit-scrollbar-thumb,
+#user-menu ::-webkit-scrollbar-thumb {
+  background-color: rgba(209, 213, 219, 0.6);
+  border-radius: 9999px;
+}
+
+#cart-menu ::-webkit-scrollbar-thumb:hover,
+#user-menu ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.8);
 }

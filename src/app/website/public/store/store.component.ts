@@ -7,6 +7,8 @@ import {
   Subject, Subscription, debounceTime, distinctUntilChanged, takeUntil
 } from 'rxjs';
 
+import { ActivatedRoute, Router } from '@angular/router';
+
 import { ProductsComponent } from './pages/products/products.component';
 import { ProductsService }   from '../../../core/services/catalog/products.service';
 import { GeoService, GeoLocation } from '../../../core/services/utils/geo.service';
@@ -48,6 +50,14 @@ export class StoreComponent implements OnInit, OnDestroy {
   // ── Constantes para la UI ─────────────────────────────────────────────────
   sortOptions    = SORT_OPTIONS;
   ratingOptions  = RATING_OPTIONS;
+  readonly pricePresets = [
+    { label: 'Todos', val: 2000 },
+    { label: '< S/ 50', val: 50 },
+    { label: '< S/ 100', val: 100 },
+    { label: '< S/ 150', val: 150 },
+    { label: '< S/ 250', val: 250 },
+    { label: '< S/ 400', val: 400 },
+  ];
 
   // ── Filtros activos ───────────────────────────────────────────────────────
   searchQuery        = '';
@@ -77,12 +87,15 @@ export class StoreComponent implements OnInit, OnDestroy {
   constructor(
     private readonly productsService: ProductsService,
     private readonly geoService: GeoService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
   ) {}
 
   // ─── Lifecycle ────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
     this.setupDebounces();
+    this.initQueryParams();
     this.initGeoAndCatalog();
   }
 
@@ -183,6 +196,34 @@ export class StoreComponent implements OnInit, OnDestroy {
         this.cacheProducts = snapshot;
         this.applyLocalFilters();
       });
+  }
+
+  /**
+   * Sincroniza parámetros de búsqueda, categoría y orden provenientes del Header o URLs externas (/store?search=...)
+   */
+  private initQueryParams(): void {
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
+      let changed = false;
+      const searchParam = (params['search'] ?? '').trim();
+      if (searchParam !== this.searchQuery) {
+        this.searchQuery = searchParam;
+        changed = true;
+      }
+      const categoryParam = params['category'] ?? 'all';
+      if (categoryParam !== this.selectedCategory) {
+        this.selectedCategory = categoryParam;
+        changed = true;
+      }
+      const sortParam = params['sort'] ?? 'newest';
+      if (sortParam !== this.selectedSort) {
+        this.selectedSort = sortParam;
+        changed = true;
+      }
+      if (changed) {
+        this.currentPage = 1;
+        this.applyLocalFilters();
+      }
+    });
   }
 
   // ─── Carga de datos ───────────────────────────────────────────────────────
@@ -357,7 +398,16 @@ export class StoreComponent implements OnInit, OnDestroy {
     this.applyLocalFilters();
   }
 
-  clearSearch(): void { this.searchQuery = ''; this.currentPage = 1; this.applyLocalFilters(); }
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { search: null },
+      queryParamsHandling: 'merge',
+    });
+    this.currentPage = 1;
+    this.applyLocalFilters();
+  }
 
   /**
    * Selecciona una categoría. Si es 'all' recarga el catálogo GEO completo;
@@ -376,6 +426,11 @@ export class StoreComponent implements OnInit, OnDestroy {
     // Toggle: clic en categoría activa → deseleccionar
     if (this.selectedCategory === categoryName) {
       this.selectedCategory = 'all';
+      this.router.navigate([], {
+        relativeTo: this.route,
+        queryParams: { category: null },
+        queryParamsHandling: 'merge',
+      });
       this.currentPage = 1;
       this.cacheProducts = this.productsService.getCatalogSnapshot();
       this.applyLocalFilters();
@@ -383,6 +438,11 @@ export class StoreComponent implements OnInit, OnDestroy {
     }
 
     this.selectedCategory = categoryName;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { category: categoryName },
+      queryParamsHandling: 'merge',
+    });
     this.currentPage = 1;
 
     // Recuperar el snapshot completo del caché (tiene thumbnailGallery)
@@ -413,8 +473,12 @@ export class StoreComponent implements OnInit, OnDestroy {
   }
 
   /** Selecciona/deselecciona un rating mínimo */
-  selectRating(stars: number): void {
-    this.selectedRating = this.selectedRating === stars ? null : stars;
+  selectRating(stars: number | null): void {
+    if (stars === null || this.selectedRating === stars) {
+      this.selectedRating = null;
+    } else {
+      this.selectedRating = stars;
+    }
     this.currentPage = 1;
     this.applyLocalFilters();
   }
@@ -438,6 +502,11 @@ export class StoreComponent implements OnInit, OnDestroy {
     this.priceValue         = MAX_PRICE;
     this.selectedSort       = 'newest';
     this.currentPage        = 1;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { search: null, category: null, sort: null },
+      queryParamsHandling: 'merge',
+    });
     const coords = this.geoService.coords;
     if (coords) {
       this.subscribeToGeoGatalog();
@@ -501,17 +570,26 @@ export class StoreComponent implements OnInit, OnDestroy {
     return icons[iconName] ?? icons['grid'];
   }
 
-  getCategoryEmoji(category: string): string {
+  getCategorySvgPath(category: string): string {
     const lower = category.toLowerCase();
-    if (lower.includes('polo') || lower.includes('polera')) return '👕';
-    if (lower.includes('zapatilla') || lower.includes('calzado') || lower.includes('zapato')) return '👟';
-    if (lower.includes('casaca') || lower.includes('abrigo') || lower.includes('chaqueta')) return '🧥';
-    if (lower.includes('pantalon') || lower.includes('jean') || lower.includes('short')) return '👖';
-    if (lower.includes('camisa')) return '👔';
-    if (lower.includes('accesorio') || lower.includes('gorra') || lower.includes('reloj') || lower.includes('mochila')) return '🎒';
-    if (lower.includes('deporte') || lower.includes('fit')) return '⚽';
-    if (lower.includes('vestido') || lower.includes('falda')) return '👗';
-    return '🏷️';
+    if (lower.includes('polo') || lower.includes('polera') || lower.includes('ropa') || lower.includes('camisa') || lower.includes('casaca')) {
+      // Perfil/Moda elegante
+      return 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z';
+    }
+    if (lower.includes('tecno') || lower.includes('celular') || lower.includes('smart') || lower.includes('comput')) {
+      // Dispositivo electrónico
+      return 'M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z';
+    }
+    if (lower.includes('zapat') || lower.includes('calzad') || lower.includes('deport')) {
+      // Deporte / Calzado
+      return 'M13 10V3L4 14h7v7l9-11h-7z';
+    }
+    if (lower.includes('accesorio') || lower.includes('reloj') || lower.includes('joya') || lower.includes('mochila')) {
+      // Joya / Accesorio premium
+      return 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z';
+    }
+    // Tag e-commerce moderno por defecto
+    return 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z';
   }
 
   getCategoryCount(category: string): number {
