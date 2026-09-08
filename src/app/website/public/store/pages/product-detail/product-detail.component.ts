@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Title } from '@angular/platform-browser';
 import { ProductsService } from '../../../../../core/services/catalog/products.service';
 import { ProductVariantsService } from '../../../../../core/services/catalog/product-variants.service';
@@ -16,7 +16,7 @@ import { ProductReviewsComponent } from './product-reviews/product-reviews.compo
 import { RelatedProductsComponent } from './related-products/related-products.component';
 
 /** Elemento de la galería unificada (producto maestro + variantes) */
-interface GalleryItem {
+export interface GalleryItem {
   url: string;
   colorCode?: string; // code del color de la variante (undefined si es del producto maestro)
   colorName?: string; // nombre legible del color
@@ -25,9 +25,16 @@ interface GalleryItem {
 @Component({
   selector: 'app-product-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, CloudinaryPipe, ProductReviewsComponent, RelatedProductsComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    CloudinaryPipe,
+    ProductReviewsComponent,
+    RelatedProductsComponent,
+  ],
   templateUrl: './product-detail.component.html',
-  styleUrl: './product-detail.component.css'
+  styleUrl: './product-detail.component.css',
 })
 export class ProductDetailComponent implements OnInit {
   product: Product | null = null;
@@ -44,17 +51,33 @@ export class ProductDetailComponent implements OnInit {
   loadingVariants: boolean = false;
   addingToCart: boolean = false;
 
-  // Color/size selectors
+  // Selectores de color y talla
   selectedColorCode: string = '';
   selectedSizeValue: string = '';
 
-  // Premium UI states
-  activeTab: 'description' | 'specifications' | 'shipping' = 'description';
-
-  // Magnifier Zoom state
+  // Magnifier Zoom
   zoomX: number = 50;
   zoomY: number = 50;
   isZooming: boolean = false;
+
+  // Modales interactivos
+  showSizeGuide: boolean = false;
+  sizeGuideTab: 'footwear' | 'clothing' = 'footwear';
+  showLightbox: boolean = false;
+
+  // Lista de deseos
+  isWishlisted: boolean = false;
+
+  // Acordeones colapsables para especificaciones y políticas
+  openAccordions: Record<string, boolean> = {
+    description: true,
+    specifications: false,
+    warranty: false,
+    shipping: false,
+  };
+
+  // Barra fija inferior en móvil (Sticky Mobile Action Bar)
+  showStickyBar: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -77,6 +100,12 @@ export class ProductDetailComponent implements OnInit {
     } else {
       this.router.navigate(['/store']);
     }
+  }
+
+  @HostListener('window:scroll')
+  onWindowScroll(): void {
+    const scrollPos = window.scrollY || document.documentElement.scrollTop || 0;
+    this.showStickyBar = scrollPos > 450;
   }
 
   // ─── DATA LOADING ────────────────────────────────────────────────────────────
@@ -107,7 +136,7 @@ export class ProductDetailComponent implements OnInit {
         this.toastService.showError('Error al cargar el producto');
         this.loading = false;
         this.router.navigate(['/store']);
-      }
+      },
     });
   }
 
@@ -118,21 +147,23 @@ export class ProductDetailComponent implements OnInit {
         this.variantsService.getGeoVariantsByProduct(productId, location.lat, location.lng).subscribe({
           next: (variants) => {
             this.variants = variants
-              .filter(v => v.isActive !== false)
+              .filter((v) => v.isActive !== false)
               .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
             this.loadingVariants = false;
             // Auto-seleccionar la variante que coincida con el primer color o imagen principal
             if (this.variants.length > 0) {
               const primaryColor = this.product?.thumbnailGallery?.[0]?.colorCode ?? '';
-              let matched = this.variants.find(v => v.color?.code === primaryColor);
+              let matched = this.variants.find((v) => v.color?.code === primaryColor);
               if (!matched) {
                 const primaryImg = this.product?.gallery?.[0] ?? '';
-                matched = this.variants.find(v => v.gallery?.includes(primaryImg));
+                matched = this.variants.find((v) => v.gallery?.includes(primaryImg));
               }
               this.autoSelectVariant(matched ?? this.variants[0]);
             }
           },
-          error: () => { this.loadingVariants = false; }
+          error: () => {
+            this.loadingVariants = false;
+          },
         });
       },
       error: () => {
@@ -140,22 +171,24 @@ export class ProductDetailComponent implements OnInit {
         this.variantsService.getVariantsByProduct(productId).subscribe({
           next: (variants) => {
             this.variants = variants
-              .filter(v => v.isActive !== false)
+              .filter((v) => v.isActive !== false)
               .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
             this.loadingVariants = false;
             if (this.variants.length > 0) {
               const primaryColor = this.product?.thumbnailGallery?.[0]?.colorCode ?? '';
-              let matched = this.variants.find(v => v.color?.code === primaryColor);
+              let matched = this.variants.find((v) => v.color?.code === primaryColor);
               if (!matched) {
                 const primaryImg = this.product?.gallery?.[0] ?? '';
-                matched = this.variants.find(v => v.gallery?.includes(primaryImg));
+                matched = this.variants.find((v) => v.gallery?.includes(primaryImg));
               }
               this.autoSelectVariant(matched ?? this.variants[0]);
             }
           },
-          error: () => { this.loadingVariants = false; }
+          error: () => {
+            this.loadingVariants = false;
+          },
         });
-      }
+      },
     });
   }
 
@@ -172,9 +205,9 @@ export class ProductDetailComponent implements OnInit {
   get uniqueColors(): { name: string; hex: string; code: string }[] {
     const seen = new Set<string>();
     return this.variants
-      .filter(v => v.color)
-      .map(v => v.color!)
-      .filter(c => {
+      .filter((v) => v.color)
+      .map((v) => v.color!)
+      .filter((c) => {
         if (seen.has(c.code)) return false;
         seen.add(c.code);
         return true;
@@ -184,20 +217,20 @@ export class ProductDetailComponent implements OnInit {
   /** Devuelve el hex de un color por su code, o un gris si no se encuentra */
   getColorHex(code: string | undefined): string {
     if (!code) return '#e5e7eb';
-    return this.uniqueColors.find(c => c.code === code)?.hex ?? '#e5e7eb';
+    return this.uniqueColors.find((c) => c.code === code)?.hex ?? '#e5e7eb';
   }
 
   /** Tallas disponibles para el color seleccionado (o todos si no hay color) */
   get availableSizes(): { value: string; type: string; region?: string }[] {
     const source = this.selectedColorCode
-      ? this.variants.filter(v => v.color?.code === this.selectedColorCode)
+      ? this.variants.filter((v) => v.color?.code === this.selectedColorCode)
       : this.variants;
 
     const seen = new Set<string>();
     return source
-      .filter(v => v.size)
-      .map(v => v.size!)
-      .filter(s => {
+      .filter((v) => v.size)
+      .map((v) => v.size!)
+      .filter((s) => {
         if (seen.has(s.value)) return false;
         seen.add(s.value);
         return true;
@@ -206,7 +239,8 @@ export class ProductDetailComponent implements OnInit {
   }
 
   private compareSizes(a: string, b: string): number {
-    const na = Number(a), nb = Number(b);
+    const na = Number(a),
+      nb = Number(b);
     if (!isNaN(na) && !isNaN(nb)) return na - nb;
     const order = ['XS', 'S', 'M', 'L', 'XL', 'XXL', '3XL'];
     const ia = order.indexOf(a.toUpperCase());
@@ -217,9 +251,10 @@ export class ProductDetailComponent implements OnInit {
 
   /** ¿La talla tiene stock para el color seleccionado? */
   isSizeAvailable(sizeValue: string): boolean {
-    return this.variants.some(v =>
-      v.size?.value === sizeValue &&
-      (!this.selectedColorCode || v.color?.code === this.selectedColorCode)
+    return this.variants.some(
+      (v) =>
+        v.size?.value === sizeValue &&
+        (!this.selectedColorCode || v.color?.code === this.selectedColorCode)
     );
   }
 
@@ -230,18 +265,18 @@ export class ProductDetailComponent implements OnInit {
       this.selectedColorCode = '';
       this.selectedSizeValue = '';
       this.selectedVariant = null;
-      // Volver a la primera imagen del producto maestro
       const firstItem = this.combinedGallery[0];
-      if (firstItem) { this.selectedImage = firstItem.url; this.sliderIndex = 0; }
+      if (firstItem) {
+        this.selectedImage = firstItem.url;
+        this.sliderIndex = 0;
+      }
       return;
     }
     this.selectedColorCode = code;
-    // Resetear talla si no existe para el nuevo color
     if (this.selectedSizeValue && !this.isSizeAvailable(this.selectedSizeValue)) {
       this.selectedSizeValue = '';
     }
-    // Auto-seleccionar la imagen correspondiente al color en la galeria combinada
-    const idx = this.combinedGallery.findIndex(item => item.colorCode === code);
+    const idx = this.combinedGallery.findIndex((item) => item.colorCode === code);
     if (idx !== -1) {
       this.sliderIndex = idx;
       this.selectedImage = this.combinedGallery[idx].url;
@@ -259,7 +294,7 @@ export class ProductDetailComponent implements OnInit {
       this.selectedVariant = null;
       return;
     }
-    const match = this.variants.find(v => {
+    const match = this.variants.find((v) => {
       const colorMatch = !this.selectedColorCode || v.color?.code === this.selectedColorCode;
       const sizeMatch = !this.selectedSizeValue || v.size?.value === this.selectedSizeValue;
       return colorMatch && sizeMatch;
@@ -276,24 +311,16 @@ export class ProductDetailComponent implements OnInit {
       url = this.product.gallery[0];
     }
     this.setImage(url);
-    // Sincronizar sliderIndex con la posición en combinedGallery
-    const idx = this.combinedGallery.findIndex(item => item.url === url);
+    const idx = this.combinedGallery.findIndex((item) => item.url === url);
     this.sliderIndex = idx !== -1 ? idx : 0;
   }
 
   // ─── GALLERY ─────────────────────────────────────────────────────────────────
 
-  /**
-   * Galería unificada: las imágenes de la variante seleccionada (o variante 1 por defecto)
-   * van primero, seguidas de las imágenes del producto maestro como complemento.
-   * Si no hay variante seleccionada, muestra todas las imágenes de variantes en orden
-   * y luego las del maestro. Las URLs se deduiplican para evitar repeticiones.
-   */
   get combinedGallery(): GalleryItem[] {
     const items: GalleryItem[] = [];
     const seenUrls = new Set<string>();
 
-    // Helper para agregar URL si no fue vista aún
     const push = (url: string, colorCode?: string, colorName?: string) => {
       if (url && !seenUrls.has(url)) {
         seenUrls.add(url);
@@ -301,29 +328,25 @@ export class ProductDetailComponent implements OnInit {
       }
     };
 
-    // 1. Imágenes de la variante seleccionada primero (o de todas en orden si no hay selección)
     if (this.selectedVariant?.gallery?.length) {
       for (const url of this.selectedVariant.gallery) {
         push(url, this.selectedVariant.color?.code, this.selectedVariant.color?.name);
       }
-      // Resto de variantes (sin la seleccionada) a continuación
       for (const variant of this.variants) {
         if (variant._id === this.selectedVariant._id) continue;
-        for (const url of (variant.gallery ?? [])) {
+        for (const url of variant.gallery ?? []) {
           push(url, variant.color?.code, variant.color?.name);
         }
       }
     } else {
-      // Sin variante seleccionada: todas las variantes en orden
       for (const variant of this.variants) {
-        for (const url of (variant.gallery ?? [])) {
+        for (const url of variant.gallery ?? []) {
           push(url, variant.color?.code, variant.color?.name);
         }
       }
     }
 
-    // 2. Imágenes del producto maestro al final (lifestyle, guía de tallas, etc.) — complementarias
-    for (const url of (this.product?.gallery ?? [])) {
+    for (const url of this.product?.gallery ?? []) {
       push(url);
     }
 
@@ -332,7 +355,7 @@ export class ProductDetailComponent implements OnInit {
 
   selectImage(item: GalleryItem): void {
     this.setImage(item.url);
-    const idx = this.combinedGallery.findIndex(g => g.url === item.url);
+    const idx = this.combinedGallery.findIndex((g) => g.url === item.url);
     if (idx !== -1) this.sliderIndex = idx;
   }
 
@@ -350,18 +373,20 @@ export class ProductDetailComponent implements OnInit {
     this.setImage(g[this.sliderIndex].url);
   }
 
-  /** Abre la imagen actual en pantalla completa (pestaña nueva) */
   openFullscreen(): void {
-    if (this.selectedImage) window.open(this.selectedImage, '_blank');
+    this.showLightbox = true;
   }
 
-  /** Cambia la imagen seleccionada e incrementa imageKey para disparar animación CSS */
+  closeLightbox(): void {
+    this.showLightbox = false;
+  }
+
   private setImage(url: string): void {
     this.selectedImage = url;
     this.imageKey++;
   }
 
-  // ─── PRICE ───────────────────────────────────────────────────────────────────
+  // ─── PRICE & FINANCING ───────────────────────────────────────────────────────
 
   get finalPrice(): number {
     const base = this.product?.basePrice ?? 0;
@@ -376,31 +401,55 @@ export class ProductDetailComponent implements OnInit {
     return base + adj;
   }
 
-  get discountPct(): number { return this.product?.discount ?? 0; }
+  get discountPct(): number {
+    return this.product?.discount ?? 0;
+  }
 
-  // ─── QUANTITY ────────────────────────────────────────────────────────────────
+  /** Monto en 3 cuotas sin intereses */
+  get installmentAmount(): number {
+    return this.finalPrice > 0 ? this.finalPrice / 3 : 0;
+  }
 
-  increaseQuantity(): void { this.quantity++; }
-  decreaseQuantity(): void { if (this.quantity > 1) this.quantity--; }
+  // ─── QUANTITY & STOCK ────────────────────────────────────────────────────────
+
+  increaseQuantity(): void {
+    this.quantity++;
+  }
+
+  decreaseQuantity(): void {
+    if (this.quantity > 1) this.quantity--;
+  }
+
+  get availableStock(): number {
+    if (!this.selectedVariant) return 0;
+    const stores = (this.selectedVariant as any).storeAvailability;
+    if (Array.isArray(stores) && stores.length > 0) {
+      return stores.reduce((acc: number, s: any) => acc + (s.availableQty ?? 0), 0);
+    }
+    return 12; // Estimado por defecto si no hay geo
+  }
+
+  get isLowStock(): boolean {
+    return this.selectedVariant !== null && this.availableStock > 0 && this.availableStock <= 5;
+  }
 
   // ─── CART ────────────────────────────────────────────────────────────────────
 
   get canAddToCart(): boolean {
     if (!this.product) return false;
     const hasColors = this.uniqueColors.length > 0;
-    const hasSizes  = this.availableSizes.length > 0;
+    const hasSizes = this.availableSizes.length > 0;
     if (hasColors && !this.selectedColorCode) return false;
-    if (hasSizes  && !this.selectedSizeValue)  return false;
-    // El backend requiere variantId: si hay colores o tallas, la variante debe estar resuelta
+    if (hasSizes && !this.selectedSizeValue) return false;
     if ((hasColors || hasSizes) && !this.selectedVariant) return false;
     return true;
   }
 
   get cartValidationMsg(): string {
     const hasColors = this.uniqueColors.length > 0;
-    const hasSizes  = this.availableSizes.length > 0;
+    const hasSizes = this.availableSizes.length > 0;
     if (hasColors && !this.selectedColorCode) return 'Selecciona un color';
-    if (hasSizes  && !this.selectedSizeValue)  return 'Selecciona una talla';
+    if (hasSizes && !this.selectedSizeValue) return 'Selecciona una talla';
     if ((hasColors || hasSizes) && !this.selectedVariant)
       return 'La combinación de color y talla no está disponible';
     return '';
@@ -412,7 +461,6 @@ export class ProductDetailComponent implements OnInit {
       return;
     }
 
-    // El backend requiere siempre un variantId
     const variantId = this.selectedVariant?._id;
     if (!variantId) {
       this.toastService.showError('Selecciona color y talla antes de agregar al carrito');
@@ -424,7 +472,7 @@ export class ProductDetailComponent implements OnInit {
     this.basketService.addToBasket(this.selectedVariant!, this.quantity, this.product!).subscribe({
       next: () => {
         const color = this.selectedVariant?.color?.name ?? '';
-        const size  = this.selectedVariant?.size?.value ?? '';
+        const size = this.selectedVariant?.size?.value ?? '';
         const parts = [color, size].filter(Boolean).join(' · ');
         const isGuest = !this.authService.currentUserSubject.value;
 
@@ -442,36 +490,38 @@ export class ProductDetailComponent implements OnInit {
       error: () => {
         this.toastService.showError('Error al agregar al carrito');
         this.addingToCart = false;
-      }
+      },
     });
   }
 
-  // ─── HELPERS ─────────────────────────────────────────────────────────────────
+  // ─── HELPERS & ACCORDIONS ─────────────────────────────────────────────────────
 
-  goBack(): void { this.router.navigate(['/store']); }
+  goBack(): void {
+    this.router.navigate(['/store']);
+  }
+
+  get primaryCategory(): string {
+    return this.product?.category?.[0] ?? 'Catálogo';
+  }
 
   getSizeLabel(type: string): string {
     const map: Record<string, string> = {
-      TALLA: 'Talla (calzado)', TALLA_ROPA: 'Talla', UNIQUE: 'Única'
+      TALLA: 'Talla (calzado)',
+      TALLA_ROPA: 'Talla',
+      UNIQUE: 'Talla Única',
     };
     return map[type] ?? 'Talla';
   }
 
-  /** Nombre del color actualmente seleccionado */
   get selectedColorName(): string {
-    return this.uniqueColors.find(c => c.code === this.selectedColorCode)?.name ?? '';
+    return this.uniqueColors.find((c) => c.code === this.selectedColorCode)?.name ?? '';
   }
 
-  /**
-   * Determina si un color hex es claro (para poner el check oscuro encima).
-   * Usa luminancia relativa per ITU-R BT.709.
-   */
   isLightColor(hex: string): boolean {
     const c = hex.replace('#', '');
     const r = parseInt(c.substring(0, 2), 16);
     const g = parseInt(c.substring(2, 4), 16);
     const b = parseInt(c.substring(4, 6), 16);
-    // Luminancia relativa
     const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
     return luminance > 0.6;
   }
@@ -486,22 +536,18 @@ export class ProductDetailComponent implements OnInit {
     return Array(Math.max(0, n)).fill(0).map((_, i) => i);
   }
 
-  getRatingPercentage(stars: number): number {
-    if (!this.product?.rating?.distribution || !this.product.rating.count) return 0;
-    const count = this.product.rating.distribution[stars as 1 | 2 | 3 | 4 | 5] || 0;
-    return (count / this.product.rating.count) * 100;
-  }
-
   getSpecificationsArray(): { key: string; value: string }[] {
     if (!this.product?.specifications) return [];
-    return Object.entries(this.product.specifications).map(([key, value]) => ({ key, value: value as string }));
+    return Object.entries(this.product.specifications).map(([key, value]) => ({
+      key,
+      value: value as string,
+    }));
   }
 
-  /** Fallback cuando una imagen (Cloudinary u otra) falla al cargar */
   onImgError(event: Event): void {
     const img = event.target as HTMLImageElement;
     img.src = 'assets/images/placeholder.svg';
-    img.onerror = null; // evita loop infinito
+    img.onerror = null;
   }
 
   getWarrantyUnitLabel(unit: string | undefined): string {
@@ -509,25 +555,64 @@ export class ProductDetailComponent implements OnInit {
     const map: Record<string, string> = {
       days: 'días',
       months: 'meses',
-      years: 'años'
+      years: 'años',
     };
     return map[unit] || unit;
   }
 
   getWarrantyTypeLabel(type: string | undefined): string {
-    if (!type) return 'Garantía';
+    if (!type) return 'Garantía Oficial';
     const map: Record<string, string> = {
       manufacturer: 'Garantía de Fábrica',
-      store: 'Garantía de la Tienda',
-      none: 'Sin Garantía'
+      store: 'Garantía de Tienda',
+      none: 'Sin Garantía',
     };
-    return map[type] || 'Garantía';
+    return map[type] || 'Garantía Oficial';
   }
 
-  // ─── Premium UI Methods ──────────────────────────────────────────────────────
+  toggleAccordion(key: 'description' | 'specifications' | 'warranty' | 'shipping'): void {
+    this.openAccordions[key] = !this.openAccordions[key];
+  }
 
-  selectTab(tab: 'description' | 'specifications' | 'shipping'): void {
-    this.activeTab = tab;
+  toggleWishlist(): void {
+    this.isWishlisted = !this.isWishlisted;
+    if (this.isWishlisted) {
+      this.toastService.showSuccess('Guardado en tu lista de deseos');
+    } else {
+      this.toastService.showInfo('Eliminado de tu lista de deseos');
+    }
+  }
+
+  shareProduct(): void {
+    const url = window.location.href;
+    if (navigator.share) {
+      navigator
+        .share({
+          title: this.product?.name ?? 'Moorea',
+          text: `Descubre ${this.product?.name} en Moorea`,
+          url,
+        })
+        .catch(() => {});
+    } else if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(url)
+        .then(() => {
+          this.toastService.showSuccess('Enlace copiado al portapapeles');
+        })
+        .catch(() => {
+          this.toastService.showInfo('Enlace listo');
+        });
+    }
+  }
+
+  openSizeGuide(): void {
+    const isShoes = this.product?.category?.some((c) => /calzado|zapatilla|zapato/i.test(c));
+    this.sizeGuideTab = isShoes ? 'footwear' : 'clothing';
+    this.showSizeGuide = true;
+  }
+
+  closeSizeGuide(): void {
+    this.showSizeGuide = false;
   }
 
   onMouseMove(e: MouseEvent): void {

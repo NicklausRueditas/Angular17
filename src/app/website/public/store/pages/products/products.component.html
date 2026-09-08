@@ -33,229 +33,314 @@
      QUICK-ADD MODAL (REDISEÑO PREMIUM INTERACTIVO)
 ════════════════════════════════════════════════════ -->
 @if (modalProduct) {
-<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-md animate-[fadeIn_0.2s_ease-out]"
+<div class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-950/70 backdrop-blur-md transition-all duration-300 animate-[fadeIn_0.2s_ease-out]"
   (click)="closeModal()">
 
-  <div class="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] border border-gray-100 animate-[slideUp_0.25s_cubic-bezier(0.16,1,0.3,1)]"
+  <!-- ── MODAL CONTAINER CARD ── -->
+  <div class="relative w-full sm:max-w-4xl bg-white sm:rounded-3xl rounded-t-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] sm:max-h-[88vh] border border-slate-200/80 animate-[slideUp_0.25s_cubic-bezier(0.16,1,0.3,1)]"
     (click)="$event.stopPropagation()">
 
-    <!-- ── HEADER MODAL CON GALERÍA Y DATOS DEL PRODUCTO ── -->
-    <div class="p-5 border-b border-gray-100 bg-gradient-to-b from-gray-50/80 to-white relative">
-      <!-- Botón Cerrar -->
-      <button (click)="closeModal()" aria-label="Cerrar"
-        class="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-800 flex items-center justify-center transition-colors">
+    <!-- Mobile Handle & Close Bar -->
+    <div class="sm:hidden flex items-center justify-between px-5 pt-3 pb-2 border-b border-slate-100 bg-white">
+      <div class="w-12 h-1 bg-slate-200 rounded-full mx-auto"></div>
+      <button type="button" (click)="closeModal()" aria-label="Cerrar modal"
+        class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-500 hover:text-slate-800 flex items-center justify-center transition-colors">
         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
         </svg>
       </button>
+    </div>
 
-      <div class="flex gap-4 items-start pr-8">
-        <!-- Miniatura Principal -->
-        <div class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-gray-50 border border-gray-100 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-xs">
-          <img [src]="(modalMainImage || getModalGallery()[0] || 'assets/images/placeholder.svg') | cloudinary:'w_200,h_200,c_fit,q_auto,f_auto'"
-            [alt]="modalProduct.name" class="w-full h-full object-cover">
+    <!-- Desktop Close Button -->
+    <button type="button" (click)="closeModal()" aria-label="Cerrar modal"
+      class="hidden sm:flex absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-white/90 hover:bg-slate-100 text-slate-600 hover:text-slate-900 items-center justify-center shadow-md border border-slate-200/60 transition-all duration-150 active:scale-95">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <!-- ── 2-COLUMN SPLIT GRID (DESKTOP) / FLEX STACK (MOBILE) ── -->
+    <div class="grid grid-cols-1 sm:grid-cols-12 flex-1 overflow-y-auto">
+
+      <!-- ── COL 1: GALLERY & HERO IMAGE (5 cols en desktop) ── -->
+      <div class="sm:col-span-5 bg-gradient-to-b from-slate-50 to-slate-100/60 p-4 sm:p-6 flex flex-col justify-between border-b sm:border-b-0 sm:border-r border-slate-100 relative">
+        
+        <!-- Badges flotantes (Descuento / Novedad) -->
+        <div class="absolute top-4 left-4 z-10 flex flex-col gap-1.5 pointer-events-none">
+          @if (getDiscountPercentage(modalProduct) > 0) {
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-black uppercase tracking-wider bg-rose-600 text-white shadow-sm">
+              -{{ getDiscountPercentage(modalProduct) }}% OFF
+            </span>
+          }
+          @if (isNewProduct(modalProduct)) {
+            <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-900 text-white shadow-sm">
+              Nuevo
+            </span>
+          }
         </div>
 
-        <!-- Info Principal -->
-        <div class="min-w-0 flex-1">
-          <div class="flex items-center gap-1.5 mb-1">
-            <span class="px-2 py-0.5 bg-gray-100 text-gray-600 rounded-md text-[10px] font-bold uppercase tracking-wider font-mono">
-              {{ modalProduct.brand || 'Moorea' }}
-            </span>
-            @if (modalProduct.code) {
-              <span class="text-[10px] text-gray-400 font-mono font-medium truncate">{{ modalProduct.code }}</span>
+        <!-- Main Product Image with Zoom & Navigation -->
+        <div class="relative w-full aspect-square sm:aspect-[4/5] rounded-2xl overflow-hidden bg-white border border-slate-200/60 shadow-sm flex items-center justify-center group">
+          <img [src]="(modalMainImage || getModalGallery()[0] || 'assets/images/placeholder.svg') | cloudinary:'w_600,h_750,c_fit,q_auto,f_auto'"
+            [alt]="modalProduct.name"
+            (error)="onImgError($event)"
+            class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out">
+
+          <!-- Flechas de navegación rápida en galería -->
+          @if (getModalGallery().length > 1) {
+            <button type="button" (click)="prevImage()"
+              class="absolute left-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-slate-700 shadow-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 active:scale-95">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button type="button" (click)="nextImage()"
+              class="absolute right-2.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-white/90 hover:bg-white text-slate-700 shadow-md flex items-center justify-center transition-all opacity-0 group-hover:opacity-100 active:scale-95">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          }
+        </div>
+
+        <!-- Thumbnails Strip -->
+        @let galleryImgs = getModalGallery();
+        @if (galleryImgs.length > 1) {
+          <div class="flex items-center gap-2 overflow-x-auto py-2.5 mt-2 no-scrollbar">
+            @for (img of galleryImgs; track img) {
+              @let isImgActive = (modalMainImage || galleryImgs[0]) === img;
+              <button type="button" (click)="modalMainImage = img"
+                class="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all duration-150"
+                [class.border-slate-900]="isImgActive"
+                [class.ring-2]="isImgActive"
+                [class.ring-slate-900/30]="isImgActive"
+                [class.border-transparent]="!isImgActive"
+                [class.opacity-60]="!isImgActive"
+                [class.hover:opacity-100]="!isImgActive">
+                <img [src]="img | cloudinary:'w_100,h_100,c_fit,q_auto,f_auto'"
+                  [alt]="modalProduct.name"
+                  class="w-full h-full object-cover">
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- ── COL 2: SPECS, COLOR, SIZE, QUANTITY & CTA (7 cols en desktop) ── -->
+      <div class="sm:col-span-7 p-5 sm:p-7 flex flex-col justify-between gap-5 bg-white">
+        
+        <!-- Header Info -->
+        <div>
+          <!-- Categoría y Marca -->
+          <div class="flex items-center justify-between gap-2 mb-2">
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-slate-100 text-slate-700 font-mono">
+                {{ modalProduct.brand || 'Moorea' }}
+              </span>
+              @if (getPrimaryCategory(modalProduct)) {
+                <span class="text-xs text-slate-400 font-medium capitalize">
+                  {{ getPrimaryCategory(modalProduct) }}
+                </span>
+              }
+            </div>
+            @if (selectedVariant?.sku || modalProduct.code) {
+              <span class="text-[11px] text-slate-400 font-mono font-medium tracking-tight">
+                {{ selectedVariant?.sku || modalProduct.code }}
+              </span>
             }
           </div>
 
-          <h3 class="text-base font-extrabold text-gray-900 leading-snug line-clamp-2">
+          <!-- Product Title -->
+          <h2 class="text-lg sm:text-xl font-black text-slate-900 leading-snug tracking-tight">
             {{ modalProduct.name }}
-          </h3>
+          </h2>
 
-          <!-- Precios -->
-          <div class="mt-1.5 flex items-baseline gap-2">
-            <span class="text-lg font-black text-gray-900 leading-none">
+          <!-- Pricing Bar -->
+          <div class="mt-2.5 flex items-baseline gap-2.5">
+            <span class="text-2xl font-black text-slate-900 tracking-tight">
               S/ {{ modalUnitFinalPrice | number:'1.2-2' }}
             </span>
             @if (getDiscountPercentage(modalProduct) > 0) {
-              <span class="text-xs text-gray-400 line-through">
+              <span class="text-sm font-semibold text-slate-400 line-through">
                 S/ {{ getOriginalPrice(modalProduct) | number:'1.2-2' }}
               </span>
-              <span class="px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-600">
+              <span class="text-xs font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded-md">
                 -{{ getDiscountPercentage(modalProduct) }}%
               </span>
             }
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- ── CUERPO DEL MODAL (OPCIONES DE COLOR, TALLA Y DISPONIBILIDAD) ── -->
-    <div class="p-5 overflow-y-auto space-y-4 flex-1">
-
-      <!-- 🎨 SELECTOR DE COLOR -->
-      @let colors = getUniqueColors(modalVariants);
-      @if (colors.length > 0) {
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Color</span>
-            @if (selectedColorCode) {
-              @for (c of colors; track c.code) {
-                @if (c.code === selectedColorCode) {
-                  <span class="text-xs font-extrabold text-violet-700 bg-violet-50 px-2 py-0.5 rounded-md">
-                    {{ c.name }}
-                  </span>
-                }
-              }
-            }
-          </div>
-
-          <div class="flex flex-wrap gap-2.5">
-            @for (color of colors; track color.code) {
-              @let isColorActive = selectedColorCode === color.code;
-              <button (click)="selectColor(color.code)" [title]="color.name"
-                class="group relative w-10 h-10 rounded-2xl border-2 transition-all duration-150 flex items-center justify-center shadow-xs"
-                [style.background]="color.hex"
-                [class.ring-2]="isColorActive"
-                [class.ring-violet-600]="isColorActive"
-                [class.ring-offset-2]="isColorActive"
-                [class.scale-110]="isColorActive"
-                [class.border-white]="isColorActive"
-                [class.border-gray-200]="!isColorActive">
-                @if (isColorActive) {
-                  <svg class="w-4 h-4 drop-shadow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                    [class.text-white]="color.hex !== '#ffffff' && color.hex !== '#fff'"
-                    [class.text-gray-900]="color.hex === '#ffffff' || color.hex === '#fff'">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                }
-              </button>
-            }
-          </div>
-        </div>
-      }
-
-      <!-- 📏 SELECTOR DE TALLAS -->
-      @let sizes = getAvailableSizes(modalVariants, selectedColorCode);
-      @if (sizes.length > 0) {
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Talla</span>
-            @if (selectedSizeValue) {
-              <span class="text-xs font-extrabold text-violet-700 bg-violet-50 px-2 py-0.5 rounded-md">
-                Talla {{ selectedSizeValue }}
-              </span>
-            }
-          </div>
-
-          <div class="flex flex-wrap gap-2">
-            @for (size of sizes; track size.value) {
-              @let isAvail = isSizeAvailable(size.value);
-              @let isSizeActive = selectedSizeValue === size.value;
-              <button (click)="selectSize(size.value)" [disabled]="!isAvail"
-                class="px-3.5 py-2 rounded-xl text-xs font-bold border-2 transition-all duration-150"
-                [class.border-violet-600]="isSizeActive"
-                [class.bg-violet-600]="isSizeActive"
-                [class.text-white]="isSizeActive"
-                [class.shadow-sm]="isSizeActive"
-                [class.border-gray-200]="!isSizeActive && isAvail"
-                [class.bg-white]="!isSizeActive && isAvail"
-                [class.text-gray-800]="!isSizeActive && isAvail"
-                [class.hover:border-gray-400]="!isSizeActive && isAvail"
-                [class.opacity-35]="!isAvail"
-                [class.line-through]="!isAvail"
-                [class.cursor-not-allowed]="!isAvail">
-                {{ size.value }}
-              </button>
-            }
-          </div>
-        </div>
-      }
-
-      <!-- 🔢 SELECTOR DE CANTIDAD -->
-      <div class="pt-2 border-t border-gray-100 flex items-center justify-between">
-        <span class="text-xs font-bold uppercase tracking-wider text-gray-500">Cantidad</span>
-        <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-xl">
-          <button type="button" (click)="decrementModalQty()" [disabled]="modalQuantity <= 1"
-            class="w-7 h-7 rounded-lg bg-white text-gray-700 font-bold flex items-center justify-center text-sm shadow-xs hover:bg-gray-50 active:scale-95 disabled:opacity-40 transition">
-            -
-          </button>
-          <span class="w-8 text-center text-xs font-extrabold text-gray-900">{{ modalQuantity }}</span>
-          <button type="button" (click)="incrementModalQty()"
-            class="w-7 h-7 rounded-lg bg-white text-gray-700 font-bold flex items-center justify-center text-sm shadow-xs hover:bg-gray-50 active:scale-95 transition">
-            +
-          </button>
-        </div>
-      </div>
-
-      <!-- 🏪 DISPONIBILIDAD EN TIENDAS Y DESPACHO -->
-      @if (selectedVariant && $any(selectedVariant).storeAvailability?.length > 0) {
-        <div class="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-[11px] font-extrabold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          @if (getInstallments(modalProduct) > 0) {
+            <p class="mt-1.5 text-[11px] font-medium text-slate-500 flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
               </svg>
-              <span>Disponibilidad en Tiendas</span>
-            </span>
-            <span class="text-[10px] font-bold text-slate-500 font-mono">
-              SKU: {{ selectedVariant.sku }}
-            </span>
-          </div>
-
-          <div class="divide-y divide-slate-200/60 max-h-32 overflow-y-auto pr-1">
-            @for (store of $any(selectedVariant).storeAvailability; track store.storeCode) {
-              <div class="py-2 flex items-center justify-between text-xs gap-3 first:pt-0 last:pb-0">
-                <div class="min-w-0">
-                  <p class="font-bold text-slate-900 truncate">{{ store.storeName }}</p>
-                  <p class="text-slate-500 text-[10.5px] truncate">{{ store.address }} &middot; <strong class="text-blue-700">a {{ store.distanceKm | number:'1.1-1' }} km</strong></p>
-                </div>
-                <div class="text-right flex-shrink-0">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold"
-                    [class]="store.availableQty > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60' : 'bg-rose-50 text-rose-700'">
-                    {{ store.availableQty > 0 ? store.availableQty + ' en stock' : 'Agotado' }}
-                  </span>
-                  @if (store.pickupLabel && store.pickupLabel !== 'No disponible') {
-                    <p class="text-[10px] font-semibold mt-0.5 text-emerald-600">
-                      🏪 {{ store.pickupLabel }}
-                    </p>
-                  }
-                  @if (store.deliveryLabel) {
-                    <p class="text-[10px] mt-0.5 text-slate-600 font-medium">
-                      🚚 {{ store.deliveryLabel }}
-                    </p>
-                  }
-                </div>
-              </div>
-            }
-          </div>
+              <span>Hasta <strong>{{ getInstallments(modalProduct) }} cuotas sin interés</strong> de S/ {{ (modalUnitFinalPrice / getInstallments(modalProduct)) | number:'1.2-2' }}</span>
+            </p>
+          }
         </div>
-      }
 
-    </div>
+        <div class="space-y-4">
+          <!-- 🎨 COLOR PICKER -->
+          @let colors = getUniqueColors(modalVariants);
+          @if (colors.length > 0) {
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Color: <strong class="text-slate-900 capitalize">{{ selectedColorName || 'Selecciona' }}</strong>
+                </span>
+              </div>
 
-    <!-- ── MODAL FOOTER CON BOTÓN DE ACCIÓN PRINCIPAL ── -->
-    <div class="p-4 border-t border-gray-100 bg-gray-50/80">
-      <button (click)="confirmQuickAdd()"
-        [disabled]="!canConfirmAdd || modalAddingToCart"
-        class="w-full py-3.5 px-6 rounded-2xl font-bold text-sm text-white transition-all duration-200 active:scale-[0.98] shadow-lg shadow-gray-900/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-        [style.background]="canConfirmAdd && !modalAddingToCart ? 'linear-gradient(135deg, #111827 0%, #1f2937 100%)' : '#9ca3af'">
-        @if (modalAddingToCart) {
-          <svg class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
-            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-          </svg>
-          <span>Agregando al Carro...</span>
-        } @else if (!selectedVariant) {
-          <span>Elige color y talla para continuar</span>
-        } @else {
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-          </svg>
-          <span>Agregar al Carrito · S/ {{ modalTotalPrice | number:'1.2-2' }}</span>
-        }
-      </button>
+              <div class="flex flex-wrap items-center gap-2.5">
+                @for (color of colors; track color.code) {
+                  @let isColorActive = selectedColorCode === color.code;
+                  <button type="button" (click)="selectColor(color.code)" [title]="color.name"
+                    class="relative w-9 h-9 rounded-full transition-all duration-200 flex items-center justify-center shadow-xs"
+                    [style.background]="color.hex"
+                    [class.ring-2]="isColorActive"
+                    [class.ring-slate-900]="isColorActive"
+                    [class.ring-offset-2]="isColorActive"
+                    [class.scale-105]="isColorActive"
+                    [class.border]="color.hex === '#ffffff' || color.hex === '#fff'"
+                    [class.border-slate-300]="color.hex === '#ffffff' || color.hex === '#fff'">
+                    @if (isColorActive) {
+                      <svg class="w-4 h-4 drop-shadow-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
+                        [class.text-white]="color.hex !== '#ffffff' && color.hex !== '#fff'"
+                        [class.text-slate-900]="color.hex === '#ffffff' || color.hex === '#fff'">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                      </svg>
+                    }
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- 📏 SIZE PICKER -->
+          @let sizes = getAvailableSizes(modalVariants, selectedColorCode);
+          @if (sizes.length > 0) {
+            <div class="space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-slate-500">
+                  Talla: @if (selectedSizeValue) { <strong class="text-slate-900">{{ selectedSizeValue }}</strong> }
+                </span>
+                <span class="text-[11px] font-semibold text-slate-400">Guía de tallas</span>
+              </div>
+
+              <div class="flex flex-wrap gap-2">
+                @for (size of sizes; track size.value) {
+                  @let isAvail = isSizeAvailable(size.value);
+                  @let isSizeActive = selectedSizeValue === size.value;
+                  <button type="button" (click)="selectSize(size.value)" [disabled]="!isAvail"
+                    class="min-w-[48px] h-10 px-3.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-150 border"
+                    [class.border-slate-900]="isSizeActive"
+                    [class.bg-slate-900]="isSizeActive"
+                    [class.text-white]="isSizeActive"
+                    [class.shadow-md]="isSizeActive"
+                    [class.shadow-slate-900/20]="isSizeActive"
+                    [class.border-slate-200]="!isSizeActive && isAvail"
+                    [class.bg-white]="!isSizeActive && isAvail"
+                    [class.text-slate-800]="!isSizeActive && isAvail"
+                    [class.hover:border-slate-400]="!isSizeActive && isAvail"
+                    [class.opacity-40]="!isAvail"
+                    [class.line-through]="!isAvail"
+                    [class.cursor-not-allowed]="!isAvail"
+                    [class.bg-slate-50]="!isAvail">
+                    {{ size.value }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- 🔢 QUANTITY SELECTOR -->
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between">
+            <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Cantidad</span>
+            <div class="flex items-center gap-2 bg-slate-100/80 p-1 rounded-xl border border-slate-200/60">
+              <button type="button" (click)="decrementModalQty()" [disabled]="modalQuantity <= 1"
+                class="w-7 h-7 rounded-lg bg-white text-slate-800 font-bold flex items-center justify-center shadow-xs hover:bg-slate-50 active:scale-95 disabled:opacity-40 transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M20 12H4"/>
+                </svg>
+              </button>
+              <span class="w-8 text-center text-sm font-black text-slate-900 font-mono">{{ modalQuantity }}</span>
+              <button type="button" (click)="incrementModalQty()"
+                class="w-7 h-7 rounded-lg bg-white text-slate-800 font-bold flex items-center justify-center shadow-xs hover:bg-slate-50 active:scale-95 transition">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- 🏪 GEO STORE AVAILABILITY PILL -->
+          @if (selectedVariant && $any(selectedVariant).storeAvailability?.length > 0) {
+            <div class="p-3 bg-slate-50/80 rounded-2xl border border-slate-200/60 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5 text-xs font-extrabold text-slate-800">
+                  <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span>Stock y Retiro en Tienda</span>
+                </div>
+                <span class="text-[10px] font-bold text-slate-400 font-mono">
+                  SKU: {{ selectedVariant.sku }}
+                </span>
+              </div>
+
+              <div class="divide-y divide-slate-200/50 max-h-28 overflow-y-auto pr-1">
+                @for (store of $any(selectedVariant).storeAvailability; track store.storeCode) {
+                  <div class="py-1.5 flex items-center justify-between text-xs gap-3">
+                    <div class="min-w-0">
+                      <p class="font-bold text-slate-900 truncate">{{ store.storeName }}</p>
+                      <p class="text-slate-500 text-[10px] truncate">
+                        {{ store.address }} · <strong class="text-slate-700">a {{ store.distanceKm | number:'1.1-1' }} km</strong>
+                      </p>
+                    </div>
+                    <div class="text-right flex-shrink-0">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-black"
+                        [class]="store.availableQty > 0 ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-rose-50 text-rose-700'">
+                        {{ store.availableQty > 0 ? store.availableQty + ' disp.' : 'Agotado' }}
+                      </span>
+                      @if (store.pickupLabel && store.pickupLabel !== 'No disponible') {
+                        <p class="text-[9.5px] font-bold text-emerald-600 mt-0.5">
+                          ✓ {{ store.pickupLabel }}
+                        </p>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- ── FOOTER CTA BUTTON ── -->
+        <div class="pt-2 border-t border-slate-100">
+          <button (click)="confirmQuickAdd()"
+            [disabled]="!canConfirmAdd || modalAddingToCart"
+            class="w-full py-4 px-6 rounded-2xl font-black text-sm tracking-wide text-white transition-all duration-200 active:scale-[0.98] shadow-lg shadow-slate-900/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2.5 bg-slate-900 hover:bg-slate-800">
+            @if (modalAddingToCart) {
+              <svg class="w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span>Agregando a tu Carrito...</span>
+            } @else if (!selectedVariant) {
+              <span>Selecciona color y talla para agregar</span>
+            } @else {
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              <span>AGREGAR AL CARRO · S/ {{ modalTotalPrice | number:'1.2-2' }}</span>
+            }
+          </button>
+        </div>
+
+      </div>
+
     </div>
 
   </div>

@@ -4,8 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { BasketService } from '../../../core/services/commerce/basket.service';
+import { ToastService } from '../../../core/services/ui/toast.service';
 import { Basket, BasketItem } from '../../../core/interfaces/basket.interface';
-import { SolCurrencyPipe } from '../../../shared/pipes/sol-currency.pipe';
 import { CloudinaryPipe } from '../../../shared/pipes/cloudinary.pipe';
 
 @Component({
@@ -21,12 +21,23 @@ export class BasketComponent implements OnInit, OnDestroy {
   error: string | null = null;
   loadingItems = new Set<string>();
 
+  // Cupones y beneficios
+  couponCode = '';
+  couponApplied = false;
+  couponDiscount = 0;
+  couponError: string | null = null;
+
+  /** Umbral para delivery gratuito en soles */
+  readonly freeDeliveryThreshold = 200;
+
   private destroy$ = new Subject<void>();
 
-  constructor(private basketService: BasketService) {}
+  constructor(
+    private basketService: BasketService,
+    private toastService: ToastService
+  ) {}
 
   ngOnInit(): void {
-    // Suscribirse al carrito completo con cálculos cuando esté disponible
     this.basketService.basket$
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -54,77 +65,65 @@ export class BasketComponent implements OnInit, OnDestroy {
    */
   getVariantId(item: any): string {
     if (!item) return 'empty';
-    // Nuevo formato backend: variantId es siempre string
     if (typeof item.variantId === 'string' && item.variantId) return item.variantId;
-    // Guest localStorage: variant es objeto populado
     if (item.variant?._id) return item.variant._id;
-    if (item.variant?.id)  return item.variant.id;
-    // Fallback anticrash — estable por sesión
+    if (item.variant?.id) return item.variant.id;
     if (!item._corruptedId) item._corruptedId = `corrupted-${Math.random()}`;
     return item._corruptedId;
   }
 
-  /** Objeto variante populado (nuevo: item.variant; legacy: item.variantId si era objeto) */
+  /** Objeto variante populado */
   getVariant(item: any): any | null {
     if (item.variant && typeof item.variant === 'object') return item.variant;
     if (item.variantId && typeof item.variantId === 'object') return item.variantId;
     return null;
   }
 
-  /** Objeto producto populado (nuevo: item.product; legacy: item.productId si era objeto) */
+  /** Objeto producto populado */
   getProduct(item: any): any | null {
     if (item.product && typeof item.product === 'object') return item.product;
     if (item.productId && typeof item.productId === 'object') return item.productId;
     return null;
   }
 
-  /** Nombre del color para mostrar */
   getColorName(item: BasketItem): string {
     return this.getVariant(item)?.color?.name ?? '';
   }
 
-  /** Color hex para el badge de color */
   getColorHex(item: BasketItem): string {
     return this.getVariant(item)?.color?.hex ?? '#e5e7eb';
   }
 
-  /** Talla para mostrar */
   getSizeValue(item: BasketItem): string {
     return this.getVariant(item)?.size?.value ?? '';
   }
 
-  /** Primera imagen de la variante */
   getThumbnail(item: BasketItem): string {
     return this.getVariant(item)?.gallery?.[0] ?? '';
   }
 
-  /** SKU de la variante */
   getSku(item: BasketItem): string {
     return this.getVariant(item)?.sku ?? '';
   }
 
-  /** Nombre del producto maestro */
   getProductName(item: any): string {
     return this.getProduct(item)?.name ?? '';
   }
 
-  /** Marca del producto maestro */
   getBrand(item: any): string {
     return this.getProduct(item)?.brand ?? '';
   }
 
-  /** _id del producto maestro para el enlace al detalle */
   getProductId(item: any): string {
     const p = this.getProduct(item);
     return p?._id ?? (typeof item.productId === 'string' ? item.productId : '');
   }
 
-  /** Precio base antes del ajuste (para mostrar precio original tachado) */
   getBasePrice(item: any): number {
     return this.getProduct(item)?.basePrice ?? 0;
   }
 
-  // ─── ACCIONES DEL CARRITO ────────────────────────────────────────────────────
+  // ─── ACCIONES DEL CARRITO ────────────────────────────────────────────
 
   increaseQuantity(item: BasketItem): void {
     const variantId = this.getVariantId(item);
@@ -136,7 +135,7 @@ export class BasketComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => this.loadingItems.delete(variantId),
         error: () => {
-          this.error = 'Error al actualizar la cantidad';
+          this.toastService.showError('No se pudo incrementar la cantidad');
           this.loadingItems.delete(variantId);
         },
       });
@@ -156,7 +155,7 @@ export class BasketComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => this.loadingItems.delete(variantId),
         error: () => {
-          this.error = 'Error al actualizar la cantidad';
+          this.toastService.showError('No se pudo reducir la cantidad');
           this.loadingItems.delete(variantId);
         },
       });
@@ -168,9 +167,12 @@ export class BasketComponent implements OnInit, OnDestroy {
       .removeFromBasket(variantId)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: () => this.loadingItems.delete(variantId),
+        next: () => {
+          this.loadingItems.delete(variantId);
+          this.toastService.showSuccess('Producto eliminado de la bolsa');
+        },
         error: () => {
-          this.error = 'Error al eliminar el producto';
+          this.toastService.showError('Error al eliminar el producto');
           this.loadingItems.delete(variantId);
         },
       });
@@ -180,53 +182,39 @@ export class BasketComponent implements OnInit, OnDestroy {
     return this.loadingItems.has(this.getVariantId(item));
   }
 
-  // ─── CUPONES Y BENEFICIOS ──────────────────────────────────────────────
-  couponCode = '';
-  couponApplied = false;
-  couponDiscount = 0;
-  couponError: string | null = null;
+  // ─── CUPONES Y BENEFICIOS ────────────────────────────────────────────
 
-  /** Umbral para delivery gratuito */
-  readonly freeDeliveryThreshold = 200;
-
-  /** Progreso hacia el envío gratis (0 - 100%) */
   get freeDeliveryProgress(): number {
     if (!this.totalAmount || this.totalAmount <= 0) return 0;
     return Math.min(100, Math.round((this.totalAmount / this.freeDeliveryThreshold) * 100));
   }
 
-  /** Monto restante para envío gratis */
   get freeDeliveryRemaining(): number {
     return Math.max(0, parseFloat((this.freeDeliveryThreshold - this.totalAmount).toFixed(2)));
   }
 
-  /** Ahorro total acumulado en descuentos de productos */
   get totalSavings(): number {
     if (!this.basket?.items) return 0;
     return this.basket.items.reduce((sum, item) => {
       const base = this.getBasePrice(item);
       const final = item.finalPrice ?? base;
       if (base > final) {
-        return sum + ((base - final) * item.quantity);
+        return sum + (base - final) * item.quantity;
       }
       return sum;
     }, 0);
   }
 
-  /** Información de cuotas sin interés si el monto califica (>= S/ 500) */
   get installmentInfo(): { count: number; amount: number } | null {
     const total = this.finalPayableAmount;
-    if (total < 500) return null;
-    let count = 3;
-    if (total >= 2000) count = 24;
-    else if (total >= 1000) count = 12;
+    if (total <= 0) return null;
+    const count = 3;
     return {
       count,
-      amount: parseFloat((total / count).toFixed(2))
+      amount: parseFloat((total / count).toFixed(2)),
     };
   }
 
-  /** Monto final a pagar considerando cupones */
   get finalPayableAmount(): number {
     return Math.max(0, this.totalAmount - this.couponDiscount);
   }
@@ -238,15 +226,17 @@ export class BasketComponent implements OnInit, OnDestroy {
       this.couponError = 'Ingresa un código de cupón válido';
       return;
     }
-    // Códigos promocionales de ejemplo integrados
     if (code === 'MOOREA10' || code === 'DESC10') {
-      this.couponDiscount = parseFloat((this.totalAmount * 0.10).toFixed(2));
+      this.couponDiscount = parseFloat((this.totalAmount * 0.1).toFixed(2));
       this.couponApplied = true;
+      this.toastService.showSuccess(`Cupón ${code} aplicado: 10% de descuento`);
     } else if (code === 'BIENVENIDO' || code === 'FREE20') {
-      this.couponDiscount = 20.00;
+      this.couponDiscount = 20.0;
       this.couponApplied = true;
+      this.toastService.showSuccess(`Cupón ${code} aplicado: S/ 20.00 de descuento`);
     } else {
-      this.couponError = 'Cupón inválido o expirado';
+      this.couponError = 'Cupón inválido o no aplicable';
+      this.toastService.showError('El código de cupón no es válido');
     }
   }
 
@@ -255,13 +245,14 @@ export class BasketComponent implements OnInit, OnDestroy {
     this.couponDiscount = 0;
     this.couponCode = '';
     this.couponError = null;
+    this.toastService.showInfo('Cupón removido');
   }
 
   clearBasket(): void {
     if (!this.basket?.items?.length) return;
-    if (confirm('¿Estás seguro de que deseas vaciar tu carrito?')) {
+    if (confirm('¿Estás seguro de que deseas vaciar tu bolsa de compras?')) {
       const items = [...this.basket.items];
-      items.forEach(item => this.removeItem(this.getVariantId(item)));
+      items.forEach((item) => this.removeItem(this.getVariantId(item)));
     }
   }
 
@@ -269,16 +260,14 @@ export class BasketComponent implements OnInit, OnDestroy {
     this.error = null;
   }
 
-  // ─── TOTALES ─────────────────────────────────────────────────────────────────
+  // ─── TOTALES ─────────────────────────────────────────────────────────
 
-  /** Total de unidades en el carrito */
   get totalQuantity(): number {
-    return this.basket?.items.reduce((sum, i) => sum + i.quantity, 0) ?? 0;
+    return this.basket?.items?.reduce((sum, i) => sum + i.quantity, 0) ?? 0;
   }
 
-  /** Monto total (viene pre-calculado del backend en basket.totalAmount) */
   get totalAmount(): number {
     if (this.basket?.totalAmount != null) return this.basket.totalAmount;
-    return this.basket?.items.reduce((sum, i) => sum + (i.subtotal ?? 0), 0) ?? 0;
+    return this.basket?.items?.reduce((sum, i) => sum + (i.subtotal ?? 0), 0) ?? 0;
   }
 }

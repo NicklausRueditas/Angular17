@@ -1,426 +1,504 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-gray-50 to-slate-100 py-8 sm:py-12">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+<div class="min-h-screen bg-slate-50/50 text-slate-900 selection:bg-slate-900 selection:text-white pb-20">
 
-    <!-- ── INDICADOR DE PASOS / CHECKOUT STEPPER ── -->
-    <div class="mb-8 max-w-2xl mx-auto">
-      <div class="flex items-center justify-between">
-        <!-- Paso 1: Carrito -->
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       1. CHECKOUT STEPPER MINIMALISTA (ESTILO ZARA / APPLE)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <header class="border-b border-slate-200/70 bg-white sticky top-0 z-30 shadow-xs">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4">
+      <nav aria-label="Progreso de compra" class="max-w-xl mx-auto flex items-center justify-between">
+        
+        <!-- Paso 1: Bolsa de Compras (Activo) -->
         <div class="flex items-center gap-2.5">
-          <span class="w-8 h-8 rounded-full bg-violet-600 text-white flex items-center justify-center font-bold text-xs shadow-md shadow-violet-600/20">
+          <span class="w-7 h-7 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-black shadow-xs">
             1
           </span>
-          <span class="text-xs sm:text-sm font-extrabold text-violet-700">Mi Carrito</span>
+          <span class="text-xs sm:text-sm font-black text-slate-900 tracking-tight">Mi Bolsa</span>
         </div>
 
-        <div class="flex-1 h-0.5 mx-3 sm:mx-6 bg-gray-200"></div>
+        <div class="flex-1 h-0.5 mx-3 sm:mx-6 bg-slate-200"></div>
 
         <!-- Paso 2: Entrega y Pago -->
-        <div class="flex items-center gap-2.5 opacity-60">
-          <span class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 border border-gray-200 flex items-center justify-center font-bold text-xs">
+        <div class="flex items-center gap-2.5 opacity-40">
+          <span class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 border border-slate-300 flex items-center justify-center text-xs font-bold">
             2
           </span>
-          <span class="text-xs sm:text-sm font-semibold text-gray-500 hidden sm:inline">Entrega y Pago</span>
+          <span class="text-xs sm:text-sm font-bold text-slate-500 hidden sm:inline">Entrega y Pago</span>
         </div>
 
-        <div class="flex-1 h-0.5 mx-3 sm:mx-6 bg-gray-200"></div>
+        <div class="flex-1 h-0.5 mx-3 sm:mx-6 bg-slate-200"></div>
 
         <!-- Paso 3: Confirmación -->
-        <div class="flex items-center gap-2.5 opacity-60">
-          <span class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 border border-gray-200 flex items-center justify-center font-bold text-xs">
+        <div class="flex items-center gap-2.5 opacity-40">
+          <span class="w-7 h-7 rounded-full bg-slate-100 text-slate-500 border border-slate-300 flex items-center justify-center text-xs font-bold">
             3
           </span>
-          <span class="text-xs sm:text-sm font-semibold text-gray-500 hidden sm:inline">Confirmación</span>
+          <span class="text-xs sm:text-sm font-bold text-slate-500 hidden sm:inline">Confirmación</span>
         </div>
-      </div>
-    </div>
 
-    <!-- ── ENCABEZADO DE PÁGINA ── -->
-    <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      </nav>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         2. TÍTULO DE SECCIÓN Y ACCIONES RÁPIDAS
+         ═══════════════════════════════════════════════════════════════════════ -->
+    <div class="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 border-b border-slate-200/60 pb-6">
       <div>
         <div class="flex items-center gap-3">
-          <h1 class="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Bolsa de Compras</h1>
+          <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Bolsa de Compras</h1>
           @if (totalQuantity > 0) {
-            <span class="px-3 py-1 rounded-full text-xs font-extrabold bg-violet-100 text-violet-800 border border-violet-200/80">
+            <span class="px-3 py-1 rounded-full text-xs font-black bg-slate-900 text-white font-mono">
               {{ totalQuantity }} {{ totalQuantity === 1 ? 'artículo' : 'artículos' }}
             </span>
           }
         </div>
-        <p class="mt-1 text-xs sm:text-sm text-gray-500">
-          Revisa y ajusta los productos antes de continuar con tu orden
+        <p class="mt-1 text-xs sm:text-sm text-slate-500 font-medium">
+          Revisa y ajusta los productos antes de proceder a la pasarela de pago segura
         </p>
       </div>
 
       <div class="flex items-center gap-3">
         @if (basket?.items?.length) {
-          <button type="button" (click)="clearBasket()"
-            class="text-xs font-semibold text-gray-500 hover:text-rose-600 transition-colors flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-rose-50">
+          <button
+            type="button"
+            (click)="clearBasket()"
+            class="text-xs font-bold text-slate-500 hover:text-rose-600 transition flex items-center gap-1.5 px-3 py-2 rounded-xl hover:bg-rose-50 cursor-pointer"
+          >
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
             </svg>
-            <span>Vaciar Carrito</span>
+            <span>Vaciar bolsa</span>
           </button>
         }
-        <a routerLink="/store"
-          class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-xl text-xs font-bold text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all shadow-xs">
-          <svg class="w-4 h-4 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <a
+          routerLink="/store"
+          class="inline-flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 hover:border-slate-300 rounded-xl text-xs font-bold text-slate-700 hover:text-slate-900 transition shadow-xs"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
-          <span>Seguir comprando</span>
+          <span>Continuar comprando</span>
         </a>
       </div>
     </div>
 
-    <!-- ── MENSAJE DE ERROR ── -->
+    <!-- Mensaje de Error si ocurre -->
     @if (error) {
-      <div class="mb-6 bg-rose-50 border-2 border-rose-200 rounded-2xl p-4 flex items-center justify-between shadow-xs">
+      <div class="mb-6 bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-center justify-between shadow-xs">
         <div class="flex items-center gap-3">
           <span class="text-rose-600 font-bold">⚠️</span>
-          <p class="text-sm font-semibold text-rose-800">{{ error }}</p>
+          <p class="text-xs sm:text-sm font-bold text-rose-800">{{ error }}</p>
         </div>
-        <button (click)="clearError()" class="text-rose-500 hover:text-rose-700 text-sm font-bold">✕</button>
+        <button (click)="clearError()" class="text-rose-500 hover:text-rose-700 text-sm font-bold cursor-pointer">✕</button>
       </div>
     }
 
-    <!-- ── SKELETON DE CARGA ── -->
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         3. SKELETON LOADING
+         ═══════════════════════════════════════════════════════════════════════ -->
     @if (isLoading) {
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div class="lg:col-span-2 space-y-4">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 animate-pulse">
+        <div class="lg:col-span-8 space-y-4">
           @for (i of [1, 2]; track i) {
-            <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse flex gap-5">
-              <div class="w-28 h-28 bg-gray-200 rounded-2xl flex-shrink-0"></div>
+            <div class="bg-white rounded-3xl p-6 border border-slate-100 flex gap-5">
+              <div class="w-24 sm:w-28 h-28 sm:h-32 bg-slate-200 rounded-2xl flex-shrink-0"></div>
               <div class="flex-1 space-y-3">
-                <div class="h-5 bg-gray-200 rounded w-2/3"></div>
-                <div class="h-4 bg-gray-200 rounded w-1/3"></div>
-                <div class="h-6 bg-gray-200 rounded w-1/4"></div>
+                <div class="h-4 bg-slate-200 rounded w-1/4"></div>
+                <div class="h-6 bg-slate-200 rounded w-2/3"></div>
+                <div class="h-4 bg-slate-200 rounded w-1/3"></div>
+                <div class="h-8 bg-slate-200 rounded w-1/4 mt-4"></div>
               </div>
             </div>
           }
         </div>
-        <div class="lg:col-span-1">
-          <div class="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 animate-pulse space-y-4">
-            <div class="h-6 bg-gray-200 rounded w-1/2"></div>
-            <div class="h-4 bg-gray-200 rounded"></div>
-            <div class="h-4 bg-gray-200 rounded"></div>
-            <div class="h-12 bg-gray-200 rounded-2xl mt-4"></div>
+        <div class="lg:col-span-4">
+          <div class="bg-white rounded-3xl p-6 border border-slate-100 space-y-4">
+            <div class="h-6 bg-slate-200 rounded w-1/2"></div>
+            <div class="h-4 bg-slate-200 rounded"></div>
+            <div class="h-4 bg-slate-200 rounded"></div>
+            <div class="h-12 bg-slate-200 rounded-2xl mt-4"></div>
           </div>
         </div>
       </div>
     }
 
-    <!-- ── CARRITO VACÍO (EMPTY STATE) ── -->
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         4. CARRITO VACÍO (EMPTY STATE DE LUJO)
+         ═══════════════════════════════════════════════════════════════════════ -->
     @else if (!basket || !basket.items || basket.items.length === 0) {
-      <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-12 sm:p-16 text-center max-w-2xl mx-auto">
-        <div class="w-24 h-24 bg-gradient-to-br from-violet-100 to-fuchsia-100 text-violet-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-inner">
-          <svg class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-          </svg>
-        </div>
-        <h2 class="text-2xl font-black text-gray-900 mb-2">Tu bolsa de compras está vacía</h2>
-        <p class="text-sm text-gray-500 mb-8 max-w-md mx-auto leading-relaxed">
-          Aún no has agregado ningún producto. Explora nuestro catálogo y descubre los productos disponibles en tu ciudad.
-        </p>
-        <a routerLink="/store"
-          class="inline-flex items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-700 text-white px-8 py-4 rounded-2xl font-extrabold text-sm hover:from-violet-700 hover:to-indigo-800 transition-all shadow-lg shadow-violet-600/20 active:scale-95">
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <div class="bg-white rounded-3xl border border-slate-200/80 p-12 sm:p-20 text-center max-w-xl mx-auto shadow-sm">
+        <div class="w-20 h-20 bg-slate-50 text-slate-400 border border-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg class="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
           </svg>
-          <span>Explorar Catálogo de Productos</span>
+        </div>
+        <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight mb-2">Tu bolsa está vacía</h2>
+        <p class="text-xs sm:text-sm text-slate-500 mb-8 max-w-sm mx-auto leading-relaxed">
+          Descubre las últimas tendencias en calzado y vestimenta urbana disponibles en tu ciudad.
+        </p>
+        <a
+          routerLink="/store"
+          class="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-wider transition-all shadow-lg shadow-slate-900/10 active:scale-98"
+        >
+          <span>Explorar Catálogo</span>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
         </a>
       </div>
     }
 
-    <!-- ── CONTENIDO PRINCIPAL DEL CARRITO ── -->
+    <!-- ═══════════════════════════════════════════════════════════════════════
+         5. CONTENIDO DEL CARRITO CON PRODUCTOS
+         ═══════════════════════════════════════════════════════════════════════ -->
     @else {
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
 
-        <!-- COLUMNA IZQUIERDA: ITEMS Y PROGRESO DE ENVÍO -->
-        <div class="lg:col-span-2 space-y-4">
+        <!-- ─────────────────────────────────────────────────────────────────
+             COLUMNA IZQUIERDA: LISTA DE PRODUCTOS & BENEFICIOS (Cols 8)
+             ───────────────────────────────────────────────────────────────── -->
+        <section aria-label="Productos en la bolsa" class="lg:col-span-8 space-y-4">
 
-          <!-- 🚚 BARRA INTERACTIVA DE ENVÍO GRATIS -->
-          <div class="p-4 rounded-3xl bg-gradient-to-r from-violet-50 via-purple-50 to-blue-50 border border-violet-200/70 shadow-xs">
-            <div class="flex items-center justify-between text-xs font-bold mb-2">
+          <!-- Barra Dinámica de Envío Gratuito -->
+          <div class="p-4 sm:p-5 rounded-3xl bg-white border border-slate-200/70 shadow-xs space-y-2.5">
+            <div class="flex items-center justify-between text-xs font-bold">
               @if (freeDeliveryRemaining > 0) {
-                <span class="text-violet-950 flex items-center gap-1.5">
+                <span class="text-slate-700 flex items-center gap-2">
                   <span class="text-base">🚚</span>
-                  <span>Agrega <strong class="text-violet-700 font-extrabold">S/ {{ freeDeliveryRemaining | number:'1.2-2' }}</strong> más para calificar a <strong>Envío Gratis</strong></span>
+                  <span>Agrega <strong class="text-slate-900 font-black">S/ {{ freeDeliveryRemaining | number:'1.2-2' }}</strong> más para calificar a <strong>Envío Gratis</strong></span>
                 </span>
-                <span class="text-violet-700 font-mono text-xs">{{ freeDeliveryProgress }}%</span>
+                <span class="text-slate-400 font-mono text-[11px] font-black">{{ freeDeliveryProgress }}%</span>
               } @else {
-                <span class="text-emerald-800 flex items-center gap-1.5">
+                <span class="text-emerald-700 flex items-center gap-2 font-black">
                   <span class="text-base">🎉</span>
-                  <span>¡Excelente! Tu pedido califica para <strong>Envío Gratis</strong> en tu ciudad</span>
+                  <span>¡Felicidades! Tu orden califica para <strong>Envío Gratis a Domicilio</strong></span>
                 </span>
-                <span class="text-emerald-700 font-extrabold text-xs">✓ 100%</span>
+                <span class="text-emerald-700 font-black text-xs font-mono">100%</span>
               }
             </div>
-            <div class="w-full bg-violet-200/60 rounded-full h-2 overflow-hidden">
-              <div class="h-full rounded-full transition-all duration-500"
-                [class.bg-violet-600]="freeDeliveryRemaining > 0"
+            
+            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+              <div
+                class="h-full rounded-full transition-all duration-500"
+                [class.bg-slate-900]="freeDeliveryRemaining > 0"
                 [class.bg-emerald-500]="freeDeliveryRemaining === 0"
-                [style.width.%]="freeDeliveryProgress"></div>
+                [style.width.%]="freeDeliveryProgress"
+              ></div>
             </div>
           </div>
 
-          <!-- LISTADO DE ITEMS -->
+          <!-- Tarjetas de Ítems de la Bolsa -->
           @for (item of basket.items; track getVariantId(item)) {
             @let variantId   = getVariantId(item);
-                        @let productName = getProductName(item);
+            @let productName = getProductName(item);
             @let brand       = getBrand(item);
             @let productId   = getProductId(item);
             @let basePrice   = getBasePrice(item);
             @let finalPrice  = item.finalPrice ?? basePrice;
             @let hasDiscount = basePrice > 0 && finalPrice < basePrice;
 
-            <div class="bg-white rounded-3xl shadow-sm border border-gray-100 hover:border-violet-200 hover:shadow-md transition-all duration-200 p-5 sm:p-6"
-              [class.opacity-60]="isItemLoading(item)"
-              [class.pointer-events-none]="isItemLoading(item)">
-
+            <article
+              class="bg-white rounded-3xl border border-slate-200/70 p-5 sm:p-6 shadow-xs hover:border-slate-300 transition duration-200 space-y-4"
+              [class.opacity-50]="isItemLoading(item)"
+              [class.pointer-events-none]="isItemLoading(item)"
+            >
               <div class="flex gap-4 sm:gap-6 items-start">
 
-                <!-- Imagen del Producto -->
+                <!-- Miniatura del Producto con Enlace -->
                 <div class="relative flex-shrink-0">
-                  <div class="w-24 h-24 sm:w-28 sm:h-28 rounded-2xl bg-gray-50 border border-gray-100 overflow-hidden flex items-center justify-center shadow-xs">
-                    @if (getThumbnail(item)) {
-                      <img [src]="getThumbnail(item) | cloudinary:'w_200,h_200,c_fit,q_auto,f_auto'"
-                        [alt]="productName || getSku(item)"
-                        class="w-full h-full object-cover">
-                    } @else {
-                      <svg class="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                      </svg>
-                    }
-                  </div>
+                  <a [routerLink]="productId ? ['/product', productId] : []" class="block group">
+                    <div class="w-24 sm:w-28 h-28 sm:h-32 rounded-2xl bg-slate-50 border border-slate-100 overflow-hidden flex items-center justify-center">
+                      @if (getThumbnail(item)) {
+                        <img
+                          [src]="getThumbnail(item) | cloudinary:'w_240,c_fit,q_auto,f_auto'"
+                          [alt]="productName || getSku(item)"
+                          class="w-full h-full object-cover object-center group-hover:scale-105 transition duration-300"
+                        />
+                      } @else {
+                        <svg class="w-8 h-8 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      }
+                    </div>
+                  </a>
 
                   @if (hasDiscount) {
-                    <span class="absolute -top-2 -left-2 bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-sm">
+                    <span class="absolute -top-1.5 -left-1.5 bg-rose-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full shadow-xs">
                       -{{ ((1 - finalPrice / basePrice) * 100) | number:'1.0-0' }}%
                     </span>
                   }
                 </div>
 
-                <!-- Detalles y Opciones -->
+                <!-- Datos del Producto -->
                 <div class="flex-1 min-w-0">
                   <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0">
                       @if (brand) {
-                        <span class="text-[10px] font-extrabold uppercase tracking-widest text-violet-600 block mb-0.5">
+                        <span class="text-[10px] font-black uppercase tracking-widest text-slate-400 block mb-0.5">
                           {{ brand }}
                         </span>
                       }
-                      <h3 class="text-sm sm:text-base font-extrabold text-gray-900 leading-snug">
+
+                      <h2 class="text-sm sm:text-base font-black text-slate-900 leading-snug tracking-tight truncate">
                         @if (productId) {
-                          <a [routerLink]="['/product', productId]" class="hover:text-violet-700 transition-colors">
+                          <a [routerLink]="['/product', productId]" class="hover:underline">
                             {{ productName }}
                           </a>
                         } @else {
                           {{ productName }}
                         }
-                      </h3>
+                      </h2>
 
-                      <!-- Chips de Variante: Color + Talla + SKU -->
+                      <!-- Chips de Variante (Color + Talla + SKU) -->
                       <div class="flex flex-wrap items-center gap-2 mt-2">
                         @if (getColorName(item)) {
-                          <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-700 bg-gray-100 px-2.5 py-1 rounded-xl">
-                            <span class="w-3.5 h-3.5 rounded-full border border-gray-300 flex-shrink-0"
-                              [style.background]="getColorHex(item)"></span>
-                            {{ getColorName(item) }}
+                          <span class="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-xl">
+                            <span
+                              class="w-3 h-3 rounded-full border border-slate-300 flex-shrink-0"
+                              [style.background-color]="getColorHex(item)"
+                            ></span>
+                            <span>{{ getColorName(item) }}</span>
                           </span>
                         }
+
                         @if (getSizeValue(item)) {
-                          <span class="inline-flex items-center text-xs font-bold text-violet-800 bg-violet-50 border border-violet-200/60 px-2.5 py-1 rounded-xl">
+                          <span class="inline-flex items-center text-xs font-black text-slate-800 bg-slate-100 border border-slate-200/60 px-2.5 py-1 rounded-xl font-mono">
                             Talla {{ getSizeValue(item) }}
                           </span>
                         }
+
                         @if (getSku(item)) {
-                          <span class="text-[11px] font-mono text-gray-400">SKU: {{ getSku(item) }}</span>
+                          <span class="text-[10px] font-mono text-slate-400 font-bold hidden sm:inline">SKU: {{ getSku(item) }}</span>
                         }
                       </div>
                     </div>
 
                     <!-- Botón Eliminar Ítem -->
-                    <button type="button" (click)="removeItem(variantId)" [disabled]="isItemLoading(item)"
-                      class="w-8 h-8 flex items-center justify-center rounded-xl text-gray-400 hover:text-rose-600 hover:bg-rose-50 transition-colors flex-shrink-0"
-                      title="Eliminar producto">
+                    <button
+                      type="button"
+                      (click)="removeItem(variantId)"
+                      [disabled]="isItemLoading(item)"
+                      class="w-8 h-8 flex items-center justify-center rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer flex-shrink-0"
+                      title="Eliminar producto"
+                      aria-label="Eliminar producto"
+                    >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
                   </div>
 
-                  <!-- Fila Inferior: Precios y Contador de Cantidad -->
-                  <div class="mt-4 pt-3 border-t border-gray-100 flex flex-wrap items-center justify-between gap-3">
+                  <!-- Fila Inferior: Precios y Stepper de Cantidad -->
+                  <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-4">
                     <div>
                       <div class="flex items-baseline gap-2">
-                        <span class="text-base sm:text-lg font-black text-gray-900">
+                        <span class="text-base sm:text-lg font-black text-slate-900 font-sans">
                           S/ {{ (finalPrice * item.quantity) | number:'1.2-2' }}
                         </span>
                         @if (hasDiscount) {
-                          <span class="text-xs text-gray-400 line-through">
+                          <span class="text-xs text-slate-400 line-through font-semibold">
                             S/ {{ (basePrice * item.quantity) | number:'1.2-2' }}
                           </span>
                         }
                       </div>
-                      <p class="text-[11px] text-gray-500">
+                      <p class="text-[10px] font-bold text-slate-400">
                         S/ {{ finalPrice | number:'1.2-2' }} por unidad
                       </p>
                     </div>
 
-                    <!-- Controles Interactivos de Cantidad -->
-                    <div class="flex items-center gap-1.5 bg-gray-100 p-1 rounded-2xl relative shadow-xs">
+                    <!-- Control de Cantidad Táctil -->
+                    <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-2xl relative shadow-xs">
                       @if (isItemLoading(item)) {
-                        <div class="absolute inset-0 flex items-center justify-center bg-white/90 rounded-2xl z-10">
-                          <svg class="animate-spin h-4 w-4 text-violet-600" fill="none" viewBox="0 0 24 24">
+                        <div class="absolute inset-0 flex items-center justify-center bg-white/80 rounded-2xl z-10">
+                          <svg class="animate-spin h-4 w-4 text-slate-900" fill="none" viewBox="0 0 24 24">
                             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                           </svg>
                         </div>
                       }
-                      <button (click)="decreaseQuantity(item)" [disabled]="isItemLoading(item)"
-                        class="w-8 h-8 flex items-center justify-center rounded-xl bg-white hover:bg-rose-50 hover:text-rose-600 text-gray-700 font-bold text-sm transition-all shadow-xs active:scale-95 disabled:opacity-40">
+                      <button
+                        type="button"
+                        (click)="decreaseQuantity(item)"
+                        [disabled]="isItemLoading(item)"
+                        aria-label="Reducir cantidad"
+                        class="w-8 h-8 flex items-center justify-center rounded-xl bg-white hover:bg-slate-200 text-slate-700 font-black text-sm transition cursor-pointer active:scale-95 disabled:opacity-40"
+                      >
                         -
                       </button>
-                      <span class="w-8 text-center text-sm font-black text-gray-900">{{ item.quantity }}</span>
-                      <button (click)="increaseQuantity(item)" [disabled]="isItemLoading(item)"
-                        class="w-8 h-8 flex items-center justify-center rounded-xl bg-white hover:bg-violet-50 hover:text-violet-700 text-gray-700 font-bold text-sm transition-all shadow-xs active:scale-95 disabled:opacity-40">
+                      <span class="w-8 text-center text-xs font-black text-slate-900 font-mono select-none">{{ item.quantity }}</span>
+                      <button
+                        type="button"
+                        (click)="increaseQuantity(item)"
+                        [disabled]="isItemLoading(item)"
+                        aria-label="Aumentar cantidad"
+                        class="w-8 h-8 flex items-center justify-center rounded-xl bg-white hover:bg-slate-200 text-slate-700 font-black text-sm transition cursor-pointer active:scale-95 disabled:opacity-40"
+                      >
                         +
                       </button>
                     </div>
                   </div>
-                </div>
 
+                </div>
               </div>
-            </div>
+            </article>
           }
 
-          <!-- 🎟️ BLOQUE DE CUPÓN DE DESCUENTO -->
-          <div class="bg-white rounded-3xl shadow-sm border border-gray-100 p-5 sm:p-6">
-            <div class="flex items-center gap-2 mb-3">
-              <span class="text-base">🎟️</span>
-              <h3 class="text-sm font-bold text-gray-900">¿Tienes un cupón de descuento o código promocional?</h3>
+          <!-- Bloque de Cupón de Descuento -->
+          <div class="bg-white rounded-3xl border border-slate-200/70 p-5 sm:p-6 shadow-xs space-y-3">
+            <div class="flex items-center gap-2">
+              <svg class="w-4 h-4 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+              </svg>
+              <h2 class="text-xs font-black uppercase tracking-wider text-slate-900">¿Tienes un cupón promocional?</h2>
             </div>
 
             @if (!couponApplied) {
               <div class="flex gap-2">
-                <input [(ngModel)]="couponCode" [ngModelOptions]="{standalone: true}"
-                  type="text" placeholder="Ej: MOOREA10, BIENVENIDO"
-                  class="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs sm:text-sm font-bold uppercase tracking-wider focus:bg-white focus:border-violet-500 focus:ring-2 focus:ring-violet-200 outline-none transition">
-                <button (click)="applyCoupon()"
-                  class="px-5 py-2.5 bg-gray-900 hover:bg-black text-white text-xs sm:text-sm font-bold rounded-xl active:scale-95 transition-all shadow-sm">
+                <input
+                  [(ngModel)]="couponCode"
+                  [ngModelOptions]="{standalone: true}"
+                  type="text"
+                  placeholder="Ej: MOOREA10, BIENVENIDO"
+                  class="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-2xl text-xs sm:text-sm font-black uppercase tracking-wider focus:bg-white focus:border-slate-900 focus:ring-2 focus:ring-slate-900/10 outline-none transition"
+                />
+                <button
+                  type="button"
+                  (click)="applyCoupon()"
+                  class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider rounded-2xl active:scale-95 transition cursor-pointer shadow-xs"
+                >
                   Aplicar
                 </button>
               </div>
               @if (couponError) {
-                <p class="text-xs font-semibold text-rose-600 mt-2">{{ couponError }}</p>
+                <p class="text-xs font-bold text-rose-600 mt-1.5">{{ couponError }}</p>
               }
             } @else {
               <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between text-xs">
                 <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-[10px]">✓</span>
-                  <span class="font-bold text-emerald-900">Cupón <strong>{{ couponCode }}</strong> aplicado (-S/ {{ couponDiscount | number:'1.2-2' }})</span>
+                  <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center font-black text-[10px]">✓</span>
+                  <span class="font-bold text-emerald-900">
+                    Cupón <strong>{{ couponCode }}</strong> aplicado (-S/ {{ couponDiscount | number:'1.2-2' }})
+                  </span>
                 </div>
-                <button (click)="removeCoupon()" class="text-xs font-bold text-rose-600 hover:underline">
+                <button type="button" (click)="removeCoupon()" class="text-xs font-bold text-rose-600 hover:underline cursor-pointer">
                   Quitar
                 </button>
               </div>
             }
           </div>
 
-        </div>
+        </section>
 
-        <!-- COLUMNA DERECHA: RESUMEN DEL PEDIDO Y BOTÓN DE CHECKOUT -->
-        <div class="lg:col-span-1">
-          <div class="bg-white rounded-3xl shadow-xl border border-gray-100 p-6 sm:p-7 sticky top-6 space-y-6">
+        <!-- ─────────────────────────────────────────────────────────────────
+             COLUMNA DERECHA: RESUMEN DE LA ORDEN & CHECKOUT (Cols 4)
+             ───────────────────────────────────────────────────────────────── -->
+        <aside aria-label="Resumen de la orden" class="lg:col-span-4">
+          <div class="bg-white rounded-3xl border border-slate-200/80 p-6 sm:p-7 lg:sticky lg:top-24 space-y-6 shadow-sm">
 
-            <h2 class="text-lg font-black text-gray-900 pb-4 border-b border-gray-100 flex items-center justify-between">
-              <span>Resumen de tu Orden</span>
-              <span class="text-xs font-bold text-violet-700 bg-violet-50 px-2 py-0.5 rounded-lg">{{ totalQuantity }} uds</span>
-            </h2>
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+              <h2 class="text-base font-black text-slate-900 uppercase tracking-tight">Resumen de Compra</h2>
+              <span class="text-xs font-bold font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded-md">{{ totalQuantity }} uds</span>
+            </div>
 
-            <!-- Desglose de Costos -->
-            <div class="space-y-3.5 text-sm">
-              <div class="flex justify-between text-gray-600">
+            <!-- Desglose de Importes -->
+            <div class="space-y-3 text-xs font-bold">
+              <div class="flex justify-between text-slate-600">
                 <span>Subtotal de productos</span>
-                <span class="font-bold text-gray-900">S/ {{ totalAmount | number:'1.2-2' }}</span>
+                <span class="text-slate-900 font-mono text-sm">S/ {{ totalAmount | number:'1.2-2' }}</span>
               </div>
 
               @if (totalSavings > 0) {
-                <div class="flex justify-between text-emerald-600 font-semibold">
+                <div class="flex justify-between text-emerald-600">
                   <span>Ahorro en productos</span>
-                  <span>-S/ {{ totalSavings | number:'1.2-2' }}</span>
+                  <span class="font-mono">-S/ {{ totalSavings | number:'1.2-2' }}</span>
                 </div>
               }
 
               @if (couponApplied) {
-                <div class="flex justify-between text-emerald-600 font-semibold">
+                <div class="flex justify-between text-emerald-600">
                   <span>Descuento por cupón</span>
-                  <span>-S/ {{ couponDiscount | number:'1.2-2' }}</span>
+                  <span class="font-mono">-S/ {{ couponDiscount | number:'1.2-2' }}</span>
                 </div>
               }
 
-              <div class="flex justify-between text-gray-600 items-center">
-                <span>Costo de envío estimado</span>
+              <div class="flex justify-between text-slate-600 items-center pt-1 border-t border-slate-100">
+                <span>Envío estimado</span>
                 @if (freeDeliveryRemaining === 0) {
-                  <span class="font-extrabold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md text-xs">
+                  <span class="text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md text-[11px] font-black uppercase tracking-wider">
                     ¡Gratis!
                   </span>
                 } @else {
-                  <span class="text-xs text-gray-400 italic">Se calcula en checkout</span>
+                  <span class="text-[11px] text-slate-400 italic">Calculado en checkout</span>
                 }
               </div>
             </div>
 
             <!-- Total a Pagar -->
-            <div class="pt-5 border-t border-gray-100">
-              <div class="flex justify-between items-baseline mb-1">
-                <span class="text-base font-extrabold text-gray-900">Total a Pagar</span>
-                <span class="text-2xl sm:text-3xl font-black text-gray-900">
+            <div class="pt-4 border-t border-slate-100 space-y-2">
+              <div class="flex justify-between items-baseline">
+                <span class="text-sm font-black text-slate-900 uppercase tracking-tight">Total a Pagar</span>
+                <span class="text-2xl sm:text-3xl font-black text-slate-900 font-sans">
                   S/ {{ finalPayableAmount | number:'1.2-2' }}
                 </span>
               </div>
-              <p class="text-[11px] text-gray-400 text-right">Impuestos y boleta/factura incluidos</p>
+              <p class="text-[10px] text-slate-400 text-right">Impuestos de ley y comprobante incluidos</p>
 
-              <!-- Cuotas sin interés si califica -->
+              <!-- Banner de Financiación en Cuotas -->
               @if (installmentInfo) {
-                <div class="mt-3 p-2.5 rounded-2xl bg-emerald-50 border border-emerald-100 flex items-center gap-2 text-xs font-bold text-emerald-800">
-                  <span>💳</span>
-                  <span>Hasta <strong>{{ installmentInfo.count }} cuotas sin interés</strong> de S/ {{ installmentInfo.amount | number:'1.2-2' }}</span>
+                <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200/60 flex items-center gap-2 text-xs font-bold text-slate-700 mt-3">
+                  <svg class="w-4 h-4 text-indigo-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                  </svg>
+                  <span>Hasta <strong class="text-slate-900">3 cuotas de S/ {{ installmentInfo.amount | number:'1.2-2' }}</strong> sin intereses</span>
                 </div>
               }
             </div>
 
-            <!-- Botón CTA Principal hacia /payment -->
-            <a [routerLink]="['/payment']"
-              class="w-full py-4 px-6 rounded-2xl font-black text-sm text-white transition-all duration-200 active:scale-[0.98] shadow-xl shadow-gray-900/20 flex items-center justify-center gap-2 hover:brightness-115 text-center"
-              style="background: linear-gradient(135deg, #111827 0%, #1f2937 100%)">
-              <span>Continuar al Pago y Envío</span>
+            <!-- Botón Primario hacia /payment -->
+            <a
+              [routerLink]="['/payment']"
+              class="w-full py-4 px-6 rounded-2xl font-black text-xs uppercase tracking-wider text-white bg-slate-900 hover:bg-slate-800 transition-all duration-200 active:scale-98 shadow-lg shadow-slate-900/10 flex items-center justify-center gap-2 text-center cursor-pointer"
+            >
+              <span>Continuar al Pago</span>
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
               </svg>
             </a>
 
-            <!-- Sellos de Confianza y Garantías -->
-            <div class="pt-5 border-t border-gray-100 space-y-2.5 text-xs text-gray-500">
-              <div class="flex items-center gap-2.5">
-                <span class="text-emerald-600 font-bold">🔒</span>
-                <span>Transacciones 100% protegidas con cifrado SSL</span>
+            <!-- Sellos de Seguridad y Métodos Aceptados -->
+            <div class="pt-4 border-t border-slate-100 space-y-3 text-[11px] text-slate-500 font-medium">
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span>Transacción segura con cifrado SSL & PCI</span>
               </div>
-              <div class="flex items-center gap-2.5">
-                <span class="text-blue-600 font-bold">↩️</span>
-                <span>Devoluciones garantizadas hasta por 30 días</span>
+              <div class="flex items-center gap-2">
+                <svg class="w-4 h-4 text-indigo-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                <span>30 días para cambios y devoluciones</span>
               </div>
-              <div class="flex items-center gap-2.5">
-                <span class="text-violet-600 font-bold">🏪</span>
-                <span>Opción de recojo gratuito en tienda local</span>
+
+              <!-- Fila de Marcas de Tarjeta -->
+              <div class="pt-2 flex items-center justify-center gap-3 opacity-60 text-[10px] font-bold text-slate-400">
+                <span>VISA</span>
+                <span>&bull;</span>
+                <span>MASTERCARD</span>
+                <span>&bull;</span>
+                <span>AMEX</span>
+                <span>&bull;</span>
+                <span>IZIPAY</span>
               </div>
             </div>
 
           </div>
-        </div>
+        </aside>
 
       </div>
     }
 
-  </div>
+  </main>
 </div>

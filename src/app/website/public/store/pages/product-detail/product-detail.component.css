@@ -1,19 +1,21 @@
 /* ─────────────────────────────────────────────────────────────────────────────
-   Product Detail - Premium Styles
+   Product Detail - Modern Luxury E-Commerce Styles (Zara / Farfetch / Apple)
    ───────────────────────────────────────────────────────────────────────────── */
 
-/* Global transitions */
-*:not(img) {
-  transition-property: color, background-color, border-color, opacity, box-shadow, transform, filter;
-  transition-duration: 200ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+/* Ocultar scrollbars manteniendo scroll accesible */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
-/* main image fade in transition */
+/* Animación sutil de desvanecimiento para transición de imágenes */
 @keyframes img-fade-in {
   from {
-    opacity: 0;
-    transform: scale(1.02);
+    opacity: 0.2;
+    transform: scale(1.015);
   }
   to {
     opacity: 1;
@@ -22,101 +24,42 @@
 }
 
 .gallery-main-img {
-  animation: img-fade-in 0.3s ease-out both;
+  animation: img-fade-in 0.25s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Hide scrollbar cross-browser */
-.gallery-slider {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  scroll-snap-type: x mandatory;
-  scroll-behavior: smooth;
-}
-.gallery-slider::-webkit-scrollbar {
-  display: none;
-}
-
-/* Color dot buttons */
-button[aria-label*="Seleccionar color"] {
-  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.08);
-}
-
-button[aria-label*="Seleccionar color"]:hover {
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
-  transform: scale(1.08);
-}
-
-button[aria-label*="Seleccionar color"][aria-pressed="true"] {
-  box-shadow: 0 0 0 2px white, 0 0 0 4px rgb(79, 70, 229), 0 4px 12px rgba(15, 23, 42, 0.15);
-  transform: scale(1.04);
-}
-
-/* Size pills */
-button[aria-label*="Seleccionar talla"] {
-  transition-duration: 150ms;
-}
-
-/* Star rating subtle glow pulse */
-@keyframes star-glow {
-  0%, 100% {
-    filter: drop-shadow(0 0 1px rgba(245, 158, 11, 0.3));
+/* Animación de entrada de modales */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
   }
-  50% {
-    filter: drop-shadow(0 0 3px rgba(245, 158, 11, 0.6));
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
-.text-amber-400 {
-  animation: star-glow 3s ease-in-out infinite;
+.animate-fade-in {
+  animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Shimmer gradient effect on badges */
-@keyframes gradient-shift {
-  0%, 100% { background-position: 0% 50%; }
-  50%       { background-position: 100% 50%; }
+/* Barra inferior móvil emergente */
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
-span[class*="bg-gradient"] {
-  background-size: 200% 200%;
-  animation: gradient-shift 4s ease infinite;
+.animate-slide-up {
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-/* Gallery Thumbnail Strip */
-.gallery-thumb {
-  width: 80px;
-  height: 80px;
-  border-radius: 12px;
-  border: 2px solid transparent;
-  scroll-snap-align: start;
-  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1),
-              opacity 180ms ease,
-              box-shadow 180ms ease,
-              border-color 180ms ease;
-}
-
-.thumb-active {
-  border-color: #4f46e5; /* indigo-600 */
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 6px 15px -3px rgba(79, 70, 229, 0.25);
-}
-
-.thumb-inactive {
-  opacity: 0.6;
-}
-
-.thumb-inactive:hover {
-  opacity: 1;
-  transform: translateY(-1.5px);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
-}
-
-/* Magnifier zoom zoom-in indicator */
-.gallery-main {
-  cursor: zoom-in;
-}
-
-/* Smooth active tab animations */
-.border-b-2 {
-  transition-property: border-color, color;
-  transition-duration: 250ms;
+/* Transición suave para botones y swatches */
+button {
+  -webkit-tap-highlight-color: transparent;
 }

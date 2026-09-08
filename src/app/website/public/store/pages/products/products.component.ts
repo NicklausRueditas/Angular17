@@ -163,17 +163,17 @@ export class ProductsComponent {
             this.selectedVariant = null;
             this.modalMainImage = product.gallery?.[0] ?? (product.thumbnailGallery?.[0] as any)?.image ?? '';
 
-            // Auto-seleccionar primer color disponible
+            // Auto-seleccionar primer color disponible y primera talla
             const uniqueColors = this.getUniqueColors(active);
             if (uniqueColors.length > 0) {
-              this.selectedColorCode = uniqueColors[0].code;
-              this.selectColor(uniqueColors[0].code);
+              const firstColor = uniqueColors[0].code;
+              this.selectedColorCode = '';
+              this.selectColor(firstColor);
 
-              // Auto-seleccionar primera talla del color
-              const sizes = this.getAvailableSizes(active, this.selectedColorCode);
+              const sizes = this.getAvailableSizes(active, firstColor);
               if (sizes.length > 0) {
-                this.selectedSizeValue = sizes[0].value;
-                this.resolveVariant();
+                this.selectedSizeValue = '';
+                this.selectSize(sizes[0].value);
               }
             }
           },
@@ -201,29 +201,42 @@ export class ProductsComponent {
 
   // ─── SELECTION ───────────────────────────────────────────────────────────────
 
+  /**
+   * Selecciona un color en el modal Quick-Add.
+   * Actualiza la imagen principal a la foto de esa variante y adapta la talla seleccionada.
+   */
   selectColor(code: string): void {
-    this.selectedColorCode = this.selectedColorCode === code ? '' : code;
+    this.selectedColorCode = code;
 
-    // Saltar a la primera imagen de la variante con ese color
-    if (this.selectedColorCode) {
-      const variant = this.modalVariants.find(v => v.color?.code === this.selectedColorCode);
-      const firstImg = variant?.gallery?.[0] ?? '';
-      this.modalMainImage = firstImg;
+    // Actualizar imagen principal a la primera imagen de la variante con ese color
+    const variant = this.modalVariants.find(v => v.color?.code === this.selectedColorCode);
+    if (variant?.gallery?.length) {
+      this.modalMainImage = variant.gallery[0];
     }
 
-    // Resetear talla si no es válida para el nuevo color
-    if (this.selectedSizeValue) {
-      const available = this.getAvailableSizes(this.modalVariants, this.selectedColorCode);
-      if (!available.some(s => s.value === this.selectedSizeValue)) {
-        this.selectedSizeValue = '';
-      }
+    // Validar o auto-seleccionar talla compatible
+    const availableSizes = this.getAvailableSizes(this.modalVariants, this.selectedColorCode);
+    if (!this.selectedSizeValue || !availableSizes.some(s => s.value === this.selectedSizeValue)) {
+      this.selectedSizeValue = availableSizes.length > 0 ? availableSizes[0].value : '';
     }
     this.resolveVariant();
   }
 
+  /**
+   * Selecciona una talla en el modal Quick-Add.
+   */
   selectSize(value: string): void {
-    this.selectedSizeValue = this.selectedSizeValue === value ? '' : value;
+    this.selectedSizeValue = value;
     this.resolveVariant();
+  }
+
+  /**
+   * Devuelve el nombre legible del color seleccionado actualmente.
+   */
+  get selectedColorName(): string {
+    if (!this.selectedColorCode) return '';
+    const match = this.getUniqueColors(this.modalVariants).find(c => c.code === this.selectedColorCode);
+    return match?.name ?? '';
   }
 
   private resolveVariant(): void {
