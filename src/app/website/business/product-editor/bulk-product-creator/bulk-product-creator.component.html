@@ -1,0 +1,916 @@
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8 animate-fade-in text-slate-900">
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       1. GUÍA RÁPIDA DE FLUJO BIDIRECCIONAL (CÓMO FUNCIONA)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="bg-slate-950 text-white rounded-3xl p-6 sm:p-7 relative overflow-hidden shadow-xl border border-slate-800">
+    <div class="absolute -top-12 -right-12 w-64 h-64 bg-slate-800/40 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 space-y-3.5">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span class="text-[11px] font-mono tracking-widest text-slate-400 uppercase font-semibold">
+          Entorno de Carga Masiva • Media Stager & JSON Visual
+        </span>
+      </div>
+
+      <div class="max-w-3xl">
+        <h2 class="text-xl sm:text-2xl font-black tracking-tight text-white">
+          Tablero Interactivo de Productos y Variantes
+        </h2>
+        <p class="mt-1 text-xs sm:text-sm text-slate-400 font-medium leading-relaxed">
+          Carga decenas de fotos en tu <strong>Asset Pool</strong> y organízalas visualmente como un puzzle: arrastra cada foto hacia el producto general o hacia el color correspondiente. El sistema inyecta automáticamente las URLs de Cloudinary en el JSON final de solo lectura.
+        </p>
+      </div>
+
+      <!-- 3 Pasos Visuales -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 flex items-start gap-3">
+          <div class="w-6 h-6 rounded-full bg-white text-slate-950 flex items-center justify-center text-xs font-black font-mono shrink-0">
+            1
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-200">Estructura Base</h4>
+            <p class="text-[11px] text-slate-400 leading-snug mt-0.5">
+              Pega o carga el JSON con códigos, nombres, precios y variantes base.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 flex items-start gap-3">
+          <div class="w-6 h-6 rounded-full bg-white text-slate-950 flex items-center justify-center text-xs font-black font-mono shrink-0">
+            2
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-200">El Puzzle de Fotos</h4>
+            <p class="text-[11px] text-slate-400 leading-snug mt-0.5">
+              Arrastra o asigna fotos huérfanas al producto o grupo de color.
+            </p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3.5 flex items-start gap-3">
+          <div class="w-6 h-6 rounded-full bg-white text-slate-950 flex items-center justify-center text-xs font-black font-mono shrink-0">
+            3
+          </div>
+          <div>
+            <h4 class="text-xs font-bold text-slate-200">Publicar en Cascada</h4>
+            <p class="text-[11px] text-slate-400 leading-snug mt-0.5">
+              El JSON resultante se valida y publica productos y variantes en la BD.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       2. ASSET POOL: ZONA DE CARGA DE FOTOS POR LOTE
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/90 shadow-xs space-y-4">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+      <div>
+        <h3 class="text-base font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+          <span class="p-1.5 rounded-xl bg-slate-100 text-slate-800">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </span>
+          Media Asset Pool (Carga de Fotos)
+        </h3>
+        <p class="text-xs text-slate-500 mt-0.5">
+          Sueltas 20 o 50 fotos de golpe. Se generan miniaturas de inmediato y se suben a Cloudinary en segundo plano.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-700">
+          <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+          {{ mediaAssets.length }} Total
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          {{ uploadedAssetsCount }} en Cloudinary
+        </span>
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold"
+              [ngClass]="unassignedAssets.length > 0 ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-500'">
+          <span class="w-2 h-2 rounded-full" [ngClass]="unassignedAssets.length > 0 ? 'bg-amber-500' : 'bg-slate-400'"></span>
+          {{ unassignedAssets.length }} Sin Dueño
+        </span>
+      </div>
+    </div>
+
+    <!-- Dropzone de carga rápida -->
+    <div
+      (dragover)="onDragOver($event)"
+      (drop)="onDropFiles($event)"
+      class="border-2 border-dashed border-slate-200 hover:border-slate-400 rounded-2xl p-5 text-center transition-all bg-slate-50/50 hover:bg-slate-50 cursor-pointer flex flex-col items-center justify-center gap-2 relative"
+    >
+      <input
+        type="file"
+        multiple
+        accept="image/*"
+        (change)="onFilesSelected($event)"
+        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+        title="Arrastra o selecciona imágenes"
+      />
+      <div class="w-10 h-10 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 shadow-xs">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-xs font-bold text-slate-800">
+          Arrastra aquí tus archivos de imagen o <span class="text-slate-900 underline underline-offset-2">haz clic para examinar</span>
+        </p>
+        <p class="text-[11px] text-slate-400 mt-0.5">JPG, PNG, WEBP. Miniaturas locales instantáneas.</p>
+      </div>
+    </div>
+
+    <!-- Progreso de subida a Cloudinary si está activo -->
+    @if (isUploadingMedia) {
+      <div class="bg-indigo-50 border border-indigo-100 rounded-2xl p-3 flex items-center justify-between gap-3 text-xs text-indigo-900">
+        <div class="flex items-center gap-2">
+          <svg class="animate-spin h-4 w-4 text-indigo-600" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+          </svg>
+          <span class="font-medium">{{ uploadProgressText }}</span>
+        </div>
+        <span class="text-[11px] text-indigo-600 font-mono">Subiendo en segundo plano...</span>
+      </div>
+    }
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       3. NAVEGACIÓN EN 3 PASOS: [1. JSON BASE] | [2. EL PUZZLE] | [3. PUBLICAR]
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="flex items-center justify-between flex-wrap gap-3 border-b border-slate-200/80 pb-3">
+    <div class="inline-flex p-1 bg-slate-100 rounded-2xl border border-slate-200/80">
+      <button
+        type="button"
+        (click)="activeSubTab = 'editor'"
+        class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 cursor-pointer"
+        [class.bg-white]="activeSubTab === 'editor'"
+        [class.text-slate-900]="activeSubTab === 'editor'"
+        [class.shadow-xs]="activeSubTab === 'editor'"
+        [class.text-slate-500]="activeSubTab !== 'editor'"
+        [class.hover:text-slate-800]="activeSubTab !== 'editor'"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+        </svg>
+        1. Estructura JSON Base
+        <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-600">
+          {{ parsedProducts.length }} prod.
+        </span>
+      </button>
+
+      <button
+        type="button"
+        (click)="activeSubTab = 'puzzle'"
+        class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 cursor-pointer"
+        [class.bg-white]="activeSubTab === 'puzzle'"
+        [class.text-slate-900]="activeSubTab === 'puzzle'"
+        [class.shadow-xs]="activeSubTab === 'puzzle'"
+        [class.text-slate-500]="activeSubTab !== 'puzzle'"
+        [class.hover:text-slate-800]="activeSubTab !== 'puzzle'"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z" />
+        </svg>
+        2. Tablero Interactivo (El Puzzle)
+        @if (unassignedAssets.length > 0) {
+          <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-800">
+            {{ unassignedAssets.length }} huérfanas
+          </span>
+        } @else if (mediaAssets.length > 0) {
+          <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
+            ✓ Completas
+          </span>
+        }
+      </button>
+
+      <button
+        type="button"
+        (click)="activeSubTab = 'preview'"
+        class="px-4 py-2 rounded-xl text-xs font-bold transition-all duration-200 flex items-center gap-2 cursor-pointer"
+        [class.bg-white]="activeSubTab === 'preview'"
+        [class.text-slate-900]="activeSubTab === 'preview'"
+        [class.shadow-xs]="activeSubTab === 'preview'"
+        [class.text-slate-500]="activeSubTab !== 'preview'"
+        [class.hover:text-slate-800]="activeSubTab !== 'preview'"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        3. JSON Resultante & Publicar
+      </button>
+    </div>
+
+    <!-- Botón directo de publicar si está en el tablero -->
+    @if (activeSubTab === 'puzzle' && validProductsCount > 0) {
+      <button
+        type="button"
+        (click)="executeBatchCreation()"
+        [disabled]="isExecuting"
+        class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs flex items-center gap-2 cursor-pointer"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        Publicar Lote ({{ validProductsCount }} prod.)
+      </button>
+    }
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       PASO 1: EDITOR DE CÓDIGO JSON BASE
+       ═══════════════════════════════════════════════════════════════════════ -->
+  @if (activeSubTab === 'editor') {
+    <div class="bg-white rounded-3xl border border-slate-200/90 shadow-xs p-6 space-y-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
+        <div>
+          <h3 class="text-sm font-black text-slate-800 tracking-tight">Definición de Estructura JSON</h3>
+          <p class="text-xs text-slate-500 mt-0.5">Aquí defines los productos, códigos, precios base, categorías y variantes.</p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            (click)="loadSampleJson()"
+            class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          >
+            Cargar Ejemplo Completo
+          </button>
+          <button
+            type="button"
+            (click)="downloadTemplate()"
+            class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          >
+            Descargar Plantilla
+          </button>
+          <button
+            type="button"
+            (click)="formatJson()"
+            class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          >
+            Formatear
+          </button>
+          <button
+            type="button"
+            (click)="clearJson()"
+            class="px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
+          >
+            Limpiar
+          </button>
+        </div>
+      </div>
+
+      @if (jsonSyntaxError) {
+        <div class="p-3 bg-red-50 border border-red-200 rounded-xl text-red-700 text-xs flex items-center gap-2">
+          <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span><strong>Error de sintaxis:</strong> {{ jsonSyntaxError }}</span>
+        </div>
+      }
+
+      <textarea
+        [(ngModel)]="rawJson"
+        (ngModelChange)="onJsonChange()"
+        rows="16"
+        placeholder="[ { code: 'PROD-01', name: '...', ... } ]"
+        class="w-full p-4 bg-slate-950 text-slate-100 font-mono text-xs rounded-2xl border border-slate-800 focus:ring-2 focus:ring-slate-900 focus:outline-none leading-relaxed thin-scrollbar"
+        spellcheck="false"
+      ></textarea>
+
+      <div class="flex items-center justify-between pt-2">
+        <span class="text-xs text-slate-500">
+          {{ parsedProducts.length }} producto(s) reconocidos • {{ totalVariantsCount }} variante(s)
+        </span>
+        <button
+          type="button"
+          (click)="activeSubTab = 'puzzle'"
+          class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shadow-xs"
+        >
+          <span>Ir al Tablero Interactivo de Fotos</span>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       PASO 2: TABLERO INTERACTIVO (EL PUZZLE DE FOTOS)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  @if (activeSubTab === 'puzzle') {
+    <div class="space-y-6">
+
+      <!-- ── A. BANDEJA DE FOTOS HUÉRFANAS (DISPONIBLES) ──────────────────── -->
+      <div class="bg-white rounded-3xl border border-slate-200/90 shadow-xs p-5 sm:p-6 space-y-4">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+          <div>
+            <h3 class="text-base font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <span class="p-1.5 rounded-xl bg-amber-50 text-amber-700">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+              </span>
+              Bandeja de Fotos Disponibles (El Puzzle)
+            </h3>
+            <p class="text-xs text-slate-500 mt-0.5">
+              Arrastra cualquier foto hacia un producto maestro o hacia un color de variante. O usa el selector rápido en cada tarjeta.
+            </p>
+          </div>
+
+          <!-- Filtros y Selección Masiva -->
+          <div class="flex items-center gap-2">
+            <div class="inline-flex p-0.5 bg-slate-100 rounded-xl text-xs font-bold">
+              <button
+                type="button"
+                (click)="puzzleFilter = 'unassigned'"
+                class="px-3 py-1 rounded-lg transition-all cursor-pointer"
+                [class.bg-white]="puzzleFilter === 'unassigned'"
+                [class.text-slate-900]="puzzleFilter === 'unassigned'"
+                [class.shadow-xs]="puzzleFilter === 'unassigned'"
+                [class.text-slate-500]="puzzleFilter !== 'unassigned'"
+              >
+                Sin dueño ({{ unassignedAssets.length }})
+              </button>
+              <button
+                type="button"
+                (click)="puzzleFilter = 'all'"
+                class="px-3 py-1 rounded-lg transition-all cursor-pointer"
+                [class.bg-white]="puzzleFilter === 'all'"
+                [class.text-slate-900]="puzzleFilter === 'all'"
+                [class.shadow-xs]="puzzleFilter === 'all'"
+                [class.text-slate-500]="puzzleFilter !== 'all'"
+              >
+                Todas ({{ mediaAssets.length }})
+              </button>
+            </div>
+
+            @if (unassignedAssets.length > 0) {
+              <button
+                type="button"
+                (click)="selectAllUnassigned()"
+                class="px-3 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all cursor-pointer"
+              >
+                Elegir todas
+              </button>
+            }
+          </div>
+        </div>
+
+        <!-- Barra flotante de asignación por lote cuando hay fotos seleccionadas -->
+        @if (selectedAssetIds.size > 0) {
+          <div class="bg-slate-900 text-white rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3 animate-fade-in shadow-md">
+            <div class="flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+              <span class="text-xs font-bold">{{ selectedAssetIds.size }} fotos seleccionadas</span>
+              <button
+                type="button"
+                (click)="clearAssetSelection()"
+                class="text-[11px] text-slate-400 hover:text-white underline cursor-pointer ml-2"
+              >
+                Deseleccionar
+              </button>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <span class="text-xs text-slate-400">Asignar seleccionadas a:</span>
+              <select
+                #batchTargetSelect
+                class="bg-slate-800 text-white text-xs font-bold px-3 py-1.5 rounded-xl border border-slate-700 focus:outline-none cursor-pointer"
+              >
+                <option value="">Selecciona destino...</option>
+                <optgroup label="Galería General">
+                  @for (p of parsedProducts; track p.code; let pIdx = $index) {
+                    <option [value]="'master:' + pIdx">{{ p.code }} - {{ p.name }} (General)</option>
+                  }
+                </optgroup>
+                <optgroup label="Por Color de Variante">
+                  @for (p of parsedProducts; track p.code; let pIdx = $index) {
+                    @for (cg of getProductColorGroups(p); track cg.colorCode) {
+                      <option [value]="'color:' + pIdx + ':' + cg.colorCode">{{ p.code }} • Color {{ cg.colorName }}</option>
+                    }
+                  }
+                </optgroup>
+              </select>
+
+              <button
+                type="button"
+                (click)="assignSelectedAssetsTo(batchTargetSelect.value); batchTargetSelect.value = ''"
+                class="px-4 py-1.5 bg-white text-slate-900 hover:bg-slate-100 rounded-xl text-xs font-black transition-all cursor-pointer"
+              >
+                Asignar
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- Grilla de fotos disponibles -->
+        @if (displayedPuzzleAssets.length === 0) {
+          <div class="py-10 text-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 space-y-2">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <p class="text-xs font-bold text-slate-700">
+              @if (mediaAssets.length === 0) {
+                No hay fotos en el Asset Pool. Arrastra archivos arriba para empezar.
+              } @else {
+                ¡Excelente! Todas las fotos han sido asignadas a productos o variantes.
+              }
+            </p>
+          </div>
+        } @else {
+          <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 max-h-80 overflow-y-auto thin-scrollbar p-1">
+            @for (asset of displayedPuzzleAssets; track asset.id) {
+              @let isSelected = selectedAssetIds.has(asset.id);
+              <div
+                [draggable]="true"
+                (dragstart)="onAssetDragStart($event, asset)"
+                (dragend)="onAssetDragEnd()"
+                class="group bg-white rounded-2xl border transition-all duration-150 overflow-hidden flex flex-col shadow-xs cursor-grab active:cursor-grabbing hover:shadow-md hover:border-slate-400 relative"
+                [class.border-slate-900]="isSelected"
+                [class.ring-2]="isSelected"
+                [class.ring-slate-900]="isSelected"
+                [class.border-slate-200]="!isSelected"
+              >
+                <!-- Miniatura -->
+                <div class="aspect-square bg-slate-100 relative overflow-hidden">
+                  @if (isAssetValid(asset)) {
+                    <img
+                      [src]="asset.previewUrl"
+                      [alt]="asset.name"
+                      (error)="onAssetLoadError(asset.id)"
+                      class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 pointer-events-none"
+                    />
+                  } @else {
+                    <div class="w-full h-full flex flex-col items-center justify-center p-2 text-center bg-slate-100 text-slate-400">
+                      <svg class="w-6 h-6 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span class="text-[9px] font-mono font-bold text-slate-500 truncate max-w-full">
+                        {{ asset.name }}
+                      </span>
+                    </div>
+                  }
+
+                  <!-- Checkbox de selección -->
+                  <button
+                    type="button"
+                    (click)="toggleAssetSelection(asset.id)"
+                    class="absolute top-1.5 left-1.5 w-5 h-5 rounded-md flex items-center justify-center transition-all cursor-pointer shadow-xs"
+                    [class.bg-slate-900]="isSelected"
+                    [class.text-white]="isSelected"
+                    [class.bg-white/90]="!isSelected"
+                    [class.text-transparent]="!isSelected"
+                  >
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </button>
+
+                  <!-- Badge de estado Cloudinary -->
+                  <div class="absolute top-1.5 right-1.5">
+                    @if (asset.status === 'done') {
+                      <span class="w-4 h-4 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs" title="Subido a Cloudinary">
+                        <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </span>
+                    } @else if (asset.status === 'uploading') {
+                      <span class="w-4 h-4 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-xs animate-spin" title="Subiendo...">
+                        <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24">
+                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                      </span>
+                    }
+                  </div>
+                </div>
+
+                <!-- Info y Selector de 1 clic -->
+                <div class="p-1.5 space-y-1 bg-white">
+                  <p class="text-[10px] font-mono font-bold text-slate-800 truncate" [title]="asset.name">
+                    {{ asset.name }}
+                  </p>
+
+                  <select
+                    (change)="onQuickAssignChange(asset, $event)"
+                    class="w-full text-[9px] font-bold bg-slate-50 hover:bg-slate-100 text-slate-700 py-1 px-1 rounded-lg border border-slate-200/80 focus:outline-none cursor-pointer"
+                  >
+                    <option value="">+ Asignar...</option>
+                    <optgroup label="Galería General">
+                      @for (p of parsedProducts; track p.code; let pIdx = $index) {
+                        <option [value]="'master:' + pIdx">{{ p.code }} (Gen.)</option>
+                      }
+                    </optgroup>
+                    <optgroup label="Variantes Color">
+                      @for (p of parsedProducts; track p.code; let pIdx = $index) {
+                        @for (cg of getProductColorGroups(p); track cg.colorCode) {
+                          <option [value]="'color:' + pIdx + ':' + cg.colorCode">{{ p.code }} • {{ cg.colorName }}</option>
+                        }
+                      }
+                    </optgroup>
+                  </select>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- ── B. CUADROS RECEPTORES POR PRODUCTO ("DROP TARGETS") ──────────── -->
+      <div class="space-y-6">
+        @for (product of parsedProducts; track product.code; let pIdx = $index) {
+          @let colorGroups = getProductColorGroups(product);
+
+          <div class="bg-white rounded-3xl border border-slate-200 shadow-xs p-6 space-y-5">
+            
+            <!-- Cabecera de la Tarjeta del Producto -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+              <div class="flex items-center gap-3">
+                <span class="px-3 py-1 rounded-xl text-xs font-mono font-black bg-slate-900 text-white tracking-wider">
+                  {{ product.code }}
+                </span>
+                <div>
+                  <h4 class="text-base font-black text-slate-900 tracking-tight">{{ product.name }}</h4>
+                  <p class="text-xs text-slate-400">
+                    {{ product.brand }} • S/ {{ product.basePrice | number:'1.2-2' }}
+                    @if (product.discount) {
+                      <span class="text-rose-600 font-bold ml-1">(-{{ product.discount }}%)</span>
+                    }
+                  </p>
+                </div>
+              </div>
+
+              <!-- Categorías -->
+              <div class="flex flex-wrap gap-1.5">
+                @for (cat of product.category; track cat) {
+                  <span class="px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-slate-100 text-slate-600">
+                    {{ cat }}
+                  </span>
+                }
+              </div>
+            </div>
+
+            <!-- 1. ZONA RECEPTORA: GALERÍA GENERAL DEL PRODUCTO MAESTRO -->
+            <div
+              (dragover)="onDragOverZone($event, 'master:' + pIdx)"
+              (dragleave)="onDragLeaveZone($event, 'master:' + pIdx)"
+              (drop)="onDropOnProductMaster($event, pIdx)"
+              class="rounded-2xl p-4 border-2 transition-all"
+              [class.border-dashed]="!activeDropZoneId?.startsWith('master:' + pIdx)"
+              [class.border-slate-200]="activeDropZoneId !== 'master:' + pIdx"
+              [class.bg-slate-50]="activeDropZoneId !== 'master:' + pIdx"
+              [class.border-slate-900]="activeDropZoneId === 'master:' + pIdx"
+              [class.bg-slate-100]="activeDropZoneId === 'master:' + pIdx"
+              [class.ring-2]="activeDropZoneId === 'master:' + pIdx"
+              [class.ring-slate-900/10]="activeDropZoneId === 'master:' + pIdx"
+            >
+              <div class="flex items-center justify-between gap-2 mb-3">
+                <div class="flex items-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-slate-900"></span>
+                  <h5 class="text-xs font-black uppercase tracking-wider text-slate-800">
+                    Galería General del Producto
+                  </h5>
+                  <span class="text-[11px] font-mono text-slate-400">
+                    ({{ product.gallery.length }} fotos asignadas)
+                  </span>
+                </div>
+                <span class="text-[10px] text-slate-400 font-medium">Sueltas aquí las fotos generales o lookbook</span>
+              </div>
+
+              <!-- Miniaturas asignadas a este producto maestro -->
+              @if (product.gallery.length === 0) {
+                <p class="text-xs text-slate-400 py-3 text-center italic">
+                  Sin imágenes generales. Arrastra una foto aquí desde la bandeja superior.
+                </p>
+              } @else {
+                <div class="flex flex-wrap gap-2.5">
+                  @for (imgRef of product.gallery; track imgRef) {
+                    <div class="w-20 h-20 rounded-xl overflow-hidden border border-slate-200 bg-white relative group shadow-2xs">
+                      @if (hasValidThumbnail(imgRef)) {
+                        <img
+                          [src]="getAssetThumbnail(imgRef)"
+                          [alt]="imgRef"
+                          (error)="onImageLoadError(imgRef)"
+                          class="w-full h-full object-cover"
+                        />
+                      } @else {
+                        <div class="w-full h-full bg-slate-100/90 flex flex-col items-center justify-center p-1.5 text-center select-none" [title]="imgRef">
+                          <svg class="w-5 h-5 text-slate-400 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                          <span class="text-[9px] font-mono text-slate-500 font-bold truncate max-w-full leading-tight">
+                            {{ imgRef }}
+                          </span>
+                          <span class="text-[8px] text-amber-700 font-semibold uppercase tracking-wider mt-0.5">
+                            Sin foto
+                          </span>
+                        </div>
+                      }
+                      <!-- Botón X para desasignar -->
+                      <button
+                        type="button"
+                        (click)="removeAssetFromProductMaster(pIdx, imgRef)"
+                        class="absolute top-1 right-1 w-5 h-5 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-xs cursor-pointer"
+                        title="Quitar foto y devolver al pool"
+                      >
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- 2. ZONAS RECEPTORAS: VARIANTES AGRUPADAS POR COLOR -->
+            @if (colorGroups.length > 0) {
+              <div class="space-y-3 pt-2">
+                <div class="flex items-center justify-between">
+                  <h5 class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                    </svg>
+                    Variantes por Color (Se propaga a todas las tallas del color)
+                  </h5>
+                  <span class="text-[11px] text-slate-400 font-medium">
+                    {{ colorGroups.length }} color(es) configurados
+                  </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                  @for (group of colorGroups; track group.colorCode) {
+                    <div
+                      (dragover)="onDragOverZone($event, 'color:' + pIdx + ':' + group.colorCode)"
+                      (dragleave)="onDragLeaveZone($event, 'color:' + pIdx + ':' + group.colorCode)"
+                      (drop)="onDropOnColorGroup($event, pIdx, group.colorCode)"
+                      class="rounded-2xl p-4 border-2 transition-all bg-white"
+                      [class.border-dashed]="!activeDropZoneId?.startsWith('color:' + pIdx + ':' + group.colorCode)"
+                      [class.border-slate-200]="activeDropZoneId !== 'color:' + pIdx + ':' + group.colorCode"
+                      [class.border-slate-900]="activeDropZoneId === 'color:' + pIdx + ':' + group.colorCode"
+                      [class.bg-slate-50]="activeDropZoneId === 'color:' + pIdx + ':' + group.colorCode"
+                      [class.ring-2]="activeDropZoneId === 'color:' + pIdx + ':' + group.colorCode"
+                      [class.ring-slate-900/10]="activeDropZoneId === 'color:' + pIdx + ':' + group.colorCode"
+                    >
+                      <!-- Encabezado del grupo de color -->
+                      <div class="flex items-center justify-between gap-2 mb-3">
+                        <div class="flex items-center gap-2">
+                          <span
+                            class="w-4 h-4 rounded-full border border-slate-300 shadow-2xs shrink-0"
+                            [style.background-color]="group.colorHex"
+                          ></span>
+                          <span class="text-xs font-black text-slate-800">
+                            Color: {{ group.colorName }}
+                          </span>
+                          <span class="text-[10px] font-mono text-slate-400">
+                            [{{ group.colorCode }}]
+                          </span>
+                        </div>
+
+                        <!-- Tallas asociadas a este color -->
+                        <div class="flex items-center gap-1">
+                          @for (v of group.variants; track v.sku) {
+                            <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-600">
+                              {{ v.size?.value || 'U' }}
+                            </span>
+                          }
+                        </div>
+                      </div>
+
+                      <!-- Miniaturas de fotos asignadas a este color -->
+                      @if (group.gallery.length === 0) {
+                        <p class="text-xs text-slate-400 py-3 text-center italic">
+                          Arrastra aquí las fotos del color {{ group.colorName }}.
+                        </p>
+                      } @else {
+                        <div class="flex flex-wrap gap-2">
+                          @for (imgRef of group.gallery; track imgRef) {
+                            <div class="w-16 h-16 rounded-xl overflow-hidden border border-slate-200 bg-white relative group shadow-2xs">
+                              @if (hasValidThumbnail(imgRef)) {
+                                <img
+                                  [src]="getAssetThumbnail(imgRef)"
+                                  [alt]="imgRef"
+                                  (error)="onImageLoadError(imgRef)"
+                                  class="w-full h-full object-cover"
+                                />
+                              } @else {
+                                <div class="w-full h-full bg-slate-100/90 flex flex-col items-center justify-center p-1 text-center select-none" [title]="imgRef">
+                                  <svg class="w-4 h-4 text-slate-400 mb-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  </svg>
+                                  <span class="text-[8px] font-mono text-slate-500 font-bold truncate max-w-full leading-tight">
+                                    {{ imgRef }}
+                                  </span>
+                                  <span class="text-[7px] text-amber-700 font-semibold uppercase tracking-wider mt-0.5">
+                                    Sin foto
+                                  </span>
+                                </div>
+                              }
+                              <!-- Botón X para desasignar -->
+                              <button
+                                type="button"
+                                (click)="removeAssetFromColorGroup(pIdx, group.colorCode, imgRef)"
+                                class="absolute top-1 right-1 w-4 h-4 rounded-full bg-rose-600 hover:bg-rose-700 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-xs cursor-pointer"
+                                title="Quitar foto y devolver al pool"
+                              >
+                                <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                              </button>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+          </div>
+        }
+      </div>
+
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       PASO 3: JSON RESULTANTE GENERADO (SOLO LECTURA) & PUBLICACIÓN
+       ═══════════════════════════════════════════════════════════════════════ -->
+  @if (activeSubTab === 'preview') {
+    <div class="bg-white rounded-3xl border border-slate-200/90 shadow-xs p-6 space-y-6">
+      
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-4">
+        <div>
+          <h3 class="text-base font-black text-slate-900 tracking-tight">
+            JSON Resultante y Auditoría de Publicación
+          </h3>
+          <p class="text-xs text-slate-500 mt-0.5">
+            Este JSON es de solo lectura. Ha sido generado automáticamente a partir de tus asignaciones visuales con las URLs seguras de Cloudinary.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            (click)="copyGeneratedJson()"
+            class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+            </svg>
+            Copiar JSON Resultante
+          </button>
+        </div>
+      </div>
+
+      <!-- Métricas del Lote -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Productos</p>
+          <p class="text-lg font-black text-slate-900 mt-0.5">{{ validProductsCount }} válidos</p>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Variantes</p>
+          <p class="text-lg font-black text-slate-900 mt-0.5">{{ totalVariantsCount }} totales</p>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Fotos en Cloudinary</p>
+          <p class="text-lg font-black text-emerald-700 mt-0.5">{{ uploadedAssetsCount }} resueltas</p>
+        </div>
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-100">
+          <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Fotos Sin Asignar</p>
+          <p class="text-lg font-black mt-0.5" [ngClass]="unassignedAssets.length > 0 ? 'text-amber-600' : 'text-slate-400'">
+            {{ unassignedAssets.length }} huérfanas
+          </p>
+        </div>
+      </div>
+
+      <!-- Visor de Código JSON Resultante -->
+      <div class="relative rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
+        <div class="bg-slate-900/80 px-4 py-2 border-b border-slate-800 flex items-center justify-between text-xs text-slate-400 font-mono">
+          <span>resultado-lote-preparado.json (Solo lectura)</span>
+          <span class="text-emerald-400 font-bold">● Sincronizado en tiempo real</span>
+        </div>
+        <pre class="p-4 text-xs font-mono text-emerald-400 overflow-x-auto max-h-96 thin-scrollbar leading-relaxed"><code>{{ generatedOutputJson }}</code></pre>
+      </div>
+
+      <!-- Botón de Publicación Masiva Directa -->
+      <div class="pt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-100">
+        <p class="text-xs text-slate-500">
+          Al hacer clic, se crearán en secuencia los productos maestros y todas sus variantes en tu catálogo.
+        </p>
+
+        <button
+          type="button"
+          (click)="executeBatchCreation()"
+          [disabled]="isExecuting || validProductsCount === 0"
+          class="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-sm font-black transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+          <span>Publicar Lote Completo ({{ validProductsCount }} Productos)</span>
+        </button>
+      </div>
+
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       4. MODAL DE PROGRESO Y RESULTADOS
+       ═══════════════════════════════════════════════════════════════════════ -->
+  @if (isExecuting || isCompleted) {
+    <div class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-xs flex items-center justify-center p-4 animate-fade-in">
+      <div class="bg-white rounded-3xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[90vh]">
+        
+        <!-- Header del Modal -->
+        <div class="p-6 border-b border-slate-100 bg-slate-50/50">
+          <div class="flex items-center justify-between">
+            <h3 class="text-lg font-black text-slate-900">
+              {{ isCompleted ? 'Proceso de Carga Masiva Finalizado' : 'Publicando Productos en Moorea...' }}
+            </h3>
+            <span class="text-xs font-mono font-bold px-2.5 py-1 rounded-full"
+                  [ngClass]="isCompleted ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-700'">
+              {{ currentProcessingIndex }} / {{ totalToProcess }}
+            </span>
+          </div>
+
+          <!-- Barra de Progreso -->
+          <div class="mt-4 w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+            <div
+              class="bg-slate-900 h-full rounded-full transition-all duration-300"
+              [style.width.%]="progressPercentage"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Lista de Resultados en Vivo -->
+        <div class="p-6 overflow-y-auto thin-scrollbar space-y-2.5 flex-1">
+          @for (res of batchResults; track res.code) {
+            <div class="p-3 rounded-2xl border text-xs flex items-center justify-between gap-3 transition-all"
+                 [class.bg-emerald-50]="res.status === 'success'" [class.border-emerald-200]="res.status === 'success'" [class.text-emerald-900]="res.status === 'success'"
+                 [class.bg-red-50]="res.status === 'error'" [class.border-red-200]="res.status === 'error'" [class.text-red-900]="res.status === 'error'"
+                 [class.bg-slate-50]="res.status === 'pending'" [class.border-slate-100]="res.status === 'pending'" [class.text-slate-500]="res.status === 'pending'">
+              
+              <div class="flex items-center gap-2.5 min-w-0">
+                <span class="w-2 h-2 rounded-full shrink-0"
+                      [class.bg-emerald-500]="res.status === 'success'"
+                      [class.bg-red-500]="res.status === 'error'"
+                      [class.bg-slate-300]="res.status === 'pending'"></span>
+                <span class="font-mono font-bold truncate">{{ res.code }}</span>
+                <span class="truncate text-slate-600 font-medium">{{ res.name }}</span>
+              </div>
+
+              <div class="flex items-center gap-2 shrink-0">
+                @if (res.status === 'pending') {
+                  <span class="text-[11px] text-slate-400 font-mono">En espera...</span>
+                } @else if (res.status === 'success') {
+                  <span class="text-[11px] font-bold text-emerald-700">{{ res.message }}</span>
+                } @else if (res.status === 'error') {
+                  <span class="text-[11px] font-bold text-red-600 truncate max-w-xs" [title]="res.message">{{ res.message }}</span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Footer del Modal -->
+        <div class="p-4.5 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2">
+          @if (isCompleted) {
+            <button
+              type="button"
+              (click)="isCompleted = false"
+              class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-xl text-xs font-bold transition-all cursor-pointer"
+            >
+              Cerrar Bitácora
+            </button>
+            <button
+              type="button"
+              (click)="finishAndGoToCatalog()"
+              class="px-5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all cursor-pointer"
+            >
+              Ir al Catálogo de Productos
+            </button>
+          } @else {
+            <span class="text-xs text-slate-400 font-medium">Por favor no cierres la ventana mientras se completa el lote.</span>
+          }
+        </div>
+
+      </div>
+    </div>
+  }
+
+</div>

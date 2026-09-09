@@ -1,138 +1,459 @@
-<div class="space-y-6">
+<div class="space-y-8 animate-fade-in text-slate-900">
 
-  <!-- Encabezado de Sección -->
-  <div class="border-b border-gray-200 pb-5 flex items-center justify-between">
-    <div>
-      <h3 class="text-xl font-black text-gray-900 tracking-tight">Mis Pedidos</h3>
-      <p class="mt-1 text-xs text-gray-500 font-medium">Historial completo de tus compras y su estado de entrega en tiempo real.</p>
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       1. CABECERA & BREADCRUMB EDITORIAL
+       ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="border-b border-slate-200/80 pb-6">
+    <!-- Breadcrumb consistente -->
+    <div class="flex flex-wrap items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+      <a routerLink="/" class="hover:text-slate-900 transition-colors">Inicio</a>
+      <span class="text-slate-400">/</span>
+      <a routerLink="/my-account" class="hover:text-slate-900 transition-colors">Mi Cuenta</a>
+      <span class="text-slate-400">/</span>
+      <span class="text-slate-900 font-bold">Mis Pedidos</span>
     </div>
-    <button (click)="fetchOrders()"
-      class="px-3.5 py-2 text-xs font-bold text-violet-700 bg-violet-50 hover:bg-violet-100 rounded-xl transition flex items-center gap-1.5 shadow-xs">
-      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-      <span>Actualizar</span>
-    </button>
-  </div>
 
-  <!-- Estado: Cargando -->
-  @if (isLoading) {
-    <div class="space-y-3">
-      @for (i of [1,2,3]; track i) {
-        <div class="h-28 bg-gray-100/80 rounded-2xl animate-pulse"></div>
-      }
-    </div>
-  } @else if (loadError) {
-    <!-- Estado: Error -->
-    <div class="text-center py-14 bg-rose-50/50 rounded-2xl border border-rose-100 p-6">
-      <div class="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-3 font-bold text-lg">
-        ✕
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3">
+          <h1 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Mis Pedidos</h1>
+          @if (!isLoading && orders.length > 0) {
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-black bg-slate-900 text-white font-mono">
+              {{ orders.length }}
+            </span>
+          }
+        </div>
+        <p class="mt-1 text-xs sm:text-sm text-slate-500 font-medium">
+          Supervisa el estado de tus compras, comprobantes fiscales y detalles de entrega en tiempo real
+        </p>
       </div>
-      <h4 class="text-sm font-black text-gray-900 mb-1">No se pudieron cargar tus pedidos</h4>
-      <p class="text-xs text-gray-500 mb-4">Verifica tu conexión y vuelve a intentarlo.</p>
-      <button (click)="fetchOrders()"
-        class="px-4 py-2 bg-rose-600 text-white rounded-xl text-xs font-bold hover:bg-rose-700 transition">
-        Reintentar
+
+      <!-- Botón Actualizar con microinteracción -->
+      <button
+        type="button"
+        (click)="fetchOrders(true)"
+        [disabled]="isLoading || isRefreshing"
+        class="px-4 py-2.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold uppercase tracking-wider shadow-xs hover:border-slate-300 transition-all inline-flex items-center gap-2 cursor-pointer disabled:opacity-50 self-start sm:self-auto shrink-0"
+        title="Actualizar listado de pedidos"
+      >
+        <svg
+          class="w-4 h-4 text-slate-500"
+          [class.animate-spin]="isRefreshing"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          stroke-width="2"
+        >
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+        </svg>
+        <span>{{ isRefreshing ? 'Actualizando...' : 'Actualizar' }}</span>
       </button>
     </div>
-  } @else if (orders.length === 0) {
-    <!-- Estado: Sin Órdenes -->
-    <div class="text-center py-16 bg-white rounded-3xl border-2 border-dashed border-gray-200 p-6">
-      <div class="w-16 h-16 bg-violet-50 text-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl shadow-xs">
-        🛍️
+
+    <!-- ═════════════════════════════════════════════════════════════════════
+         2. FILTROS POR PESTAÑA Y BARRA DE BÚSQUEDA
+         ═════════════════════════════════════════════════════════════════════ -->
+    @if (!isLoading && orders.length > 0) {
+      <div class="mt-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        
+        <!-- Pestañas de Estado -->
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
+          <button
+            type="button"
+            (click)="setTab('all')"
+            class="px-4 py-2 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap"
+            [ngClass]="{
+              'bg-slate-900 text-white shadow-xs font-black': activeTab === 'all',
+              'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200/80 font-bold': activeTab !== 'all'
+            }"
+          >
+            Todos ({{ orders.length }})
+          </button>
+
+          <button
+            type="button"
+            (click)="setTab('in_progress')"
+            class="px-4 py-2 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap"
+            [ngClass]="{
+              'bg-slate-900 text-white shadow-xs font-black': activeTab === 'in_progress',
+              'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200/80 font-bold': activeTab !== 'in_progress'
+            }"
+          >
+            En Curso ({{ countInProgress }})
+          </button>
+
+          <button
+            type="button"
+            (click)="setTab('delivered')"
+            class="px-4 py-2 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap"
+            [ngClass]="{
+              'bg-slate-900 text-white shadow-xs font-black': activeTab === 'delivered',
+              'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200/80 font-bold': activeTab !== 'delivered'
+            }"
+          >
+            Entregados ({{ countDelivered }})
+          </button>
+
+          @if (countCancelled > 0) {
+            <button
+              type="button"
+              (click)="setTab('cancelled')"
+              class="px-4 py-2 rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap"
+              [ngClass]="{
+                'bg-slate-900 text-white shadow-xs font-black': activeTab === 'cancelled',
+                'bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-slate-200/80 font-bold': activeTab !== 'cancelled'
+              }"
+            >
+              Cancelados ({{ countCancelled }})
+            </button>
+          }
+        </div>
+
+        <!-- Buscador de Pedidos -->
+        <div class="relative w-full md:w-72">
+          <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            [(ngModel)]="searchQuery"
+            placeholder="Buscar por # orden o producto..."
+            class="w-full pl-10 pr-8 py-2.5 rounded-xl border border-slate-200 bg-white text-xs font-semibold text-slate-900 placeholder:text-slate-400 focus:border-slate-900 focus:ring-1 focus:ring-slate-900 outline-none transition-all shadow-xs"
+          />
+          @if (searchQuery) {
+            <button
+              type="button"
+              (click)="searchQuery = ''"
+              class="absolute inset-y-0 right-0 pr-2.5 flex items-center text-slate-400 hover:text-slate-700 cursor-pointer"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          }
+        </div>
+
       </div>
-      <h3 class="text-base font-black text-gray-900">Aún no tienes pedidos registrados</h3>
-      <p class="mt-1 text-xs text-gray-500 mb-6 max-w-sm mx-auto">
-        Cuando realices una compra en Moorea, aparecerá aquí con su estado y comprobante.
-      </p>
-      <a routerLink="/store"
-        class="inline-flex items-center px-6 py-3 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-extrabold shadow-lg shadow-violet-600/20 active:scale-95 transition">
-        Explorar Tienda
-      </a>
-    </div>
-  } @else {
-    <!-- Lista de Órdenes -->
+    }
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       3. ESTADO DE CARGA: SKELETON LOADERS
+       ═══════════════════════════════════════════════════════════════════════ -->
+  @if (isLoading) {
     <div class="space-y-4">
-      @for (order of orders; track order._id) {
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden hover:shadow-md transition-all">
-          <div class="p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-
-            <div class="flex items-start gap-4">
-              <!-- Icono / Badge -->
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-violet-100 to-fuchsia-100 text-violet-700 flex items-center justify-center font-black text-xl flex-shrink-0 shadow-xs">
-                🛍️
-              </div>
-
-              <!-- Información de la Orden -->
-              <div class="space-y-1">
-                <div class="flex items-center gap-2.5 flex-wrap">
-                  <h4 class="font-black text-sm text-gray-900">{{ order.invoiceNumber }}</h4>
-                  <span class="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold border"
-                    [ngClass]="getStatusColor(order.status)">
-                    {{ getStatusLabel(order.status) }}
-                  </span>
-                  @if (order.estimatedDays === 0) {
-                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-50 text-amber-800 border border-amber-200">
-                      ⚡ Retiro hoy mismo
-                    </span>
-                  } @else if (order.estimatedDays != null && order.estimatedDays > 0) {
-                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-sky-50 text-sky-800 border border-sky-200">
-                      📦 Entrega estimada: {{ order.estimatedDays }} {{ order.estimatedDays === 1 ? 'día' : 'días' }}
-                    </span>
-                  }
-                </div>
-
-                <p class="text-xs text-gray-500 font-medium">
-                  {{ order.createdAt | date:'dd MMM yyyy, HH:mm' }} ·
-                  <span class="font-bold text-gray-700">{{ order.items.length }} {{ order.items.length === 1 ? 'producto' : 'productos' }}</span>
-                </p>
-
-                <!-- Badges de Fulfillment y Pago -->
-                <div class="flex items-center gap-2 pt-1 flex-wrap">
-                  @if (order.fulfillment === 'pickup') {
-                    <span class="text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-100 rounded-lg px-2 py-0.5">
-                      🏪 Retiro en tienda: {{ order.pickupStore?.name ?? 'Tienda' }}
-                    </span>
-                  } @else {
-                    <span class="text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-100 rounded-lg px-2 py-0.5">
-                      🚚 Entrega a domicilio: {{ order.shippingAddress?.district ?? 'Lima' }}
-                    </span>
-                  }
-
-                  @if (order.paymentMethod === 'card') {
-                    <span class="text-[11px] font-bold bg-gray-50 text-gray-700 border border-gray-200 rounded-lg px-2 py-0.5">
-                      💳 Izipay (Tarjeta)
-                    </span>
-                  } @else if (order.paymentMethod === 'yape') {
-                    <span class="text-[11px] font-bold bg-purple-50 text-purple-700 border border-purple-200 rounded-lg px-2 py-0.5">
-                      📱 Yape
-                    </span>
-                  } @else {
-                    <span class="text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-lg px-2 py-0.5">
-                      💵 Efectivo
-                    </span>
-                  }
-                </div>
-              </div>
+      @for (item of [1, 2, 3]; track item) {
+        <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-6 animate-pulse space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
+            <div class="flex items-center gap-4">
+              <div class="w-24 h-4 bg-slate-200 rounded"></div>
+              <div class="w-20 h-4 bg-slate-200 rounded"></div>
             </div>
-
-            <!-- Precio Total y Botón de Detalle -->
-            <div class="flex items-center sm:flex-col sm:items-end justify-between border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100">
-              <div class="sm:text-right">
-                <span class="text-[10px] uppercase font-extrabold text-gray-400 block tracking-wider">Total Pedido</span>
-                <span class="font-black text-lg text-gray-900">
-                  {{ (order.pricing.total) | solCurrency }}
-                </span>
-              </div>
-
-              <a [routerLink]="['/orders', order._id, 'success']"
-                class="mt-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white font-extrabold text-xs rounded-xl transition shadow-xs flex items-center gap-1">
-                <span>Ver Detalle</span>
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
-              </a>
+            <div class="w-24 h-6 bg-slate-200 rounded-full"></div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-20 bg-slate-200 rounded-xl"></div>
+            <div class="space-y-2 flex-1">
+              <div class="w-1/3 h-4 bg-slate-200 rounded"></div>
+              <div class="w-1/4 h-3 bg-slate-200 rounded"></div>
             </div>
-
+            <div class="w-20 h-5 bg-slate-200 rounded"></div>
           </div>
         </div>
       }
     </div>
   }
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       4. ESTADO DE ERROR DE CONEXIÓN
+       ═══════════════════════════════════════════════════════════════════════ -->
+  @else if (loadError) {
+    <div class="bg-white rounded-2xl border border-slate-200/80 p-8 sm:p-12 text-center max-w-lg mx-auto shadow-xs">
+      <div class="w-14 h-14 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto mb-4">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+        </svg>
+      </div>
+      <h3 class="text-lg font-black text-slate-900 tracking-tight mb-1">
+        No se pudieron cargar tus pedidos
+      </h3>
+      <p class="text-xs sm:text-sm text-slate-500 mb-5 leading-relaxed font-medium">
+        Ocurrió un problema temporal al consultar la información con el servidor.
+      </p>
+      <button
+        type="button"
+        (click)="fetchOrders()"
+        class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-black uppercase tracking-wider hover:bg-slate-800 transition-all cursor-pointer shadow-xs"
+      >
+        <span>Reintentar</span>
+      </button>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       5. ESTADO VACÍO (SIN PEDIDOS REGISTRADOS)
+       ═══════════════════════════════════════════════════════════════════════ -->
+  @else if (orders.length === 0) {
+    <div class="bg-white rounded-2xl border border-slate-200/80 p-10 sm:p-16 text-center shadow-xs max-w-2xl mx-auto">
+      
+      <!-- Ilustración Vectorial Geométrica Minimalista (Sin emojis) -->
+      <div class="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-5 text-slate-700 shadow-inner">
+        <svg class="w-8 h-8 text-slate-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25c-.669 0-1.189-.578-1.119-1.243l1.263-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+        </svg>
+      </div>
+
+      <h3 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight mb-2">
+        Aún no tienes pedidos registrados
+      </h3>
+      <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto mb-6 leading-relaxed font-medium">
+        Explora nuestro catálogo exclusivo. Cuando realices una compra, podrás consultar aquí el seguimiento paso a paso y tus comprobantes fiscales.
+      </p>
+
+      <a
+        routerLink="/store"
+        class="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider shadow-sm hover:shadow-md transition-all inline-flex items-center gap-2 cursor-pointer"
+      >
+        <span>Explorar Tienda</span>
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+        </svg>
+      </a>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       6. ESTADO VACÍO POR BÚSQUEDA / FILTRO
+       ═══════════════════════════════════════════════════════════════════════ -->
+  @else if (filteredOrders.length === 0) {
+    <div class="bg-white rounded-2xl border border-slate-200/80 p-8 sm:p-12 text-center max-w-md mx-auto shadow-xs">
+      <div class="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 text-slate-500 flex items-center justify-center mx-auto mb-3">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+        </svg>
+      </div>
+      <h3 class="text-base font-black text-slate-900 tracking-tight mb-1">
+        Sin resultados para tu búsqueda
+      </h3>
+      <p class="text-xs text-slate-500 mb-4 font-medium">
+        No encontramos órdenes que coincidan con "{{ searchQuery }}" en la pestaña seleccionada.
+      </p>
+      <button
+        type="button"
+        (click)="searchQuery = ''; activeTab = 'all'"
+        class="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer"
+      >
+        <span>Restablecer Filtros</span>
+      </button>
+    </div>
+  }
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       7. LISTA DE ÓRDENES
+       ═══════════════════════════════════════════════════════════════════════ -->
+  @else {
+    <div class="space-y-5">
+      @for (order of filteredOrders; track order._id) {
+        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs hover:shadow-md transition-all duration-300 overflow-hidden">
+          
+          <!-- Franja Superior de la Orden: Metadatos y Estado -->
+          <div class="bg-slate-50/80 border-b border-slate-100 px-5 sm:px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+            
+            <div class="flex items-center gap-4 sm:gap-6 flex-wrap">
+              <!-- Fecha -->
+              <div>
+                <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Fecha de compra</span>
+                <span class="text-xs font-bold text-slate-800">
+                  {{ order.createdAt | date:'dd MMM yyyy, HH:mm' }}
+                </span>
+              </div>
+
+              <!-- Comprobante / # de Orden -->
+              <div>
+                <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Nº de Comprobante</span>
+                <span class="text-xs font-mono font-black text-slate-900">
+                  {{ order.invoiceNumber || order._id | slice:-8 }}
+                </span>
+              </div>
+
+              <!-- Total de la Orden (Warning resuelto: order.pricing.total) -->
+              <div>
+                <span class="block text-[10px] font-bold uppercase tracking-wider text-slate-400">Importe Total</span>
+                <span class="text-xs sm:text-sm font-black text-slate-900 font-mono">
+                  {{ order.pricing.total | solCurrency }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Estado de la Orden con Microindicador -->
+            <div class="flex items-center gap-2">
+              <span
+                class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-mono uppercase tracking-wider font-black border"
+                [ngClass]="getStatusColor(order.status)"
+              >
+                <span class="w-1.5 h-1.5 rounded-full" [ngClass]="getStatusDotColor(order.status)"></span>
+                <span>{{ getStatusLabel(order.status) }}</span>
+              </span>
+
+              <!-- Indicador de Tiempo / Estimación -->
+              @if (order.estimatedDays === 0) {
+                <span class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-50 text-amber-800 border border-amber-200/80">
+                  <svg class="w-3 h-3 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                  </svg>
+                  <span>Listo hoy</span>
+                </span>
+              } @else if (order.estimatedDays != null && order.estimatedDays > 0) {
+                <span class="hidden sm:inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 text-slate-700 border border-slate-200">
+                  <svg class="w-3 h-3 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="9" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6l4 2" />
+                  </svg>
+                  <span>Entrega en {{ order.estimatedDays }} {{ order.estimatedDays === 1 ? 'día' : 'días' }}</span>
+                </span>
+              }
+            </div>
+
+          </div>
+
+          <!-- Cuerpo de la Orden: Artículos Comprados -->
+          <div class="p-5 sm:p-6 space-y-4">
+            
+            <!-- Lista de Artículos -->
+            <div class="space-y-3">
+              @for (item of order.items; track item.variantId || item.sku) {
+                <div class="flex items-center justify-between gap-4 py-2 first:pt-0 last:pb-0">
+                  
+                  <div class="flex items-center gap-3.5 min-w-0">
+                    <!-- Miniatura del Producto -->
+                    <div class="w-14 h-16 sm:w-16 sm:h-18 rounded-xl bg-slate-100 border border-slate-200/60 overflow-hidden shrink-0 relative">
+                      @if (item.thumbnail) {
+                        <img
+                          [src]="item.thumbnail"
+                          [alt]="item.productName"
+                          class="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      } @else {
+                        <div class="w-full h-full flex items-center justify-center text-slate-400">
+                          <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 10-7.5 0v4.5m11.356-1.993l1.263 12c.07.665-.45 1.243-1.119 1.243H4.25c-.669 0-1.189-.578-1.119-1.243l1.263-12A1.125 1.125 0 015.513 7.5h12.974c.576 0 1.059.435 1.119 1.007zM8.625 10.5a.375.375 0 11-.75 0 .375.375 0 01.75 0zm7.5 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z" />
+                          </svg>
+                        </div>
+                      }
+                    </div>
+
+                    <!-- Datos del Producto -->
+                    <div class="min-w-0">
+                      <h4 class="text-xs sm:text-sm font-bold text-slate-900 truncate">
+                        {{ item.productName }}
+                      </h4>
+                      <div class="flex items-center gap-2 text-[11px] text-slate-500 mt-0.5 flex-wrap font-medium">
+                        @if (item.size) {
+                          <span class="font-mono">Talla: {{ item.size }}</span>
+                          <span class="text-slate-300">•</span>
+                        }
+                        @if (item.color) {
+                          <span>Color: {{ item.color }}</span>
+                          <span class="text-slate-300">•</span>
+                        }
+                        <span class="font-mono font-bold text-slate-800">Cant: {{ item.quantity }}</span>
+                      </div>
+                      <p class="text-[10px] font-mono text-slate-400 mt-0.5">
+                        SKU: {{ item.sku }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Subtotal del Ítem (Warning resuelto: item.subtotal directo) -->
+                  <div class="text-right shrink-0">
+                    <span class="text-xs sm:text-sm font-black text-slate-900 font-mono">
+                      {{ item.subtotal | solCurrency }}
+                    </span>
+                    @if (item.quantity > 1) {
+                      <span class="block text-[10px] font-mono text-slate-400 font-medium">
+                        {{ item.unitPrice | solCurrency }} c/u
+                      </span>
+                    }
+                  </div>
+
+                </div>
+              }
+            </div>
+
+            <!-- Separador hairline -->
+            <div class="border-t border-slate-100 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              
+              <!-- Badges de Fulfillment y Medio de Pago (Vector SVG Moderno sin caricaturas) -->
+              <div class="flex items-center gap-2 flex-wrap">
+                
+                <!-- Método de Entrega -->
+                @if (order.fulfillment === 'pickup') {
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100/80 text-slate-700 border border-slate-200/70">
+                    <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z" />
+                    </svg>
+                    <span>Retiro: {{ order.pickupStore?.name ?? 'Tienda Física' }}</span>
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100/80 text-slate-700 border border-slate-200/70">
+                    <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.25V14.25m0 0h3.75" />
+                    </svg>
+                    <span>Envío: {{ order.shippingAddress?.district ?? 'Lima' }}</span>
+                  </span>
+                }
+
+                <!-- Medio de Pago -->
+                @if (order.paymentMethod === 'card') {
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100/80 text-slate-700 border border-slate-200/70">
+                    <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                      <rect x="2" y="5" width="20" height="14" rx="2" />
+                      <line x1="2" y1="10" x2="22" y2="10" />
+                    </svg>
+                    <span>Tarjeta</span>
+                  </span>
+                } @else if (order.paymentMethod === 'yape') {
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100/80 text-slate-700 border border-slate-200/70">
+                    <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                      <rect x="5" y="2" width="14" height="20" rx="3" />
+                      <line x1="12" y1="18" x2="12.01" y2="18" />
+                    </svg>
+                    <span>Yape</span>
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100/80 text-slate-700 border border-slate-200/70">
+                    <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.75">
+                      <rect x="2" y="6" width="20" height="12" rx="2" />
+                      <circle cx="12" cy="12" r="2" />
+                      <path d="M6 12h.01M18 12h.01" />
+                    </svg>
+                    <span>Efectivo</span>
+                  </span>
+                }
+
+              </div>
+
+              <!-- Botón Acción: Ver Detalle -->
+              <a
+                [routerLink]="['/orders', order._id, 'success']"
+                class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-black uppercase tracking-wider shadow-sm hover:shadow-md transition-all inline-flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>Ver Comprobante y Detalle</span>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                </svg>
+              </a>
+
+            </div>
+
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
 </div>

@@ -1,0 +1,21 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Addresses Page - Modern Luxury E-Commerce Styles (Zara / Apple / Farfetch)
+   ───────────────────────────────────────────────────────────────────────────── */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out both;
+}
+
+/* Transiciones táctiles para botones y controles interactivos */
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}

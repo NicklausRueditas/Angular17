@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 
 import { AddressService } from '../../../../core/services/utils/address.service';
@@ -18,7 +19,7 @@ import {
   selector: 'app-addresses',
   templateUrl: './addresses.component.html',
   standalone: true,
-  imports: [CommonModule, ToastComponent, AddressModalComponent],
+  imports: [CommonModule, RouterLink, ToastComponent, AddressModalComponent],
   styleUrls: ['./addresses.component.css'],
 })
 export class AddressesComponent implements OnInit, OnDestroy {

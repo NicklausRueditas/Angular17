@@ -12,13 +12,21 @@ import { ProductVariant }         from '../../../core/interfaces/store.interface
 
 import { ProductInfoTabComponent }     from './product-info-tab/product-info-tab.component';
 import { ProductVariantsTabComponent } from './product-variants-tab/product-variants-tab.component';
+import { BulkProductCreatorComponent } from './bulk-product-creator/bulk-product-creator.component';
 
 export type EditorTab = 'info' | 'variants';
 
 @Component({
   selector: 'app-product-editor',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink, ProductInfoTabComponent, ProductVariantsTabComponent],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    RouterLink,
+    ProductInfoTabComponent,
+    ProductVariantsTabComponent,
+    BulkProductCreatorComponent
+  ],
   templateUrl: './product-editor.component.html',
 })
 export class ProductEditorComponent implements OnInit, OnDestroy {
@@ -29,6 +37,7 @@ export class ProductEditorComponent implements OnInit, OnDestroy {
   isSaving  = false;
   isLoading = false;
   activeTab = signal<EditorTab>('info');
+  creationMode = signal<'single' | 'bulk'>('single');
 
   product:      Product | null = null;
   variants:     ProductVariant[] = [];

@@ -9,9 +9,9 @@
         <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider">Progreso de la ficha del producto</h3>
         <p class="text-xs text-slate-500 mt-0.5">
           @if (completionPercentage >= 100) {
-            ✨ ¡Ficha completa y lista para publicar!
+            Ficha completa y lista para publicar.
           } @else if (completionPercentage >= 60) {
-            👍 Buen progreso. Agrega imágenes y garantía para optimizar.
+            Buen progreso. Agrega imágenes y garantía para optimizar.
           } @else {
             Completa los datos básicos, precio y categorías del producto.
           }
@@ -21,7 +21,7 @@
     
     <!-- Barra visual -->
     <div class="w-full sm:w-64 bg-slate-100 h-2.5 rounded-full overflow-hidden border border-slate-200/50">
-      <div class="bg-gradient-to-r from-primary to-rose-500 h-full rounded-full transition-all duration-500"
+      <div class="bg-slate-900 h-full rounded-full transition-all duration-500"
            [style.width.%]="completionPercentage"></div>
     </div>
   </div>
@@ -37,7 +37,11 @@
     <section class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-7 space-y-5">
       <div class="flex items-center justify-between border-b border-slate-50 pb-3.5">
         <h2 class="font-black text-slate-800 text-base tracking-tight flex items-center gap-2.5">
-          <span class="p-2 rounded-xl bg-indigo-50 text-indigo-600 text-sm">📋</span>
+          <span class="p-2 rounded-xl bg-slate-100 text-slate-700">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </span>
           Datos Principales
         </h2>
         <span class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">* Campos requeridos</span>
@@ -110,7 +114,11 @@
     <section class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-7 space-y-4.5">
       <div class="flex items-center justify-between border-b border-slate-50 pb-3.5">
         <h2 class="font-black text-slate-800 text-base tracking-tight flex items-center gap-2.5">
-          <span class="p-2 rounded-xl bg-amber-50 text-amber-600 text-sm">🏷️</span>
+          <span class="p-2 rounded-xl bg-slate-100 text-slate-700">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+          </span>
           Categorías *
         </h2>
         <span class="text-xs text-slate-400 font-bold">{{ categoryArray.length }} asignada(s)</span>
@@ -229,7 +237,11 @@
     <section class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-7 space-y-4.5">
       <div class="flex items-center justify-between border-b border-slate-50 pb-3.5">
         <h2 class="font-black text-slate-800 text-base tracking-tight flex items-center gap-2.5">
-          <span class="p-2 rounded-xl bg-purple-50 text-purple-600 text-sm">✨</span>
+          <span class="p-2 rounded-xl bg-slate-100 text-slate-700">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+            </svg>
+          </span>
           Etiquetas / Tags de Búsqueda
         </h2>
         <span class="text-xs text-slate-400 font-bold">{{ tagsArray.length }} agregada(s)</span>
@@ -256,7 +268,7 @@
         <div class="flex flex-wrap gap-2 pb-2">
           @for (tag of tagsArray.controls; track $index) {
             <span
-              class="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-primary/10 to-rose-50/10 text-primary border border-primary/20 rounded-xl text-xs font-bold shadow-sm"
+              class="inline-flex items-center gap-1.5 px-3 py-1 bg-slate-100 text-slate-800 border border-slate-200/80 rounded-xl text-xs font-bold shadow-sm"
             >
               #{{ tag.value }}
               <button
@@ -500,18 +512,23 @@
       </div>
     </section>
 
-    <!-- 🛡️ GARANTÍA INTELIGENTE CON PRESETS DE 1-CLIC -->
+    <!-- GARANTÍA INTELIGENTE CON PRESETS DE 1-CLIC -->
     <section class="bg-white rounded-3xl shadow-sm border border-slate-100 p-6 sm:p-7 space-y-4.5">
       <div class="flex items-center justify-between border-b border-slate-50 pb-3">
         <div>
           <h2 class="font-black text-slate-800 text-base tracking-tight flex items-center gap-2">
-            <span>🛡️</span> Garantía del Producto
+            <span class="p-1.5 rounded-lg bg-slate-100 text-slate-700">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </span>
+            Garantía del Producto
           </h2>
           <p class="text-[11px] text-slate-400 mt-0.5">Asigna cobertura en 1 clic</p>
         </div>
         <label class="relative inline-flex items-center cursor-pointer">
           <input formControlName="hasWarranty" type="checkbox" class="sr-only peer" />
-          <div class="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:bg-primary transition-colors"></div>
+          <div class="w-11 h-6 bg-gray-200 peer-focus:ring-2 peer-focus:ring-slate-900 rounded-full peer peer-checked:bg-slate-900 transition-colors"></div>
           <div class="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full shadow transition-transform peer-checked:translate-x-5"></div>
         </label>
       </div>
@@ -522,56 +539,60 @@
           type="button"
           (click)="applyWarrantyPreset('1yr-factory')"
           class="p-2.5 rounded-2xl border text-left transition-all duration-200 cursor-pointer"
-          [class.bg-indigo-50]="isPresetActive('1yr-factory')"
-          [class.border-indigo-300]="isPresetActive('1yr-factory')"
+          [class.bg-slate-900]="isPresetActive('1yr-factory')"
+          [class.text-white]="isPresetActive('1yr-factory')"
+          [class.border-slate-900]="isPresetActive('1yr-factory')"
           [class.shadow-sm]="isPresetActive('1yr-factory')"
-          [class.border-slate-100]="!isPresetActive('1yr-factory')"
+          [class.border-slate-200/80]="!isPresetActive('1yr-factory')"
           [class.hover:bg-slate-50]="!isPresetActive('1yr-factory')"
         >
-          <p class="text-xs font-black text-slate-800 flex items-center gap-1">🛡️ 1 Año Fábrica</p>
-          <p class="text-[10px] text-slate-500 mt-0.5">12 meses fabricante</p>
+          <p class="text-xs font-black" [class.text-white]="isPresetActive('1yr-factory')" [class.text-slate-800]="!isPresetActive('1yr-factory')">1 Año Fábrica</p>
+          <p class="text-[10px] mt-0.5" [class.text-slate-300]="isPresetActive('1yr-factory')" [class.text-slate-500]="!isPresetActive('1yr-factory')">12 meses fabricante</p>
         </button>
 
         <button
           type="button"
           (click)="applyWarrantyPreset('6mo-store')"
           class="p-2.5 rounded-2xl border text-left transition-all duration-200 cursor-pointer"
-          [class.bg-indigo-50]="isPresetActive('6mo-store')"
-          [class.border-indigo-300]="isPresetActive('6mo-store')"
+          [class.bg-slate-900]="isPresetActive('6mo-store')"
+          [class.text-white]="isPresetActive('6mo-store')"
+          [class.border-slate-900]="isPresetActive('6mo-store')"
           [class.shadow-sm]="isPresetActive('6mo-store')"
-          [class.border-slate-100]="!isPresetActive('6mo-store')"
+          [class.border-slate-200/80]="!isPresetActive('6mo-store')"
           [class.hover:bg-slate-50]="!isPresetActive('6mo-store')"
         >
-          <p class="text-xs font-black text-slate-800 flex items-center gap-1">🏪 6 Meses Tienda</p>
-          <p class="text-[10px] text-slate-500 mt-0.5">Directa en sucursal</p>
+          <p class="text-xs font-black" [class.text-white]="isPresetActive('6mo-store')" [class.text-slate-800]="!isPresetActive('6mo-store')">6 Meses Tienda</p>
+          <p class="text-[10px] mt-0.5" [class.text-slate-300]="isPresetActive('6mo-store')" [class.text-slate-500]="!isPresetActive('6mo-store')">Directa en sucursal</p>
         </button>
 
         <button
           type="button"
           (click)="applyWarrantyPreset('30d-swap')"
           class="p-2.5 rounded-2xl border text-left transition-all duration-200 cursor-pointer"
-          [class.bg-indigo-50]="isPresetActive('30d-swap')"
-          [class.border-indigo-300]="isPresetActive('30d-swap')"
+          [class.bg-slate-900]="isPresetActive('30d-swap')"
+          [class.text-white]="isPresetActive('30d-swap')"
+          [class.border-slate-900]="isPresetActive('30d-swap')"
           [class.shadow-sm]="isPresetActive('30d-swap')"
-          [class.border-slate-100]="!isPresetActive('30d-swap')"
+          [class.border-slate-200/80]="!isPresetActive('30d-swap')"
           [class.hover:bg-slate-50]="!isPresetActive('30d-swap')"
         >
-          <p class="text-xs font-black text-slate-800 flex items-center gap-1">⚡ 30 Días Cambio</p>
-          <p class="text-[10px] text-slate-500 mt-0.5">Cambio directo</p>
+          <p class="text-xs font-black" [class.text-white]="isPresetActive('30d-swap')" [class.text-slate-800]="!isPresetActive('30d-swap')">30 Días Cambio</p>
+          <p class="text-[10px] mt-0.5" [class.text-slate-300]="isPresetActive('30d-swap')" [class.text-slate-500]="!isPresetActive('30d-swap')">Cambio directo</p>
         </button>
 
         <button
           type="button"
           (click)="applyWarrantyPreset('custom')"
           class="p-2.5 rounded-2xl border text-left transition-all duration-200 cursor-pointer"
-          [class.bg-indigo-50]="isPresetActive('custom')"
-          [class.border-indigo-300]="isPresetActive('custom')"
+          [class.bg-slate-900]="isPresetActive('custom')"
+          [class.text-white]="isPresetActive('custom')"
+          [class.border-slate-900]="isPresetActive('custom')"
           [class.shadow-sm]="isPresetActive('custom')"
-          [class.border-slate-100]="!isPresetActive('custom')"
+          [class.border-slate-200/80]="!isPresetActive('custom')"
           [class.hover:bg-slate-50]="!isPresetActive('custom')"
         >
-          <p class="text-xs font-black text-slate-800 flex items-center gap-1">⚙️ Personalizada</p>
-          <p class="text-[10px] text-slate-500 mt-0.5">Ajustar a medida</p>
+          <p class="text-xs font-black" [class.text-white]="isPresetActive('custom')" [class.text-slate-800]="!isPresetActive('custom')">Personalizada</p>
+          <p class="text-[10px] mt-0.5" [class.text-slate-300]="isPresetActive('custom')" [class.text-slate-500]="!isPresetActive('custom')">Ajustar a medida</p>
         </button>
       </div>
 

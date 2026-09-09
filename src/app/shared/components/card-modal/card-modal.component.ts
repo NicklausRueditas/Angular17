@@ -175,15 +175,74 @@ export class CardModalComponent implements OnChanges, OnDestroy {
     );
   }
 
-  // Helper visual
+  // Helpers visuales y de formato
+  get formattedCardNumber(): string {
+    const raw = this.cardForm.get('cardNumber')?.value || '';
+    if (this.editMode) {
+      const last4 = this.editCard?.cardNumber ? this.editCard.cardNumber.slice(-4) : '••••';
+      return `•••• •••• •••• ${last4}`;
+    }
+    const padded = raw.padEnd(16, '•');
+    return `${padded.slice(0, 4)} ${padded.slice(4, 8)} ${padded.slice(8, 12)} ${padded.slice(12, 16)}`;
+  }
+
+  get formattedExpiry(): string {
+    return this.cardForm.get('expirationDate')?.value || 'MM/YY';
+  }
+
+  get cardHolderDisplay(): string {
+    return this.cardForm.get('cardHolder')?.value || 'TITULAR DE LA TARJETA';
+  }
+
+  onCardNumberInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const cleaned = input.value.replace(/\D/g, '').slice(0, 16);
+    this.cardForm.get('cardNumber')?.setValue(cleaned, { emitEvent: true });
+    input.value = cleaned;
+  }
+
+  onHolderInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const upper = input.value.toUpperCase();
+    this.cardForm.get('cardHolder')?.setValue(upper, { emitEvent: true });
+  }
+
+  onExpiryInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    let val = input.value.replace(/[^\d]/g, '');
+    if (val.length >= 3) {
+      val = val.slice(0, 2) + '/' + val.slice(2, 4);
+    } else if (val.length > 4) {
+      val = val.slice(0, 4);
+    }
+    this.cardForm.get('expirationDate')?.setValue(val, { emitEvent: true });
+    input.value = val;
+  }
+
+  onCvvInput(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const cleaned = input.value.replace(/\D/g, '').slice(0, 4);
+    this.cardForm.get('cvv')?.setValue(cleaned, { emitEvent: true });
+    input.value = cleaned;
+  }
+
+  setCardType(type: string): void {
+    if (!this.editMode) {
+      this.cardForm.get('cardType')?.setValue(type);
+    }
+  }
 
   getCardPreviewGradient(): string {
     const type = (this.cardForm.get('cardType')?.value ?? 'Visa') as string;
     switch (type.toLowerCase()) {
-      case 'visa':       return 'from-indigo-900 via-blue-900 to-slate-900';
-      case 'mastercard': return 'from-amber-600 via-red-600 to-rose-950';
-      case 'amex':       return 'from-emerald-800 via-teal-900 to-slate-950';
-      default:           return 'from-slate-800 to-slate-900';
+      case 'visa':
+        return 'from-slate-950 via-slate-900 to-indigo-950 border border-indigo-500/30';
+      case 'mastercard':
+        return 'from-stone-950 via-neutral-900 to-amber-950 border border-amber-500/30';
+      case 'amex':
+        return 'from-teal-950 via-slate-900 to-emerald-950 border border-emerald-500/30';
+      default:
+        return 'from-neutral-950 via-neutral-900 to-neutral-800 border border-white/10';
     }
   }
 }

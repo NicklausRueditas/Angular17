@@ -1,14 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterLink } from '@angular/router';
 import { CardService } from '../../../../core/services/ui/card.service';
 import { ToastService } from '../../../../core/services/ui/toast.service';
 import { CardModalComponent } from '../../../../shared/components/card-modal/card-modal.component';
+import { ToastComponent } from '../../../../shared/components/toast/toast.component';
 import { Card, CardResponse } from '../../../../core/interfaces/card.interface';
 
 @Component({
   selector: 'app-cards',
   standalone: true,
-  imports: [CommonModule, CardModalComponent],
+  imports: [CommonModule, RouterLink, CardModalComponent, ToastComponent],
   templateUrl: './cards.component.html',
   styleUrls: ['./cards.component.css'],
 })
@@ -96,11 +98,11 @@ export class CardsComponent implements OnInit {
   // ─── Helpers visuales ────────────────────────────────────────────────────
 
   getCardGradient(type: string): string {
-    switch (type.toLowerCase()) {
-      case 'visa':       return 'from-blue-700 via-blue-800 to-gray-900';
-      case 'mastercard': return 'from-gray-800 to-black';
-      case 'amex':       return 'from-slate-300 to-slate-500';
-      default:           return 'from-gray-700 to-gray-900';
+    switch ((type || '').toLowerCase()) {
+      case 'visa':       return 'from-slate-950 via-blue-950 to-indigo-950 border border-blue-500/20';
+      case 'mastercard': return 'from-neutral-950 via-stone-900 to-amber-950 border border-amber-500/20';
+      case 'amex':       return 'from-slate-950 via-emerald-950 to-teal-950 border border-emerald-500/20';
+      default:           return 'from-slate-900 via-neutral-900 to-black border border-slate-700/30';
     }
   }
 }

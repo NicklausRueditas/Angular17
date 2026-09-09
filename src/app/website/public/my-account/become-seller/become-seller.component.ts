@@ -31,6 +31,7 @@ import { ApprovalStatus, SellerProfile } from '../../../../core/interfaces/selle
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './become-seller.component.html',
+  styleUrl: './become-seller.component.css',
 })
 export class BecomeSellerComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();

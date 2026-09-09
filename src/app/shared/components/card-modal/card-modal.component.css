@@ -1,26 +1,44 @@
 /* Animación de entrada del modal */
 .modal-enter {
-  animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: modalIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 @keyframes modalIn {
-  from { 
-    opacity: 0; 
-    transform: scale(0.95) translateY(12px); 
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
   }
-  to { 
-    opacity: 1; 
-    transform: scale(1) translateY(0);   
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 
-/* Glassmorphism card glows */
+/* Animación del fondo con blur */
+.animate-backdrop {
+  animation: backdropFade 0.25s ease-out forwards;
+}
+
+@keyframes backdropFade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Animación suave para la tarjeta interactiva */
 .bg-gradient-to-tr {
-  background-size: 200% 200%;
-  animation: gradientShimmer 8s ease infinite alternate;
+  background-size: 150% 150%;
+  animation: cardGradient 10s ease infinite alternate;
 }
 
-@keyframes gradientShimmer {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+@keyframes cardGradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
 }

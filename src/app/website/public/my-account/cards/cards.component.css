@@ -1,0 +1,28 @@
+/* Animación de entrada suave sin transform para no crear containing-block trap */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Proporción estándar de tarjeta bancaria (ISO/IEC 7810 ID-1: 85.60mm x 53.98mm) */
+.credit-card-aspect {
+  aspect-ratio: 85.6 / 53.98;
+}
+
+/* Efecto reflectante para tarjetas de crédito */
+.card-glass-reflection {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.05) 40%,
+    rgba(255, 255, 255, 0) 60%
+  );
+}
