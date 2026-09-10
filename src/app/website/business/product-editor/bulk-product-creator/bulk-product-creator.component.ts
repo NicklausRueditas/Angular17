@@ -74,7 +74,7 @@ const SAMPLE_BULK_JSON = `[
     "discount": 15,
     "category": ["Calzado", "Zapatillas", "Hombre", "Moda Urbana"],
     "tags": ["sneakers", "luxe", "streetwear", "calzado"],
-    "gallery": ["apex-general-lookbook.jpg", "apex-suela-detalle.jpg"],
+    "gallery": [],
     "specifications": {
       "Material Exterior": "Cuero vacuno genuino y paneles de gamuza",
       "Forro Interior": "Malla textil transpirable",
@@ -91,61 +91,61 @@ const SAMPLE_BULK_JSON = `[
         "sku": "APEX-01-NEG-40",
         "color": { "name": "Negro Total", "hex": "#111827", "code": "NEG" },
         "size": { "type": "footwear", "value": "40", "region": "EU" },
-        "gallery": ["apex-negro-front.jpg", "apex-negro-side.jpg"]
+        "gallery": []
       },
       {
         "sku": "APEX-01-NEG-41",
         "color": { "name": "Negro Total", "hex": "#111827", "code": "NEG" },
         "size": { "type": "footwear", "value": "41", "region": "EU" },
-        "gallery": ["apex-negro-front.jpg", "apex-negro-side.jpg"]
+        "gallery": []
       },
       {
         "sku": "APEX-01-NEG-42",
         "color": { "name": "Negro Total", "hex": "#111827", "code": "NEG" },
         "size": { "type": "footwear", "value": "42", "region": "EU" },
-        "gallery": ["apex-negro-front.jpg", "apex-negro-side.jpg"]
+        "gallery": []
       },
       {
         "sku": "APEX-01-BCO-40",
         "color": { "name": "Blanco Puro", "hex": "#FFFFFF", "code": "BCO" },
         "size": { "type": "footwear", "value": "40", "region": "EU" },
-        "gallery": ["apex-blanco-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "APEX-01-BCO-41",
         "color": { "name": "Blanco Puro", "hex": "#FFFFFF", "code": "BCO" },
         "size": { "type": "footwear", "value": "41", "region": "EU" },
-        "gallery": ["apex-blanco-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "APEX-01-BCO-42",
         "color": { "name": "Blanco Puro", "hex": "#FFFFFF", "code": "BCO" },
         "size": { "type": "footwear", "value": "42", "region": "EU" },
-        "gallery": ["apex-blanco-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "APEX-01-MIL-41",
         "color": { "name": "Verde Militar", "hex": "#2E4A35", "code": "MIL" },
         "size": { "type": "footwear", "value": "41", "region": "EU" },
-        "gallery": ["apex-verde-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "APEX-01-MIL-42",
         "color": { "name": "Verde Militar", "hex": "#2E4A35", "code": "MIL" },
         "size": { "type": "footwear", "value": "42", "region": "EU" },
-        "gallery": ["apex-verde-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "APEX-01-GRS-41",
         "color": { "name": "Gris Humo", "hex": "#6B7280", "code": "GRS" },
         "size": { "type": "footwear", "value": "41", "region": "EU" },
-        "gallery": ["apex-gris-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "APEX-01-GRS-42",
         "color": { "name": "Gris Humo", "hex": "#6B7280", "code": "GRS" },
         "size": { "type": "footwear", "value": "42", "region": "EU" },
-        "gallery": ["apex-gris-front.jpg"]
+        "gallery": []
       }
     ]
   },
@@ -159,7 +159,7 @@ const SAMPLE_BULK_JSON = `[
     "discount": 10,
     "category": ["Ropa", "Poleras", "Unisex", "Invierno"],
     "tags": ["hoodie", "oversized", "algodón pima", "invierno"],
-    "gallery": ["hoodie-general-lookbook.jpg", "hoodie-guia-tallas.jpg"],
+    "gallery": [],
     "specifications": {
       "Gramaje": "450 GSM Heavyweight",
       "Composición": "100% Algodón Pima Peruano Peinado",
@@ -176,61 +176,61 @@ const SAMPLE_BULK_JSON = `[
         "sku": "HOOD-02-CRB-S",
         "color": { "name": "Negro Carbón", "hex": "#18181B", "code": "CRB" },
         "size": { "type": "clothing", "value": "S" },
-        "gallery": ["hoodie-negro-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "HOOD-02-CRB-M",
         "color": { "name": "Negro Carbón", "hex": "#18181B", "code": "CRB" },
         "size": { "type": "clothing", "value": "M" },
-        "gallery": ["hoodie-negro-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "HOOD-02-CRB-L",
         "color": { "name": "Negro Carbón", "hex": "#18181B", "code": "CRB" },
         "size": { "type": "clothing", "value": "L" },
-        "gallery": ["hoodie-negro-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "HOOD-02-BGE-S",
         "color": { "name": "Beige Arena", "hex": "#D4C5B9", "code": "BGE" },
         "size": { "type": "clothing", "value": "S" },
-        "gallery": ["hoodie-beige-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "HOOD-02-BGE-M",
         "color": { "name": "Beige Arena", "hex": "#D4C5B9", "code": "BGE" },
         "size": { "type": "clothing", "value": "M" },
-        "gallery": ["hoodie-beige-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "HOOD-02-BGE-L",
         "color": { "name": "Beige Arena", "hex": "#D4C5B9", "code": "BGE" },
         "size": { "type": "clothing", "value": "L" },
-        "gallery": ["hoodie-beige-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "HOOD-02-AZP-M",
         "color": { "name": "Azul Petróleo", "hex": "#164E63", "code": "AZP" },
         "size": { "type": "clothing", "value": "M" },
-        "gallery": ["hoodie-azul-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "HOOD-02-AZP-L",
         "color": { "name": "Azul Petróleo", "hex": "#164E63", "code": "AZP" },
         "size": { "type": "clothing", "value": "L" },
-        "gallery": ["hoodie-azul-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "HOOD-02-BRG-M",
         "color": { "name": "Borgoña Profundo", "hex": "#4A1521", "code": "BRG" },
         "size": { "type": "clothing", "value": "M" },
-        "gallery": ["hoodie-borgona-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "HOOD-02-BRG-L",
         "color": { "name": "Borgoña Profundo", "hex": "#4A1521", "code": "BRG" },
         "size": { "type": "clothing", "value": "L" },
-        "gallery": ["hoodie-borgona-front.jpg"]
+        "gallery": []
       }
     ]
   },
@@ -244,7 +244,7 @@ const SAMPLE_BULK_JSON = `[
     "discount": 0,
     "category": ["Accesorios", "Mochilas", "Viajes", "Tecnología"],
     "tags": ["mochila", "impermeable", "laptop", "ergonómica"],
-    "gallery": ["citypack-general-lifestyle.jpg"],
+    "gallery": [],
     "specifications": {
       "Capacidad": "25 Litros",
       "Compartimiento": "Laptop acolchado hasta 16 pulgadas",
@@ -262,61 +262,61 @@ const SAMPLE_BULK_JSON = `[
         "sku": "CPACK-03-NMT-20L",
         "color": { "name": "Negro Mate", "hex": "#09090B", "code": "NMT" },
         "size": { "type": "volume", "value": "20L" },
-        "gallery": ["citypack-negro-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "CPACK-03-NMT-25L",
         "color": { "name": "Negro Mate", "hex": "#09090B", "code": "NMT" },
         "size": { "type": "volume", "value": "25L" },
-        "gallery": ["citypack-negro-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "CPACK-03-NMT-30L",
         "color": { "name": "Negro Mate", "hex": "#09090B", "code": "NMT" },
         "size": { "type": "volume", "value": "30L" },
-        "gallery": ["citypack-negro-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "CPACK-03-GRA-20L",
         "color": { "name": "Gris Grafito", "hex": "#374151", "code": "GRA" },
         "size": { "type": "volume", "value": "20L" },
-        "gallery": ["citypack-gris-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "CPACK-03-GRA-25L",
         "color": { "name": "Gris Grafito", "hex": "#374151", "code": "GRA" },
         "size": { "type": "volume", "value": "25L" },
-        "gallery": ["citypack-gris-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "CPACK-03-GRA-30L",
         "color": { "name": "Gris Grafito", "hex": "#374151", "code": "GRA" },
         "size": { "type": "volume", "value": "30L" },
-        "gallery": ["citypack-gris-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "CPACK-03-OXF-25L",
         "color": { "name": "Azul Oxford", "hex": "#1E293B", "code": "OXF" },
         "size": { "type": "volume", "value": "25L" },
-        "gallery": ["citypack-azul-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "CPACK-03-OXF-30L",
         "color": { "name": "Azul Oxford", "hex": "#1E293B", "code": "OXF" },
         "size": { "type": "volume", "value": "30L" },
-        "gallery": ["citypack-azul-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "CPACK-03-OLV-25L",
         "color": { "name": "Verde Olivo", "hex": "#3F4E3A", "code": "OLV" },
         "size": { "type": "volume", "value": "25L" },
-        "gallery": ["citypack-olivo-front.jpg"]
+        "gallery": []
       },
       {
         "sku": "CPACK-03-OLV-30L",
         "color": { "name": "Verde Olivo", "hex": "#3F4E3A", "code": "OLV" },
         "size": { "type": "volume", "value": "30L" },
-        "gallery": ["citypack-olivo-front.jpg"]
+        "gallery": []
       }
     ]
   }
@@ -352,6 +352,16 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
   activeDropZoneId: string | null = null;
   selectedAssetIds = new Set<string>();
   puzzleFilter: 'unassigned' | 'all' = 'unassigned';
+  selectedProductFilter: number | 'all' = 'all';
+
+  // ── Modal de Selección Rápida Inversa ("Click-to-Pick") ───────────────────
+  quickPickerTarget: {
+    type: 'master' | 'color';
+    productIndex: number;
+    colorCode?: string;
+    targetTitle: string;
+    productCode: string;
+  } | null = null;
 
   // ── Ejecución de Carga Masiva ─────────────────────────────────────────────
   isExecuting = false;
@@ -700,12 +710,15 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
   }
 
   /** Agrupa las variantes de un producto por color para facilitar la asignación */
-  getProductColorGroups(product: ParsedBulkProduct): ColorVariantGroup[] {
-    if (!product.variants || !product.variants.length) return [];
+  getProductColorGroups(product?: ParsedBulkProduct | null): ColorVariantGroup[] {
+    if (!product || !product.variants || !Array.isArray(product.variants) || !product.variants.length) {
+      return [];
+    }
 
     const groupsMap = new Map<string, ColorVariantGroup>();
 
     for (const v of product.variants) {
+      if (!v) continue;
       const code = v.color?.code || v.color?.name || 'GEN';
       const name = v.color?.name || 'General';
       const hex = v.color?.hex || '#64748B';
@@ -724,7 +737,7 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
       group.variants.push(v);
       if (Array.isArray(v.gallery)) {
         v.gallery.forEach((g: string) => {
-          if (!group.gallery.includes(g)) {
+          if (g && !group.gallery.includes(g)) {
             group.gallery.push(g);
           }
         });
@@ -732,6 +745,65 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
     }
 
     return Array.from(groupsMap.values());
+  }
+
+  openQuickPicker(
+    type: 'master' | 'color',
+    productIndex: number,
+    targetTitle: string,
+    colorCode?: string
+  ): void {
+    const prod = this.parsedProducts[productIndex];
+    this.quickPickerTarget = {
+      type,
+      productIndex,
+      colorCode,
+      targetTitle,
+      productCode: prod?.code || '',
+    };
+  }
+
+  closeQuickPicker(): void {
+    this.quickPickerTarget = null;
+  }
+
+  isAssetAssignedToQuickTarget(assetName: string): boolean {
+    if (!this.quickPickerTarget) return false;
+    const { type, productIndex, colorCode } = this.quickPickerTarget;
+    const prod = this.parsedProducts[productIndex];
+    if (!prod) return false;
+
+    if (type === 'master') {
+      return (prod.gallery || []).includes(assetName);
+    } else if (type === 'color' && colorCode) {
+      for (const v of prod.variants || []) {
+        const cCode = v.color?.code || v.color?.name || 'GEN';
+        if (cCode === colorCode && (v.gallery || []).includes(assetName)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  toggleAssetInQuickPicker(assetName: string): void {
+    if (!this.quickPickerTarget) return;
+    const { type, productIndex, colorCode } = this.quickPickerTarget;
+    const isAssigned = this.isAssetAssignedToQuickTarget(assetName);
+
+    if (isAssigned) {
+      if (type === 'master') {
+        this.removeAssetFromProductMaster(productIndex, assetName);
+      } else if (type === 'color' && colorCode) {
+        this.removeAssetFromColorGroup(productIndex, colorCode, assetName);
+      }
+    } else {
+      if (type === 'master') {
+        this.assignAssetToProductMaster(productIndex, assetName);
+      } else if (type === 'color' && colorCode) {
+        this.assignAssetToColorGroup(productIndex, colorCode, assetName);
+      }
+    }
   }
 
   /** Asigna una imagen a la galería general del producto maestro */
@@ -793,6 +865,50 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
         }
       }
     }
+    this.cdr.markForCheck();
+  }
+
+  /**
+   * Reordena un grupo de color dentro de las variantes del producto.
+   * direction: -1 (mover hacia arriba/antes), 1 (mover hacia abajo/después).
+   */
+  moveColorGroup(productIndex: number, colorCode: string, direction: -1 | 1): void {
+    const prod = this.parsedProducts[productIndex];
+    if (!prod || !prod.variants || !prod.variants.length) return;
+
+    const colorGroups = this.getProductColorGroups(prod);
+    const currentIdx = colorGroups.findIndex((g) => g.colorCode === colorCode);
+    if (currentIdx === -1) return;
+
+    const targetIdx = currentIdx + direction;
+    if (targetIdx < 0 || targetIdx >= colorGroups.length) return;
+
+    // Obtener nuevo orden de códigos de color
+    const newColorOrder = colorGroups.map((g) => g.colorCode);
+    const [movedCode] = newColorOrder.splice(currentIdx, 1);
+    newColorOrder.splice(targetIdx, 0, movedCode);
+
+    // Reorganizar las variantes del producto según el nuevo orden
+    const reorderedVariants: any[] = [];
+    for (const cCode of newColorOrder) {
+      for (const v of prod.variants) {
+        const vCode = v.color?.code || v.color?.name || 'GEN';
+        if (vCode === cCode) {
+          reorderedVariants.push(v);
+        }
+      }
+    }
+
+    // Preservar cualquier variante que no haya coincidido
+    for (const v of prod.variants) {
+      if (!reorderedVariants.includes(v)) {
+        reorderedVariants.push(v);
+      }
+    }
+
+    prod.variants = reorderedVariants;
+    const movedName = colorGroups[currentIdx].colorName;
+    this.toastService.showSuccess(`Color "${movedName}" movido a la posición ${targetIdx + 1}`);
     this.cdr.markForCheck();
   }
 
@@ -893,8 +1009,19 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
   /**
    * Genera el JSON final limpio y listo para enviarse a la base de datos,
    * reemplazando los nombres locales por las URLs seguras de Cloudinary.
+   * Filtra estrictamente cualquier referencia que no sea una URL válida.
    */
   get generatedOutputJson(): string {
+    const isValidHttpUrl = (str: any): boolean => {
+      if (typeof str !== 'string' || !str.trim()) return false;
+      try {
+        const parsed = new URL(str.trim());
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+      } catch {
+        return false;
+      }
+    };
+
     const assetMap = new Map<string, string>();
     this.mediaAssets.forEach((a) => {
       if (a.remoteUrl) {
@@ -903,16 +1030,20 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
     });
 
     const output = this.parsedProducts.map((p) => {
-      const resolvedMasterGallery = (p.gallery || []).map((ref) => {
-        if (ref.startsWith('http://') || ref.startsWith('https://')) return ref;
-        return assetMap.get(ref.toLowerCase().trim()) || ref;
-      });
+      const resolvedMasterGallery = (p.gallery || [])
+        .map((ref: string) => {
+          if (isValidHttpUrl(ref)) return ref.trim();
+          return assetMap.get(ref?.toLowerCase()?.trim());
+        })
+        .filter((url: string | undefined): url is string => !!url && isValidHttpUrl(url));
 
-      const resolvedVariants = (p.variants || []).map((v) => {
-        const vGallery = (v.gallery || []).map((ref: string) => {
-          if (ref.startsWith('http://') || ref.startsWith('https://')) return ref;
-          return assetMap.get(ref.toLowerCase().trim()) || ref;
-        });
+      const resolvedVariants = (p.variants || []).map((v: any) => {
+        const vGallery = (v.gallery || [])
+          .map((ref: string) => {
+            if (isValidHttpUrl(ref)) return ref.trim();
+            return assetMap.get(ref?.toLowerCase()?.trim());
+          })
+          .filter((url: string | undefined): url is string => !!url && isValidHttpUrl(url));
         return {
           ...v,
           gallery: vGallery,
@@ -966,6 +1097,11 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
   }
 
   async executeBatchCreation(): Promise<void> {
+    if (this.isUploadingMedia) {
+      this.toastService.showWarning('Hay fotos subiéndose a Cloudinary. Por favor espera a que terminen antes de publicar el lote.');
+      return;
+    }
+
     let cleanProductsToCreate: any[] = [];
     try {
       cleanProductsToCreate = JSON.parse(this.generatedOutputJson);
@@ -1000,7 +1136,19 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
       this.cdr.markForCheck();
 
       try {
-        // 1. Preparar payload del producto maestro
+        // 1. Preparar payload del producto maestro garantizando URLs válidas
+        const isValidHttpUrl = (str: any): boolean => {
+          if (typeof str !== 'string' || !str.trim()) return false;
+          try {
+            const parsed = new URL(str.trim());
+            return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+          } catch {
+            return false;
+          }
+        };
+
+        const validMasterGallery = (prod.gallery || []).filter(isValidHttpUrl);
+
         const payload: any = {
           code: prod.code.trim().toUpperCase(),
           name: prod.name.trim(),
@@ -1011,7 +1159,7 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
           discount: prod.discount || 0,
           category: prod.category,
           tags: prod.tags || [],
-          gallery: prod.gallery || [],
+          gallery: validMasterGallery,
           isActive: true,
         };
 
@@ -1041,7 +1189,7 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
                 color: variantDef.color,
                 size: variantDef.size,
                 dimensions: variantDef.dimensions,
-                gallery: variantDef.gallery || [],
+                gallery: (variantDef.gallery || []).filter(isValidHttpUrl),
                 priceAdjustment: variantDef.priceAdjustment || 0,
               };
 
@@ -1064,7 +1212,10 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
 
       } catch (err: any) {
         result.status = 'error';
-        result.message = err?.error?.message || 'Error del servidor al registrar producto';
+        const rawMsg = err?.error?.message;
+        result.message = Array.isArray(rawMsg)
+          ? rawMsg.join(' • ')
+          : (rawMsg || 'Error del servidor al registrar producto');
       }
 
       this.cdr.markForCheck();
