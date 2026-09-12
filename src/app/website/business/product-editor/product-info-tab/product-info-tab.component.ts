@@ -154,20 +154,24 @@ export class ProductInfoTabComponent implements OnInit, OnDestroy {
     const discount = +(raw.discount || 0);
     const finalPrice = basePrice * (1 - discount / 100);
 
-    // 1. Jerarquía de imágenes:
-    // - Fotos de la primera variante (color primario), luego de las demás variantes
-    // - Luego las fotos globales de la galería
+    // Ordenar variantes estrictamente por sortOrder (menor a mayor)
+    const sortedVariants = [...(this.variants || [])].sort(
+      (a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+    );
+
+    // 1. Jerarquía de imágenes exacta requerida por el negocio:
+    // - Primero TODAS las fotos de la primera variante (color principal)
+    // - Luego las fotos de la segunda variante (segundo color), etc.
+    // - Al final, las fotos del producto maestro (lifestyle / guía de tallas)
     const combinedImages: string[] = [];
     const seen = new Set<string>();
 
-    if (this.variants && this.variants.length > 0) {
-      for (const v of this.variants) {
-        if (v.gallery && v.gallery.length > 0) {
-          for (const img of v.gallery) {
-            if (img && !seen.has(img)) {
-              seen.add(img);
-              combinedImages.push(img);
-            }
+    for (const v of sortedVariants) {
+      if (v.gallery && v.gallery.length > 0) {
+        for (const img of v.gallery) {
+          if (img && !seen.has(img)) {
+            seen.add(img);
+            combinedImages.push(img);
           }
         }
       }
@@ -194,31 +198,27 @@ export class ProductInfoTabComponent implements OnInit, OnDestroy {
       combinedImages.push('assets/images/placeholder.svg');
     }
 
-    // 2. Construir thumbnailGallery para las miniaturas por color en la tarjeta
+    // 2. Construir thumbnailGallery estrictamente en el orden de sortOrder
     const thumbnailGallery: ThumbnailEntry[] = [];
     const seenColors = new Set<string>();
-    if (this.variants && this.variants.length > 0) {
-      for (const v of this.variants) {
-        const code = v.color?.code;
-        const name = v.color?.name ?? 'Color';
-        const hex  = v.color?.hex  ?? '#000000';
-        const firstImg = v.gallery?.[0];
-        if (code && firstImg && !seenColors.has(code)) {
-          seenColors.add(code);
-          thumbnailGallery.push({ colorCode: code, colorName: name, colorHex: hex, image: firstImg });
-        }
+    for (const v of sortedVariants) {
+      const code = v.color?.code;
+      const name = v.color?.name ?? 'Color';
+      const hex  = v.color?.hex  ?? '#000000';
+      const firstImg = v.gallery?.[0];
+      if (code && firstImg && !seenColors.has(code)) {
+        seenColors.add(code);
+        thumbnailGallery.push({ colorCode: code, colorName: name, colorHex: hex, image: firstImg });
       }
     }
 
-    // 3. Construir availableColors para los selectores de color
+    // 3. Colores disponibles en orden
     const availableColors: { name: string; hex: string; code: string }[] = [];
     const seenColorCodes = new Set<string>();
-    if (this.variants && this.variants.length > 0) {
-      for (const v of this.variants) {
-        if (v.color && !seenColorCodes.has(v.color.code)) {
-          seenColorCodes.add(v.color.code);
-          availableColors.push(v.color);
-        }
+    for (const v of sortedVariants) {
+      if (v.color && !seenColorCodes.has(v.color.code)) {
+        seenColorCodes.add(v.color.code);
+        availableColors.push(v.color);
       }
     }
 

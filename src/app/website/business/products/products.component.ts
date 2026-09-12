@@ -5,7 +5,7 @@ import { RouterLink, ActivatedRoute } from '@angular/router';
 import { Product, ProductCatalog } from '../../../core/interfaces/product.interface';
 import { ProductsService } from '../../../core/services/catalog/products.service';
 import { SellersService } from '../../../core/services/catalog/sellers.service';
-import { AuthService }    from '../../../core/services/auth/auth.service';
+import { AuthService } from '../../../core/services/auth/auth.service';
 import { UpdateProductDto } from '../../../core/dtos/update-product.dto';
 import { ImageService } from '../../../core/services/utils/image.service';
 import { ProductVariantsService } from '../../../core/services/catalog/product-variants.service';
@@ -30,6 +30,7 @@ export class ProductsComponent implements OnInit {
   selectedProduct: Product | null = null;
   viewMode: 'grid' | 'table' = 'table';
   isLoading = false;
+  togglingId: string | null = null;
 
   // Pagination
   currentPage = 1;
@@ -66,18 +67,18 @@ export class ProductsComponent implements OnInit {
 
   constructor(
     private productsService: ProductsService,
-    private sellersService:  SellersService,
-    private authService:     AuthService,
-    private imageService:    ImageService,
+    private sellersService: SellersService,
+    private authService: AuthService,
+    private imageService: ImageService,
     private variantsService: ProductVariantsService,
-    private route:           ActivatedRoute
+    private route: ActivatedRoute
   ) { }
 
   ngOnInit(): void {
-    this.isSeller    = this.authService.hasRole('seller');
-    this.isAdmin     = this.authService.hasRole('admin');
+    this.isSeller = this.authService.hasRole('seller');
+    this.isAdmin = this.authService.hasRole('admin');
     this.ownerFilter = this.route.snapshot.queryParamMap.get('owner');
-    this.ownerName   = this.route.snapshot.queryParamMap.get('ownerName') ?? '';
+    this.ownerName = this.route.snapshot.queryParamMap.get('ownerName') ?? '';
     this.loadProducts();
   }
 
@@ -86,18 +87,19 @@ export class ProductsComponent implements OnInit {
    * - Admin/Worker: GET /product/all  (todos los productos agrupados)
    * - Seller:       GET /product/my-catalog  (solo los suyos)
    */
-  private loadProducts(): void {
+  loadProducts(): void {
     this.isLoading = true;
 
     // Admin viendo catálogo de un seller específico via query param ?owner=:id
     if (this.ownerFilter && !this.isSeller) {
       this.productsService.getProductsByOwner(this.ownerFilter).subscribe({
         next: (result: any) => {
-          const products = result.data ?? result;
-          const total    = result.total ?? products.length;
-          const label    = this.ownerName ? `Catálogo de ${this.ownerName}` : 'Catálogo del Seller';
+          const products = result.data ?? result ?? [];
+          const total = result.total ?? products.length;
+          const label = this.ownerName ? `Catálogo de ${this.ownerName}` : 'Catálogo del Seller';
           this.catalogs = [{ owner: this.ownerFilter!, label, total, products }];
           this.products = products;
+          this.totalItems = total;
           this.resolveVariantsImages(products);
         },
         error: () => { this.isLoading = false; }
@@ -108,19 +110,18 @@ export class ProductsComponent implements OnInit {
     if (this.isSeller) {
       this.sellersService.getMyCatalog(this.currentPage, this.itemsPerPage).subscribe({
         next: (result) => {
-          this.totalItems = result.total;
-          const products = result.data;
-          
-          // Mapea a un catálogo único para el seller
+          this.totalItems = result?.total ?? 0;
+          const products = result?.data ?? [];
+
           const myCatalog: ProductCatalog = {
             owner: this.authService.getCurrentUser()?._id ?? 'me',
             label: 'Mi Catálogo',
-            total: result.total,
+            total: this.totalItems,
             products: products
           };
           this.catalogs = [myCatalog];
           this.products = products;
-          
+
           this.resolveVariantsImages(products);
         },
         error: (err) => {
@@ -131,10 +132,10 @@ export class ProductsComponent implements OnInit {
     } else {
       this.productsService.getAdminCatalog().subscribe({
         next: (result) => {
-          this.totalItems = result.total;
-          this.catalogs = result.catalogs;
-          this.products = result.catalogs.flatMap(c => c.products);
-          
+          this.totalItems = result?.total ?? 0;
+          this.catalogs = result?.catalogs ?? [];
+          this.products = this.catalogs.flatMap(c => c.products);
+
           this.resolveVariantsImages(this.products);
         },
         error: (err) => {
@@ -146,7 +147,7 @@ export class ProductsComponent implements OnInit {
   }
 
   /**
-   * Resuelve la primera variante de cada producto para usar su imagen en la vista del catálogo
+   * Asigna imágenes de miniatura inmediatas y resuelve variantes en segundo plano
    */
   private resolveVariantsImages(products: Product[]): void {
     if (!products || products.length === 0) {
@@ -156,34 +157,30 @@ export class ProductsComponent implements OnInit {
       return;
     }
 
-    let pendingCount = products.length;
+    // Paso 1: Asignar de inmediato cualquier imagen disponible para evitar parpadeos
+    products.forEach(p => {
+      if (!p.firstVariantImage) {
+        p.firstVariantImage = p.gallery?.[0] || (p.thumbnailGallery?.[0] as any)?.image || null;
+      }
+    });
+
+    this.applyFilters();
+    this.calculateStats();
+    this.isLoading = false;
+
+    // Paso 2: Enriquecer con la imagen de la primera variante si el maestro no tenía foto
     products.forEach(product => {
-      this.variantsService.getVariantsByProduct(product._id).subscribe({
-        next: (variants) => {
-          const firstWithImage = variants.find(v => v.gallery && v.gallery.length > 0);
-          if (firstWithImage) {
-            product.firstVariantImage = firstWithImage.gallery?.[0] || null;
-          } else {
-            product.firstVariantImage = null;
-          }
-          pendingCount--;
-          if (pendingCount === 0) {
-            this.applyFilters();
-            this.calculateStats();
-            this.isLoading = false;
-          }
-        },
-        error: (err) => {
-          console.error(`Error cargando variantes para ${product._id}:`, err);
-          (product as any).firstVariantImage = null;
-          pendingCount--;
-          if (pendingCount === 0) {
-            this.applyFilters();
-            this.calculateStats();
-            this.isLoading = false;
-          }
-        }
-      });
+      if (!product.firstVariantImage) {
+        this.variantsService.getVariantsByProduct(product._id).subscribe({
+          next: (variants) => {
+            const firstWithImage = variants?.find(v => v.gallery && v.gallery.length > 0);
+            if (firstWithImage?.gallery?.[0]) {
+              product.firstVariantImage = firstWithImage.gallery[0];
+            }
+          },
+          error: () => {}
+        });
+      }
     });
   }
 
@@ -191,7 +188,7 @@ export class ProductsComponent implements OnInit {
    * Apply search and filters to products
    */
   applyFilters(): void {
-    const term = this.searchTerm ? this.searchTerm.toLowerCase() : '';
+    const term = this.searchTerm ? this.searchTerm.toLowerCase().trim() : '';
 
     this.filteredCatalogs = this.catalogs.map(cat => {
       let filtered = [...cat.products];
@@ -201,9 +198,10 @@ export class ProductsComponent implements OnInit {
         filtered = filtered.filter(p => {
           const categoryMatch = Array.isArray(p.category)
             ? p.category.some(c => c.toLowerCase().includes(term))
-            : false;
-          return p.name.toLowerCase().includes(term) ||
-            p.brand?.toLowerCase().includes(term) ||
+            : (typeof p.category === 'string' && (p.category as string).toLowerCase().includes(term));
+          return (p.name && p.name.toLowerCase().includes(term)) ||
+            (p.brand && p.brand.toLowerCase().includes(term)) ||
+            (p.code && p.code.toLowerCase().includes(term)) ||
             categoryMatch;
         });
       }
@@ -234,7 +232,7 @@ export class ProductsComponent implements OnInit {
         let comparison = 0;
         switch (this.sortBy) {
           case 'name':
-            comparison = a.name.localeCompare(b.name);
+            comparison = (a.name || '').localeCompare(b.name || '');
             break;
           case 'basePrice':
             comparison = (a.basePrice || 0) - (b.basePrice || 0);
@@ -252,8 +250,23 @@ export class ProductsComponent implements OnInit {
       };
     }).filter(cat => cat.products.length > 0);
 
-    // Keep filteredProducts updated for stats/count checks
     this.filteredProducts = this.filteredCatalogs.flatMap(c => c.products);
+  }
+
+  /**
+   * Cambia el filtro rápido de estado (Todos / Activos / Inactivos)
+   */
+  setActiveFilter(filter: 'all' | 'active' | 'inactive'): void {
+    this.activeFilter = filter;
+    this.applyFilters();
+  }
+
+  /**
+   * Limpia el término de búsqueda
+   */
+  clearSearch(): void {
+    this.searchTerm = '';
+    this.applyFilters();
   }
 
   /**
@@ -267,17 +280,26 @@ export class ProductsComponent implements OnInit {
    * Calculate dashboard statistics
    */
   calculateStats(): void {
-    this.stats.totalProducts = this.totalItems;
+    this.stats.totalProducts = this.totalItems || this.products.length;
     this.stats.activeProducts = this.products.filter(p => p.isActive === true).length;
 
-    // Calculate unique categories
     const allCategories = this.products.flatMap(p =>
       Array.isArray(p.category) ? p.category : (p.category ? [p.category] : [])
     );
     this.stats.totalCategories = new Set(allCategories.filter(Boolean)).size;
 
-    // Calculate unique brands
     this.stats.totalBrands = new Set(this.products.map(p => p.brand).filter(Boolean)).size;
+  }
+
+  /** Porcentaje de productos activos sobre el total */
+  get activePercentage(): number {
+    if (!this.stats.totalProducts) return 0;
+    return Math.round((this.stats.activeProducts / this.stats.totalProducts) * 100);
+  }
+
+  /** Indica si hay algún filtro actualmente aplicado */
+  get hasActiveFilters(): boolean {
+    return !!(this.searchTerm || this.selectedCategory || this.selectedBrand || this.activeFilter !== 'all');
   }
 
   /**
@@ -287,104 +309,58 @@ export class ProductsComponent implements OnInit {
     const allCategories = this.products.flatMap(p =>
       Array.isArray(p.category) ? p.category : (p.category ? [p.category] : [])
     );
-    return Array.from(new Set(allCategories)).filter(Boolean);
+    return Array.from(new Set(allCategories)).filter(Boolean).sort();
   }
 
   /**
    * Get unique brands from products
    */
   get brands(): string[] {
-    return Array.from(new Set(this.products.map(p => p.brand).filter(Boolean)));
+    return Array.from(new Set(this.products.map(p => p.brand).filter(Boolean))).sort();
   }
 
-  /**
-   * Change page
-   */
   changePage(page: number): void {
     this.currentPage = page;
     this.loadProducts();
   }
 
-  /**
-   * Change items per page
-   */
   changeItemsPerPage(size: number): void {
-    this.itemsPerPage = size;
+    this.itemsPerPage = Number(size);
     this.currentPage = 1;
     this.loadProducts();
   }
 
-  /**
-   * Toggle view mode between grid and table
-   */
   toggleViewMode(): void {
     this.viewMode = this.viewMode === 'grid' ? 'table' : 'grid';
   }
 
-  /**
-   * Open/close product modal
-   */
-  toggleAddModal(isOpen: boolean, product?: Product, isEdit: boolean = false): void {
-    this.isAddModalOpen = isOpen;
-    this.selectedProduct = product ? { ...product } : null;
-    this.isEditMode = isEdit;
-  }
+  /** Activa o desactiva el producto con indicador de carga */
+  toggleProductActive(product: Product): void {
+    const activate = !product.isActive;
+    this.togglingId = product._id;
 
-  /**
-   * Handle product saved event
-   */
-  onProductSaved(product: Product): void {
-    this.isEditMode ? this.updateProduct(product) : this.addProduct(product);
-  }
+    const req$ = activate
+      ? this.productsService.activateProduct(product._id)
+      : this.productsService.deactivateProduct(product._id);
 
-  /**
-   * Add new product
-   */
-  private addProduct(newProduct: Product): void {
-    console.log('📤 Sending product to backend:', JSON.stringify(newProduct, null, 2));
-
-    this.productsService.addProduct(newProduct).subscribe({
-      next: (response) => {
-        this.loadProducts(); // Reload to get updated list
-        console.log('✅ Product created:', response);
+    req$.subscribe({
+      next: (updated) => {
+        this.togglingId = null;
+        const idx = this.products.findIndex(p => p._id === updated._id);
+        if (idx !== -1) {
+          this.products[idx].isActive = updated.isActive;
+        }
+        this.applyFilters();
+        this.calculateStats();
       },
       error: (err) => {
-        console.error('❌ Error creating product:', err);
-        console.error('📋 Error details:', err.error);
-        if (err.error?.message) {
-          console.error('💬 Validation errors:', err.error.message);
-        }
+        this.togglingId = null;
+        console.error('Error cambiando estado del producto:', err);
       },
     });
   }
 
-  /**
-   * Update existing product
-   */
-  private updateProduct(updatedProduct: Product): void {
-    if (!this.selectedProduct) return;
-
-    const changes = this.getModifiedFields(this.selectedProduct, updatedProduct);
-    if (Object.keys(changes).length === 0) {
-      console.log('No changes to update.');
-      return;
-    }
-
-    this.productsService.updateProduct(this.selectedProduct._id, changes).subscribe({
-      next: (response) => {
-        this.loadProducts(); // Reload to get updated list
-        console.log('Product updated:', response);
-      },
-      error: (err) => console.error('Error updating product:', err)
-    });
-  }
-
-  /**
-   * Delete product (soft or hard delete)
-   * @param id Product ID
-   * @param hardDelete If true, permanently delete the product
-   */
-  /** Elimina el producto permanentemente (hard delete). */
+  /** Elimina el producto permanentemente (hard delete) */
   deleteProduct(id: string): void {
     if (!confirm('¿Eliminar permanentemente este producto? Esta acción no se puede deshacer.')) return;
 
@@ -396,8 +372,8 @@ export class ProductsComponent implements OnInit {
         const idLink = imageUrl.split('/').pop();
         if (idLink) {
           this.imageService.deleteImage(idLink).subscribe({
-            next: () => console.log('Imagen eliminada:', imageUrl),
-            error: (err) => console.error('Error eliminando imagen:', err),
+            next: () => {},
+            error: () => {},
           });
         }
       });
@@ -409,92 +385,23 @@ export class ProductsComponent implements OnInit {
     });
   }
 
-  /** Activa o desactiva el producto usando los endpoints dedicados. */
-  toggleProductActive(product: Product): void {
-    const activate = !product.isActive;
-    const req$ = activate
-      ? this.productsService.activateProduct(product._id)
-      : this.productsService.deactivateProduct(product._id);
-
-    req$.subscribe({
-      next: (updated) => {
-        const idx = this.products.findIndex(p => p._id === updated._id);
-        if (idx !== -1) this.products[idx] = updated;
-        this.applyFilters();
-        this.calculateStats();
-      },
-      error: (err) => console.error('Error cambiando estado del producto:', err),
-    });
-  }
-
-  /**
-   * Get modified fields between two products
-   */
-  private getModifiedFields(original: Product, updated: Product): UpdateProductDto {
-    const changes: any = {};
-    
-    Object.keys(updated).forEach((key) => {
-      // Skip rating field as it's not part of UpdateProductDto
-      if (key === 'rating' || key === '_id' || key === 'createdAt' || key === 'updatedAt') return;
-      
-      const updatedValue = updated[key as keyof Product];
-      const originalValue = original[key as keyof Product];
-
-      if (Array.isArray(updatedValue)) {
-        if (!this.arraysAreEqual(updatedValue, originalValue as string[])) {
-          changes[key] = updatedValue;
-        }
-      } else if (typeof updatedValue === 'object' && updatedValue !== null) {
-        if (!this.objectsAreEqual(updatedValue, originalValue as object)) {
-          changes[key] = updatedValue;
-        }
-      } else if (updatedValue !== originalValue && updatedValue !== undefined) {
-        changes[key] = updatedValue;
-      }
-    });
-    
-    return changes as UpdateProductDto;
-  }
-
-  /**
-   * Compare if two objects are equal
-   */
-  private objectsAreEqual(obj1: object, obj2: object): boolean {
-    return JSON.stringify(obj1) === JSON.stringify(obj2);
-  }
-
-  /**
-   * Compare if two arrays are equal
-   */
-  private arraysAreEqual(arr1: any[], arr2: any[]): boolean {
-    return arr1.length === arr2.length && arr1.every((value, index) => value === arr2[index]);
-  }
-
-
-  /**
-   * Get displayed range text
-   */
   getDisplayedRange(): string {
     const start = (this.currentPage - 1) * this.itemsPerPage + 1;
     const end = Math.min(this.currentPage * this.itemsPerPage, this.totalItems);
     return `Mostrando ${start} a ${end} de ${this.totalItems} productos`;
   }
 
-  /**
-   * Get total pages
-   */
   get totalPages(): number {
-    return Math.ceil(this.totalItems / this.itemsPerPage);
+    return Math.ceil(this.totalItems / this.itemsPerPage) || 1;
   }
 
-  /**
-   * Reset all filters
-   */
   resetFilters(): void {
     this.searchTerm = '';
     this.selectedCategory = '';
     this.selectedBrand = '';
     this.activeFilter = 'all';
+    this.sortBy = 'date';
+    this.sortOrder = 'desc';
     this.applyFilters();
   }
 }

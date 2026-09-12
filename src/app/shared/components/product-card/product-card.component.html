@@ -116,7 +116,12 @@
     <div class="flex items-center gap-1.5 flex-wrap mt-0.5 select-none">
       @for (thumb of product.thumbnailGallery.slice(0, 6); track thumb.colorCode) {
       <span
-        class="w-3.5 h-3.5 rounded-full border border-white ring-1 ring-slate-200 shadow-sm flex-shrink-0 cursor-pointer hover:scale-115 transition-transform duration-150"
+        (click)="onSwatchClick($event, thumb)"
+        class="w-3.5 h-3.5 rounded-full border border-white shadow-sm flex-shrink-0 cursor-pointer hover:scale-125 transition-transform duration-150"
+        [class.ring-2]="images[activeIdx] === thumb.image"
+        [class.ring-indigo-600]="images[activeIdx] === thumb.image"
+        [class.ring-1]="images[activeIdx] !== thumb.image"
+        [class.ring-slate-200]="images[activeIdx] !== thumb.image"
         [style.background]="thumb.colorHex" 
         [title]="thumb.colorName">
       </span>

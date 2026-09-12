@@ -17,6 +17,7 @@ export interface MediaAsset {
   file?: File;
   previewUrl: string;
   remoteUrl?: string;
+  cloudinaryId?: string;
   status: 'queued' | 'uploading' | 'done' | 'error';
   error?: string;
 }
@@ -458,6 +459,7 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
           this.imageService.uploadImage(asset.file).pipe(takeUntil(this.destroy$))
         );
         asset.remoteUrl = res.secureUrl || res.cloudinaryUrl;
+        asset.cloudinaryId = res.cloudinaryId || res.public_id;
         asset.status = 'done';
         asset.error = undefined;
         succeeded++;
@@ -504,8 +506,49 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
       if (removed.previewUrl.startsWith('blob:')) {
         URL.revokeObjectURL(removed.previewUrl);
       }
+      if (removed.cloudinaryId) {
+        this.imageService.deleteImage(removed.cloudinaryId).subscribe({
+          next: () => console.log(`Imagen ${removed.cloudinaryId} eliminada de Cloudinary`),
+          error: (err) => console.warn(`No se pudo eliminar de Cloudinary:`, err),
+        });
+      }
       this.selectedAssetIds.delete(assetId);
     }
+  }
+
+  async purgeAllUncommittedAssets(): Promise<void> {
+    const toDelete = this.mediaAssets.filter((a) => !!a.cloudinaryId);
+    if (!toDelete.length) {
+      for (const a of this.mediaAssets) {
+        if (a.previewUrl.startsWith('blob:')) URL.revokeObjectURL(a.previewUrl);
+      }
+      this.mediaAssets = [];
+      this.selectedAssetIds.clear();
+      this.toastService.showInfo('Asset pool vaciado.');
+      this.cdr.markForCheck();
+      return;
+    }
+
+    if (!confirm(`¿Eliminar ${toDelete.length} imagen(es) subidas de Cloudinary y vaciar el pool?`)) {
+      return;
+    }
+
+    let deletedCount = 0;
+    for (const a of toDelete) {
+      try {
+        await firstValueFrom(this.imageService.deleteImage(a.cloudinaryId!));
+        deletedCount++;
+      } catch (e) {
+        console.warn('Error purgando imagen de Cloudinary:', e);
+      }
+    }
+    for (const a of this.mediaAssets) {
+      if (a.previewUrl.startsWith('blob:')) URL.revokeObjectURL(a.previewUrl);
+    }
+    this.mediaAssets = [];
+    this.selectedAssetIds.clear();
+    this.toastService.showSuccess(`Se purgaron ${deletedCount} fotos de Cloudinary y se vació el pool.`);
+    this.cdr.markForCheck();
   }
 
   copyAssetValue(text: string, label: string): void {
@@ -1228,27 +1271,103 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
         }
 
         if (prod.warranty && prod.warranty.duration) {
-          payload.warranty = prod.warranty;
+          const rawType = String(prod.warranty.type || '').toLowerCase().trim();
+          let normalizedType = 'store';
+          if (rawType === 'manufacturer' || rawType === 'fabricante') {
+            normalizedType = 'manufacturer';
+          } else if (rawType === 'none' || rawType === 'ninguna' || rawType === 'sin garantia') {
+            normalizedType = 'none';
+          } else if (rawType === 'seller' || rawType === 'vendedor') {
+            normalizedType = 'seller';
+          } else {
+            normalizedType = 'store';
+          }
+
+          const rawUnit = String(prod.warranty.unit || '').toLowerCase().trim();
+          let normalizedUnit = 'months';
+          if (rawUnit === 'days' || rawUnit === 'dias' || rawUnit === 'día' || rawUnit === 'dia') {
+            normalizedUnit = 'days';
+          } else if (rawUnit === 'years' || rawUnit === 'anos' || rawUnit === 'años' || rawUnit === 'año' || rawUnit === 'ano') {
+            normalizedUnit = 'years';
+          } else {
+            normalizedUnit = 'months';
+          }
+
+          payload.warranty = {
+            duration: Number(prod.warranty.duration) || 1,
+            unit: normalizedUnit,
+            type: normalizedType,
+            description: prod.warranty.description || undefined,
+            policyUrl: prod.warranty.policyUrl || undefined,
+          };
         }
 
-        // Crear producto maestro
-        const createdProduct: Product = await firstValueFrom(
-          this.productsService.createProduct(payload).pipe(takeUntil(this.destroy$))
-        );
+        // Identificar assets de imagen asignados a este producto
+        const productImages = this.mediaAssets.filter((a) => {
+          const name = a.name.toLowerCase().trim();
+          const url = (a.remoteUrl || '').toLowerCase().trim();
+          const inMaster = (prod.gallery || []).some((g: string) => {
+            const cl = String(g).toLowerCase().trim();
+            return cl === name || (url && cl === url);
+          });
+          const inVars = (prod.variants || []).some((v: any) =>
+            (v.gallery || []).some((g: string) => {
+              const cl = String(g).toLowerCase().trim();
+              return cl === name || (url && cl === url);
+            })
+          );
+          return inMaster || inVars;
+        });
 
-        const newProductId = createdProduct._id || (createdProduct as any).id;
+        // Crear producto maestro
+        let createdProduct: Product | null = null;
+        let newProductId = '';
+        try {
+          createdProduct = await firstValueFrom(
+            this.productsService.createProduct(payload).pipe(takeUntil(this.destroy$))
+          );
+          newProductId = createdProduct._id || (createdProduct as any).id;
+        } catch (masterErr: any) {
+          console.error(`Fallo al crear producto maestro ${prod.code}:`, masterErr);
+          // Purgar fotos asociadas de Cloudinary
+          for (const img of productImages) {
+            if (img.cloudinaryId) {
+              try {
+                await firstValueFrom(this.imageService.deleteImage(img.cloudinaryId));
+                img.cloudinaryId = undefined;
+                img.remoteUrl = undefined;
+                img.status = 'queued';
+              } catch {}
+            }
+          }
+          throw masterErr;
+        }
+
         let createdVariantsCount = 0;
+        const createdVariantIds: string[] = [];
 
         // 2. Crear variantes anidadas (si existen)
         if (newProductId && prod.variants && prod.variants.length > 0) {
           const variantErrors: string[] = [];
+          let vOrder = 0;
           for (const variantDef of prod.variants) {
             try {
               // Normalizar size.type según SizeType enum del backend
               let normalizedSize = variantDef.size;
               if (normalizedSize && normalizedSize.type) {
                 const rawType = (normalizedSize.type || '').toLowerCase().trim();
-                const mappedType = rawType === 'volume' ? 'volume_l' : rawType;
+                let mappedType = rawType;
+                if (rawType === 'apparel' || rawType === 'ropa' || rawType === 'prenda' || rawType === 'textil') {
+                  mappedType = 'clothing';
+                } else if (rawType === 'calzado' || rawType === 'zapatos' || rawType === 'zapatillas' || rawType === 'shoes') {
+                  mappedType = 'footwear';
+                } else if (rawType === 'volume' || rawType === 'litros') {
+                  mappedType = 'volume_l';
+                } else if (rawType === 'ml' || rawType === 'mililitros') {
+                  mappedType = 'volume_ml';
+                } else if (rawType === 'weight' || rawType === 'peso') {
+                  mappedType = 'weight_net';
+                }
                 normalizedSize = {
                   ...normalizedSize,
                   type: mappedType,
@@ -1263,11 +1382,15 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
                 dimensions: variantDef.dimensions,
                 gallery: (variantDef.gallery || []).filter(isValidHttpUrl),
                 priceAdjustment: variantDef.priceAdjustment || 0,
+                sortOrder: variantDef.sortOrder ?? (vOrder++ * 10),
               };
 
-              await firstValueFrom(
+              const vRes: any = await firstValueFrom(
                 this.variantsService.createVariant(variantPayload).pipe(takeUntil(this.destroy$))
               );
+              if (vRes?._id || vRes?.id) {
+                createdVariantIds.push(vRes._id || vRes.id);
+              }
               createdVariantsCount++;
             } catch (varErr: any) {
               console.warn(`Error creando variante para ${prod.code}:`, varErr);
@@ -1277,26 +1400,58 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
             }
           }
 
+          // SI HUBO ERRORES EN LAS VARIANTES -> ROLLBACK ATÓMICO COMPLETO
           if (variantErrors.length > 0) {
-            result.status = createdVariantsCount > 0 ? 'success' : 'error';
-            result.createdId = newProductId;
-            result.variantsCreatedCount = createdVariantsCount;
-            result.message = createdVariantsCount > 0
-              ? `Creado con ${createdVariantsCount}/${prod.variants.length} variantes (${variantErrors[0]})`
-              : `Producto creado pero fallaron sus variantes: ${variantErrors[0]}`;
+            console.warn(`[ATOMIC ROLLBACK] Fallaron variantes para ${prod.code}. Purgando producto maestro ${newProductId} y fotos...`);
+
+            // 1. Eliminar variantes parciales que se hayan creado
+            for (const vId of createdVariantIds) {
+              try {
+                await firstValueFrom(this.variantsService.deleteVariant(vId, newProductId));
+              } catch (delVarErr) {
+                console.warn(`Error eliminando variante ${vId} en rollback:`, delVarErr);
+              }
+            }
+
+            // 2. Eliminar el producto maestro de la base de datos
+            try {
+              await firstValueFrom(this.productsService.deleteProduct(newProductId));
+              console.log(`Producto maestro ${newProductId} eliminado exitosamente en rollback.`);
+            } catch (delProdErr) {
+              console.warn(`Error eliminando producto ${newProductId} en rollback:`, delProdErr);
+            }
+
+            // 3. Purgar imágenes asociadas de Cloudinary
+            let purgedImagesCount = 0;
+            for (const img of productImages) {
+              if (img.cloudinaryId) {
+                try {
+                  await firstValueFrom(this.imageService.deleteImage(img.cloudinaryId));
+                  img.cloudinaryId = undefined;
+                  img.remoteUrl = undefined;
+                  img.status = 'queued';
+                  purgedImagesCount++;
+                } catch (delImgErr) {
+                  console.warn(`Error purgando foto ${img.name} de Cloudinary:`, delImgErr);
+                }
+              }
+            }
+
+            result.status = 'error';
+            result.createdId = undefined;
+            result.variantsCreatedCount = 0;
+            result.message = `Error en variantes: ${variantErrors[0]}. Se ejecutó ROLLBACK: se purgó el producto y ${purgedImagesCount} foto(s) de Cloudinary.`;
           } else {
             result.status = 'success';
             result.createdId = newProductId;
             result.variantsCreatedCount = createdVariantsCount;
-            result.message = createdVariantsCount > 0
-              ? `Creado con éxito (${createdVariantsCount} variantes)`
-              : 'Creado con éxito';
+            result.message = `Creado con éxito (${createdVariantsCount} variantes)`;
           }
         } else {
           result.status = 'success';
           result.createdId = newProductId;
           result.variantsCreatedCount = 0;
-          result.message = 'Creado con éxito';
+          result.message = 'Creado con éxito (sin variantes)';
         }
 
       } catch (err: any) {

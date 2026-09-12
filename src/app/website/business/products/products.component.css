@@ -1,0 +1,13 @@
+/* ============================================================
+   products.component.css
+   Estilos complementarios para el dashboard de productos
+   ============================================================ */
+
+:host {
+  display: block;
+}
+
+/* Transiciones suaves en botones y celdas */
+table tr {
+  transition: background-color 0.15s ease-in-out;
+}

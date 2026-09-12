@@ -62,6 +62,9 @@ export class ProductEditorComponent implements OnInit, OnDestroy {
     const tabParam = this.route.snapshot.queryParamMap.get('tab') as EditorTab | null;
     if (tabParam === 'variants') this.activeTab.set('variants');
 
+    const modeParam = this.route.snapshot.queryParamMap.get('mode');
+    if (modeParam === 'bulk') this.creationMode.set('bulk');
+
     if (!id || id === 'new') {
       this.isNew = true;
     } else if (OBJECT_ID_REGEX.test(id)) {
@@ -148,6 +151,17 @@ export class ProductEditorComponent implements OnInit, OnDestroy {
   }
 
   // ─── Guardar ──────────────────────────────────────────────────────────────
+
+  onVariantsUpdated(updated: ProductVariant[]): void {
+    this.variants = [...updated];
+  }
+
+  setTab(tab: 'info' | 'variants'): void {
+    this.activeTab.set(tab);
+    if (tab === 'info' && this.productId) {
+      this.loadVariants(this.productId);
+    }
+  }
 
   saveProduct(): void {
     if (this.productForm.invalid) { this.productForm.markAllAsTouched(); return; }
