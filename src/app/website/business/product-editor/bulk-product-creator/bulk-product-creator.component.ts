@@ -261,61 +261,61 @@ const SAMPLE_BULK_JSON = `[
       {
         "sku": "CPACK-03-NMT-20L",
         "color": { "name": "Negro Mate", "hex": "#09090B", "code": "NMT" },
-        "size": { "type": "volume", "value": "20L" },
+        "size": { "type": "volume_l", "value": "20L" },
         "gallery": []
       },
       {
         "sku": "CPACK-03-NMT-25L",
         "color": { "name": "Negro Mate", "hex": "#09090B", "code": "NMT" },
-        "size": { "type": "volume", "value": "25L" },
+        "size": { "type": "volume_l", "value": "25L" },
         "gallery": []
       },
       {
         "sku": "CPACK-03-NMT-30L",
         "color": { "name": "Negro Mate", "hex": "#09090B", "code": "NMT" },
-        "size": { "type": "volume", "value": "30L" },
+        "size": { "type": "volume_l", "value": "30L" },
         "gallery": []
       },
       {
         "sku": "CPACK-03-GRA-20L",
         "color": { "name": "Gris Grafito", "hex": "#374151", "code": "GRA" },
-        "size": { "type": "volume", "value": "20L" },
+        "size": { "type": "volume_l", "value": "20L" },
         "gallery": []
       },
       {
         "sku": "CPACK-03-GRA-25L",
         "color": { "name": "Gris Grafito", "hex": "#374151", "code": "GRA" },
-        "size": { "type": "volume", "value": "25L" },
+        "size": { "type": "volume_l", "value": "25L" },
         "gallery": []
       },
       {
         "sku": "CPACK-03-GRA-30L",
         "color": { "name": "Gris Grafito", "hex": "#374151", "code": "GRA" },
-        "size": { "type": "volume", "value": "30L" },
+        "size": { "type": "volume_l", "value": "30L" },
         "gallery": []
       },
       {
         "sku": "CPACK-03-OXF-25L",
         "color": { "name": "Azul Oxford", "hex": "#1E293B", "code": "OXF" },
-        "size": { "type": "volume", "value": "25L" },
+        "size": { "type": "volume_l", "value": "25L" },
         "gallery": []
       },
       {
         "sku": "CPACK-03-OXF-30L",
         "color": { "name": "Azul Oxford", "hex": "#1E293B", "code": "OXF" },
-        "size": { "type": "volume", "value": "30L" },
+        "size": { "type": "volume_l", "value": "30L" },
         "gallery": []
       },
       {
         "sku": "CPACK-03-OLV-25L",
         "color": { "name": "Verde Olivo", "hex": "#3F4E3A", "code": "OLV" },
-        "size": { "type": "volume", "value": "25L" },
+        "size": { "type": "volume_l", "value": "25L" },
         "gallery": []
       },
       {
         "sku": "CPACK-03-OLV-30L",
         "color": { "name": "Verde Olivo", "hex": "#3F4E3A", "code": "OLV" },
-        "size": { "type": "volume", "value": "30L" },
+        "size": { "type": "volume_l", "value": "30L" },
         "gallery": []
       }
     ]
@@ -441,16 +441,16 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
     if (!queued.length || this.isUploadingMedia) return;
 
     this.isUploadingMedia = true;
-    let completed = 0;
+    let succeeded = 0;
+    let failed = 0;
     const total = queued.length;
 
     for (const asset of queued) {
       if (!asset.file) {
-        completed++;
         continue;
       }
       asset.status = 'uploading';
-      this.uploadProgressText = `Subiendo ${completed + 1} de ${total}: ${asset.name}`;
+      this.uploadProgressText = `Subiendo ${succeeded + failed + 1} de ${total}: ${asset.name}`;
       this.cdr.markForCheck();
 
       try {
@@ -459,18 +459,42 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
         );
         asset.remoteUrl = res.secureUrl || res.cloudinaryUrl;
         asset.status = 'done';
+        asset.error = undefined;
+        succeeded++;
       } catch (err: any) {
         asset.status = 'error';
-        asset.error = err?.error?.message || 'Error al subir a Cloudinary';
+        const errMsg = err?.error?.message || err?.message || 'Error al subir a Cloudinary';
+        asset.error = Array.isArray(errMsg) ? errMsg.join(', ') : errMsg;
+        failed++;
+        console.error(`Error subiendo imagen "${asset.name}" a Cloudinary:`, err);
       }
-      completed++;
     }
 
     this.isUploadingMedia = false;
     this.uploadProgressText = '';
-    this.toastService.showSuccess(`Se procesaron ${completed} imágenes en el Asset Pool`);
+
+    if (failed > 0) {
+      this.toastService.showError(
+        `Falló la subida de ${failed} de ${total} imagen(es) a Cloudinary. Revisa las tarjetas en rojo en el Asset Pool.`
+      );
+    } else if (succeeded > 0) {
+      this.toastService.showSuccess(`Se subieron ${succeeded} imágenes a Cloudinary exitosamente`);
+    }
 
     this.cdr.markForCheck();
+  }
+
+  retryFailedUploads(): void {
+    const failedAssets = this.mediaAssets.filter((a) => a.status === 'error');
+    if (!failedAssets.length) return;
+    failedAssets.forEach((a) => (a.status = 'queued'));
+    this.processUploadQueue();
+  }
+
+  retrySingleAsset(asset: MediaAsset): void {
+    asset.status = 'queued';
+    asset.error = undefined;
+    this.processUploadQueue();
   }
 
   removeAsset(assetId: string): void {
@@ -492,6 +516,10 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
 
   get uploadedAssetsCount(): number {
     return this.mediaAssets.filter((a) => a.status === 'done').length;
+  }
+
+  get failedAssetsCount(): number {
+    return this.mediaAssets.filter((a) => a.status === 'error').length;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -707,6 +735,28 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
       return asset.previewUrl || asset.remoteUrl || imageRef;
     }
     return imageRef;
+  }
+
+  /** Retorna el estado de subida de un asset a partir de su referencia */
+  getAssetStatus(imageRef: string): 'done' | 'uploading' | 'error' | 'queued' | 'not-found' {
+    if (!imageRef) return 'not-found';
+    if (imageRef.startsWith('http://') || imageRef.startsWith('https://')) {
+      return 'done';
+    }
+    const needle = imageRef.toLowerCase().trim();
+    const asset = this.mediaAssets.find(
+      (a) => a.name.toLowerCase().trim() === needle || a.remoteUrl === imageRef
+    );
+    return asset ? asset.status : 'not-found';
+  }
+
+  /** Retorna el objeto MediaAsset a partir de su referencia */
+  getAssetObj(imageRef: string): MediaAsset | undefined {
+    if (!imageRef) return undefined;
+    const needle = imageRef.toLowerCase().trim();
+    return this.mediaAssets.find(
+      (a) => a.name.toLowerCase().trim() === needle || a.remoteUrl === imageRef
+    );
   }
 
   /** Agrupa las variantes de un producto por color para facilitar la asignación */
@@ -1102,6 +1152,16 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
       return;
     }
 
+    const unuploadedAssigned = this.mediaAssets.filter(
+      (a) => this.isAssetAssigned(a) && (!a.remoteUrl || a.status === 'error')
+    );
+    if (unuploadedAssigned.length > 0) {
+      this.toastService.showError(
+        `Hay ${unuploadedAssigned.length} imagen(es) asignadas que fallaron o no se han subido a Cloudinary. Revisa las tarjetas en rojo en el Asset Pool y reintenta su subida antes de publicar.`
+      );
+      return;
+    }
+
     let cleanProductsToCreate: any[] = [];
     try {
       cleanProductsToCreate = JSON.parse(this.generatedOutputJson);
@@ -1181,13 +1241,25 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
 
         // 2. Crear variantes anidadas (si existen)
         if (newProductId && prod.variants && prod.variants.length > 0) {
+          const variantErrors: string[] = [];
           for (const variantDef of prod.variants) {
             try {
+              // Normalizar size.type según SizeType enum del backend
+              let normalizedSize = variantDef.size;
+              if (normalizedSize && normalizedSize.type) {
+                const rawType = (normalizedSize.type || '').toLowerCase().trim();
+                const mappedType = rawType === 'volume' ? 'volume_l' : rawType;
+                normalizedSize = {
+                  ...normalizedSize,
+                  type: mappedType,
+                };
+              }
+
               const variantPayload = {
                 productId: newProductId,
                 sku: (variantDef.sku || `${prod.code}-${Math.random().toString(36).substring(2, 6)}`).toUpperCase(),
                 color: variantDef.color,
-                size: variantDef.size,
+                size: normalizedSize,
                 dimensions: variantDef.dimensions,
                 gallery: (variantDef.gallery || []).filter(isValidHttpUrl),
                 priceAdjustment: variantDef.priceAdjustment || 0,
@@ -1197,18 +1269,35 @@ export class BulkProductCreatorComponent implements OnInit, OnDestroy {
                 this.variantsService.createVariant(variantPayload).pipe(takeUntil(this.destroy$))
               );
               createdVariantsCount++;
-            } catch (varErr) {
+            } catch (varErr: any) {
               console.warn(`Error creando variante para ${prod.code}:`, varErr);
+              const vMsg = varErr?.error?.message;
+              const formattedMsg = Array.isArray(vMsg) ? vMsg.join(', ') : (vMsg || 'Error al registrar variante');
+              variantErrors.push(formattedMsg);
             }
           }
-        }
 
-        result.status = 'success';
-        result.createdId = newProductId;
-        result.variantsCreatedCount = createdVariantsCount;
-        result.message = createdVariantsCount > 0
-          ? `Creado con éxito (${createdVariantsCount} variantes)`
-          : 'Creado con éxito';
+          if (variantErrors.length > 0) {
+            result.status = createdVariantsCount > 0 ? 'success' : 'error';
+            result.createdId = newProductId;
+            result.variantsCreatedCount = createdVariantsCount;
+            result.message = createdVariantsCount > 0
+              ? `Creado con ${createdVariantsCount}/${prod.variants.length} variantes (${variantErrors[0]})`
+              : `Producto creado pero fallaron sus variantes: ${variantErrors[0]}`;
+          } else {
+            result.status = 'success';
+            result.createdId = newProductId;
+            result.variantsCreatedCount = createdVariantsCount;
+            result.message = createdVariantsCount > 0
+              ? `Creado con éxito (${createdVariantsCount} variantes)`
+              : 'Creado con éxito';
+          }
+        } else {
+          result.status = 'success';
+          result.createdId = newProductId;
+          result.variantsCreatedCount = 0;
+          result.message = 'Creado con éxito';
+        }
 
       } catch (err: any) {
         result.status = 'error';

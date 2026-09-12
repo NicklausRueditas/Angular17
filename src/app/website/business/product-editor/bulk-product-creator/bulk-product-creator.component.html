@@ -83,7 +83,7 @@
         </p>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex flex-wrap items-center gap-2">
         <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-700">
           <span class="w-2 h-2 rounded-full bg-slate-400"></span>
           {{ mediaAssets.length }} Total
@@ -97,6 +97,19 @@
           <span class="w-2 h-2 rounded-full" [ngClass]="unassignedAssets.length > 0 ? 'bg-amber-500' : 'bg-slate-400'"></span>
           {{ unassignedAssets.length }} Sin Dueño
         </span>
+        @if (failedAssetsCount > 0) {
+          <button
+            type="button"
+            (click)="retryFailedUploads()"
+            class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-all cursor-pointer shadow-2xs"
+            title="Reintentar subir las imágenes que fallaron a Cloudinary"
+          >
+            <svg class="w-3 h-3 text-rose-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            {{ failedAssetsCount }} con error (Reintentar)
+          </button>
+        }
       </div>
     </div>
 
@@ -454,11 +467,14 @@
                     [draggable]="true"
                     (dragstart)="onAssetDragStart($event, asset)"
                     (dragend)="onAssetDragEnd()"
-                    class="group bg-white rounded-2xl border transition-all duration-150 overflow-hidden flex flex-col shadow-2xs cursor-grab active:cursor-grabbing hover:shadow-md hover:border-slate-400 relative"
+                    class="group bg-white rounded-2xl border transition-all duration-150 overflow-hidden flex flex-col shadow-2xs cursor-grab active:cursor-grabbing hover:shadow-md relative"
+                    [class.border-rose-400]="asset.status === 'error'"
+                    [class.bg-rose-50/20]="asset.status === 'error'"
                     [class.border-slate-900]="isSelected"
                     [class.ring-2]="isSelected"
                     [class.ring-slate-900]="isSelected"
-                    [class.border-slate-200]="!isSelected"
+                    [class.border-slate-200]="!isSelected && asset.status !== 'error'"
+                    [class.hover:border-slate-400]="!isSelected && asset.status !== 'error'"
                   >
                     <!-- Miniatura -->
                     <div class="aspect-square bg-slate-100 relative overflow-hidden">
@@ -504,12 +520,24 @@
                             </svg>
                           </span>
                         } @else if (asset.status === 'uploading') {
-                          <span class="w-3.5 h-3.5 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-xs animate-spin" title="Subiendo...">
+                          <span class="w-3.5 h-3.5 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-xs animate-spin" title="Subiendo a Cloudinary...">
                             <svg class="w-2 h-2" fill="none" viewBox="0 0 24 24">
                               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
                               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                             </svg>
                           </span>
+                        } @else if (asset.status === 'error') {
+                          <button
+                            type="button"
+                            (click)="retrySingleAsset(asset); $event.stopPropagation()"
+                            class="px-1.5 py-0.5 rounded-md bg-rose-600 hover:bg-rose-700 text-white flex items-center gap-1 text-[8px] font-bold shadow-xs cursor-pointer"
+                            [title]="asset.error || 'Error de subida a Cloudinary. Clic para reintentar'"
+                          >
+                            <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                            Error
+                          </button>
                         }
                       </div>
                     </div>
@@ -678,7 +706,12 @@
                   } @else {
                     <div class="flex flex-wrap gap-2">
                       @for (imgRef of product.gallery; track imgRef) {
-                        <div class="w-16 h-16 rounded-xl overflow-hidden border border-slate-200 bg-white relative group shadow-2xs">
+                        @let imgStatus = getAssetStatus(imgRef);
+                        <div
+                          class="w-16 h-16 rounded-xl overflow-hidden border bg-white relative group shadow-2xs"
+                          [class.border-rose-400]="imgStatus === 'error'"
+                          [class.border-slate-200]="imgStatus !== 'error'"
+                        >
                           @if (hasValidThumbnail(imgRef)) {
                             <img
                               [src]="getAssetThumbnail(imgRef)"
@@ -698,6 +731,18 @@
                                 Sin foto
                               </span>
                             </div>
+                          }
+                          <!-- Estado de subida -->
+                          @if (imgStatus === 'error') {
+                            <span class="absolute bottom-1 left-1 px-1 py-0.5 rounded bg-rose-600 text-white text-[7px] font-bold shadow-xs" title="Error de subida a Cloudinary">
+                              Error
+                            </span>
+                          } @else if (imgStatus === 'done') {
+                            <span class="absolute bottom-1 left-1 w-3 h-3 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs" title="Listo en Cloudinary">
+                              <svg class="w-2 h-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                              </svg>
+                            </span>
                           }
                           <!-- Botón X para desasignar -->
                           <button
@@ -824,7 +869,12 @@
                             } @else {
                               <div class="flex flex-wrap gap-1.5">
                                 @for (imgRef of group.gallery; track imgRef) {
-                                  <div class="w-14 h-14 rounded-xl overflow-hidden border border-slate-200 bg-white relative group shadow-2xs">
+                                  @let varImgStatus = getAssetStatus(imgRef);
+                                  <div
+                                    class="w-14 h-14 rounded-xl overflow-hidden border bg-white relative group shadow-2xs"
+                                    [class.border-rose-400]="varImgStatus === 'error'"
+                                    [class.border-slate-200]="varImgStatus !== 'error'"
+                                  >
                                     @if (hasValidThumbnail(imgRef)) {
                                       <img
                                         [src]="getAssetThumbnail(imgRef)"
@@ -844,6 +894,18 @@
                                           Sin foto
                                         </span>
                                       </div>
+                                    }
+                                    <!-- Estado de subida -->
+                                    @if (varImgStatus === 'error') {
+                                      <span class="absolute bottom-0.5 left-0.5 px-1 py-0.2 rounded bg-rose-600 text-white text-[6px] font-bold shadow-xs" title="Error de subida a Cloudinary">
+                                        Error
+                                      </span>
+                                    } @else if (varImgStatus === 'done') {
+                                      <span class="absolute bottom-0.5 left-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-xs" title="Listo en Cloudinary">
+                                        <svg class="w-1.5 h-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                      </span>
                                     }
                                     <!-- Botón X para desasignar -->
                                     <button
@@ -1011,11 +1073,12 @@
                   type="button"
                   (click)="toggleAssetInQuickPicker(asset.name)"
                   class="group rounded-2xl border-2 overflow-hidden flex flex-col text-left transition-all relative cursor-pointer shadow-2xs"
+                  [class.border-rose-400]="asset.status === 'error'"
                   [class.border-slate-900]="isAssignedHere"
                   [class.ring-2]="isAssignedHere"
                   [class.ring-slate-900]="isAssignedHere"
-                  [class.border-slate-200]="!isAssignedHere"
-                  [class.hover:border-slate-400]="!isAssignedHere"
+                  [class.border-slate-200]="!isAssignedHere && asset.status !== 'error'"
+                  [class.hover:border-slate-400]="!isAssignedHere && asset.status !== 'error'"
                 >
                   <div class="aspect-square bg-slate-100 relative overflow-hidden">
                     @if (isAssetValid(asset)) {
@@ -1036,8 +1099,20 @@
                       </div>
                     }
 
-                    <!-- Checkmark Badge -->
-                    <div class="absolute top-1.5 right-1.5">
+                    <!-- Badges (Estado y Checkmark) -->
+                    <div class="absolute top-1.5 right-1.5 flex items-center gap-1">
+                      @if (asset.status === 'error') {
+                        <span class="px-1 py-0.5 rounded bg-rose-600 text-white text-[7px] font-bold shadow-xs" title="Error de subida">
+                          Error
+                        </span>
+                      } @else if (asset.status === 'uploading') {
+                        <span class="w-4 h-4 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-xs animate-spin" title="Subiendo a Cloudinary...">
+                          <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                        </span>
+                      }
                       <div
                         class="w-5 h-5 rounded-full flex items-center justify-center shadow-xs transition-all"
                         [class.bg-slate-900]="isAssignedHere"
